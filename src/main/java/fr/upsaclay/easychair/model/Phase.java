@@ -1,0 +1,13 @@
+package fr.upsaclay.easychair.model;
+
+public enum Phase {
+    INITIALIZATION,
+    COMMITEE_ASSIGNMENT,
+    ABSTRACT_SUBMISSION,
+    SUBMISSION_ASSIGNMENT,
+    CONCRETE_SUBMISSION,
+    EVALUATION,
+    FINAL_SUBMISSION,
+    VALIDATION,
+    CLOSED
+}
