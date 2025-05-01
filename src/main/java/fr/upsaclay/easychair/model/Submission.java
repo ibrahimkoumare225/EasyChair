@@ -1,10 +1,8 @@
 package fr.upsaclay.easychair.model;
 
-import fr.upsaclay.easychair.model.*;
+import fr.upsaclay.easychair.model.enumates.SubType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "submissions")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Submission {

@@ -1,21 +1,14 @@
 package fr.upsaclay.easychair.model;
 
-// Role.java - Classe de base
-import fr.upsaclay.easychair.model.Conference;
-import fr.upsaclay.easychair.model.RoleType;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import fr.upsaclay.easychair.model.enumates.RoleType;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "roles")
-@Inheritance(strategy = InheritanceType.JOINED)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
@@ -26,11 +19,6 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "conference_id")
-    private Conference conference;
+
 }

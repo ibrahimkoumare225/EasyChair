@@ -1,13 +1,13 @@
 package fr.upsaclay.easychair.model;
 
+import fr.upsaclay.easychair.model.enumates.AlertType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "alerts")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Alert {

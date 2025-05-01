@@ -1,9 +1,8 @@
 package fr.upsaclay.easychair.model;
 
+import fr.upsaclay.easychair.model.enumates.Phase;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "conferences")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Conference {
@@ -67,7 +67,7 @@ public class Conference {
     private List<Submission> submissions = new ArrayList<>();
     
     @OneToMany(mappedBy = "conference", cascade = CascadeType.ALL)
-    private List<Role> roles = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
     
     @ManyToMany
     @JoinTable(

@@ -2,15 +2,14 @@ package fr.upsaclay.easychair.model;
 
 import fr.upsaclay.easychair.model.Conference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "notifications")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {

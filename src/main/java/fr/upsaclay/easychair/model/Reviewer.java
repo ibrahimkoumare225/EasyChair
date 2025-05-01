@@ -2,21 +2,19 @@ package fr.upsaclay.easychair.model;
 
 // Reviewer.java
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "reviewers")
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reviewer extends Role {
+public class Reviewer extends User {
     @OneToMany(mappedBy = "reviewer")
     private List<Alert> sentAlerts = new ArrayList<>();
 

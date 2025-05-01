@@ -3,14 +3,12 @@ package fr.upsaclay.easychair.model;
 import fr.upsaclay.easychair.model.Post;
 import fr.upsaclay.easychair.model.Reviewer;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "reports")
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor

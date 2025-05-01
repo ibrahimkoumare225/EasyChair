@@ -1,18 +1,18 @@
 package fr.upsaclay.easychair.model;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,4 +38,8 @@ public class User {
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Notification> notifications = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "conference_id")
+    private Conference conference;
 }
