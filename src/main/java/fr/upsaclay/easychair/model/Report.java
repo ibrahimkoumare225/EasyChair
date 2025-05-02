@@ -13,6 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Report extends Post {
+
     private int grade;
 
     @Column(length = 4000)

@@ -18,13 +18,15 @@ public class Submission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Column(nullable = false)
     private String title;
     
-    @Column(name = "creation_date")
+    @Column(name = "creation_date",nullable=false)
     private Date creationDate;
     
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SubType status;
     
     @Column(name = "abstract_sub", length = 4000)

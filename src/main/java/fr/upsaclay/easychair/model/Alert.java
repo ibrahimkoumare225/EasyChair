@@ -22,14 +22,14 @@ public class Alert {
     private AlertType type;
     
     @ManyToOne
-    @JoinColumn(name = "submission_id")
+    @JoinColumn(name = "submission_id",nullable = false)
     private Submission submission;
     
     @ManyToOne
-    @JoinColumn(name = "reviewer_id")
+    @JoinColumn(name = "reviewer_id",nullable = false)
     private Reviewer reviewer;
     
     @ManyToOne
-    @JoinColumn(name = "organizer_id")
+    @JoinColumn(name = "organizer_id",nullable = false)
     private Organizer organizer;
 }

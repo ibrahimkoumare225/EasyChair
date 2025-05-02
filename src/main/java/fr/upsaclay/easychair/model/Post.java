@@ -23,10 +23,10 @@ public class Post {
     private String body;
 
     @ManyToOne
-    @JoinColumn(name = "evaluation_id")
+    @JoinColumn(name = "evaluation_id",nullable = false)
     private Evaluation evaluation;
 
     @ManyToOne
-    @JoinColumn(name = "reviewer_id")
+    @JoinColumn(name = "reviewer_id",nullable = false)
     private Reviewer reviewer;
 }

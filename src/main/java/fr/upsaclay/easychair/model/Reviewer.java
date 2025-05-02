@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reviewer extends User {
+public class Reviewer extends Role {
     @OneToMany(mappedBy = "reviewer")
     private List<Alert> sentAlerts = new ArrayList<>();
 
@@ -31,4 +31,7 @@ public class Reviewer extends User {
             inverseJoinColumns = @JoinColumn(name = "submission_id")
     )
     private List<Submission> evaluatedSubmissions = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name="conference_id",nullable = false)
+    private Conference conference;
 }

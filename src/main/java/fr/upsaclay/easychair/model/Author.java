@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Author extends User {
+public class Author extends Role {
     @ManyToMany
     @JoinTable(
             name = "author_submission",

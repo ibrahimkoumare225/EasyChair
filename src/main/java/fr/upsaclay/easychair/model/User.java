@@ -9,7 +9,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,15 +16,24 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
-    
+    @Column(name="first_name",nullable = false)
     private String firstName;
+
+    @Column(name="last_name",nullable = false)
     private String lastName;
+
+    @Column(unique = true, nullable = false)
     private String pseudo;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(unique = true,nullable = false)
     private String email;
+
     private String photo;
     
-    @Column(name = "birth_date")
+    @Column(name = "birth_date",nullable = false)
     private LocalDateTime birthDate;
     
     @ElementCollection
@@ -42,4 +50,6 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "conference_id")
     private Conference conference;
+
+
 }
