@@ -51,5 +51,4 @@ public class User {
     @JoinColumn(name = "conference_id")
     private Conference conference;
 
-
 }
