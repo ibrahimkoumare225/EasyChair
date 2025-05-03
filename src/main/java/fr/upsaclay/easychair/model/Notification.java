@@ -19,14 +19,14 @@ public class Notification {
 
     private String message;
 
-    @Column(name = "sending_date")
+    @Column(name = "sending_date",nullable = false)
     private Date sendingDate;
 
     @ManyToOne
-    @JoinColumn(name = "conference_id")
+    @JoinColumn(name = "conference_id", nullable = false)
     private Conference conference;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

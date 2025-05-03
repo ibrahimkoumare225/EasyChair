@@ -17,11 +17,13 @@ public class Evaluation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
 
+    @Column(nullable = false)
     private int specDegree;
+    @Column(nullable = false)
     private int grade;
 
     @ManyToOne
-    @JoinColumn(name = "submission_id")
+    @JoinColumn(name = "submission_id",nullable = false )
     private Submission submission;
 
     @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true)

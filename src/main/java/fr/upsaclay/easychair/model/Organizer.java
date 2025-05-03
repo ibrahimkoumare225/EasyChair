@@ -15,11 +15,12 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Organizer extends User {
+public class Organizer extends Role {
 
     @OneToMany(mappedBy = "organizer")
     private List<Alert> receivedAlerts = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "organizers")
-    private List<Conference> managedConferences = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name="conference_id",nullable = false)
+    private Conference conference;
 }
