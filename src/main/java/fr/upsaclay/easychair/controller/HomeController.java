@@ -14,7 +14,13 @@ public class HomeController {
         model.addAttribute("conferenceTitle", "EasyChair Conference");
 
         // Retourne le nom du fichier de vue Thymeleaf, sans l'extension .html
-        return "index";
+        return "connection";
+    }
+
+    @GetMapping("/register")
+    public String registerPage(Model model) {
+        model.addAttribute("conferenceTitle", "EasyChair Conference");
+        return "register";
     }
 }
 

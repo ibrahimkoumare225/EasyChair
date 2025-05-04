@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-600 min-h-screen flex items-center justify-center">
+
+<div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl">
+    <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Register</h1>
+
+    <form action="#" th:action="@{/register}" th:object="${register}" method="post" class="space-y-6">
+
+        <!-- Row 1: First Name + Birth Date -->
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                <input type="text" id="firstName" name="firstName" placeholder="First name"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div>
+                <label for="birthDate" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                <input type="date" id="birthDate" name="birthDate"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+        </div>
+
+        <!-- Row 2: Last Name + Pseudo -->
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                <input type="text" id="lastName" name="lastName" placeholder="Last name"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div>
+                <label for="pseudo" class="block text-sm font-medium text-gray-700">Pseudo</label>
+                <input type="text" id="pseudo" name="pseudo" placeholder="Username"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+            <label for="mail" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="mail" name="mail" placeholder="Email address"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+
+        <!-- Password -->
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" id="password" name="password" placeholder="Password"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+
+        <!-- Row 3: Profile Picture + Keywords -->
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <label for="profilPicture" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+                <input type="file" id="profilPicture" name="profilPicture"
+                       class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4
+                              file:rounded-lg file:border-0 file:text-sm file:font-semibold
+                              file:bg-blue-500 file:text-white hover:file:bg-blue-600" />
+            </div>
+            <div>
+                <label for="Keywords-select" class="block text-sm font-medium text-gray-700">Keywords</label>
+                <select name="keywords" id="Keywords-select"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="">Select a keyword...</option>
+                    <!-- Example: <option th:each="k : ${keywords}" th:value="${k}" th:text="${k}"></option> -->
+                </select>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <input type="submit" value="Register"
+               class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold cursor-pointer" />
+    </form>
+
+    <p class="text-sm text-center mt-6 text-gray-700">
+        Already have an account?
+        <a href="connection.html" class="text-blue-800 font-semibold hover:underline">Click here</a>
+    </p>
+</div>
+
+</body>
+</html>
