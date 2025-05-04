@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class EasyChairApplication {
 
-
     public static void main(String[] args) {
         SpringApplication.run(EasyChairApplication.class, args);
     }

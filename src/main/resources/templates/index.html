@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to EasyChair</title>
+    <nav class="entete">
+        <ol>
+            <li class="onglet-left"><a href="#">My submissions</a></li>
+            <li class="onglet-left"><a href="#">Notification</a></li>
+            <li class="onglet-left"><a href="">My conferences</a></li>
+            <li class="onglet-right"><a href="">Create Conference</a></li>
+        </ol>
+    </nav>
+</head>
+<body>
+<h1>Welcome to EasyChair</h1>
+<p th:text="'Conference name: ' + ${conferenceTitle}"></p>
+<a href="/submissions">View Submissions</a>
+</body>
+</html>
