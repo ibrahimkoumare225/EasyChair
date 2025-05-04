@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/reviewers")
 public class ReviewerController {
     @Autowired
     private ReviewerService reviewerService;
