@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/organizers")
 public class OrganizerController {
 
     @Autowired
