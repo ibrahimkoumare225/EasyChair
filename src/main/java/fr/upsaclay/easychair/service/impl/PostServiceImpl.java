@@ -20,14 +20,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post update(Post post) {
-        return finOne(post.getId()).map(existingPost->{
+        return findOne(post.getId()).map(existingPost->{
             existingPost.setBody(post.getBody());
             return  postRepository.save(existingPost);
         }).orElseThrow(() -> new EntityNotFoundException("Post introuvable avec l’ID : " + post.getId()));
     }
 
     @Override
-    public Optional<Post> finOne(Long id) {
+    public Optional<Post> findOne(Long id) {
         return postRepository.findById(id);
     }
 
