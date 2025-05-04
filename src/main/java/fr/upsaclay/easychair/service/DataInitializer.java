@@ -83,7 +83,7 @@ public class DataInitializer {
         user3.setFirstName("Alban");
         user3.setLastName("Cousin");
         user3.setEmail("alban@cousin.com");
-        user3.setPseudo("toto");
+        user3.setPseudo("Banban");
         user3.setPassword("1234");
         user3.setBirthDate(LocalDateTime.of(2003, 4, 12, 12, 4));
         user3=userRepository.save(user3);
@@ -92,19 +92,19 @@ public class DataInitializer {
         user4.setFirstName("Jeremie");
         user4.setLastName("Pennec");
         user4.setEmail("jeremie@pennec.com");
-        user4.setPseudo("toto");
+        user4.setPseudo("Jeje");
         user4.setPassword("5678");
         user4.setBirthDate(LocalDateTime.of(1980, 12, 12, 12, 12));
-        user4=userRepository.save(user3);
+        user4=userRepository.save(user4);
 
         User user5 = new User();
         user5.setFirstName("Ibrahim");
         user5.setLastName("Koumare");
         user5.setEmail("ibrahim@koumare.com");
-        user5.setPseudo("toto");
+        user5.setPseudo("ibrah");
         user5.setPassword("9101");
         user5.setBirthDate(LocalDateTime.of(2000, 12, 12, 12, 12));
-        user5 =userRepository.save(user3);
+        user5 =userRepository.save(user5);
 
         // Création de la conférence
         Conference conference = new Conference();
@@ -210,15 +210,6 @@ public class DataInitializer {
         author2.setRole(RoleType.AUTHOR);
         author2 = authorRepository.save(author2);
 
-
-        // Création du Report
-        Report report = new Report();
-        report.setGrade(4);
-        report.setBody("Cet article traite en profondeur de la reconnaissance de motifs dans le domaine de l'IA, mais manque de détails sur l'optimisation des modèles.");
-        report.setSpecDegree(4);
-        report.setReviewer(reviewer);
-        reportRepository.save(report);
-
         // Création d évaluation
         Evaluation evaluation = new Evaluation();
         evaluation.setSpecDegree(5);
@@ -234,6 +225,15 @@ public class DataInitializer {
         post.setEvaluation(evaluation);
         post.setReviewer(reviewer);
         postRepository.save(post);
+
+        // Création du Report
+        //Report report = new Report();
+        //report.setGrade(4);
+        //report.setBody("Cet article traite en profondeur de la reconnaissance de motifs dans le domaine de l'IA, mais manque de détails sur l'optimisation des modèles.");
+        //report.setSpecDegree(4);
+        //report.setReviewer(report.getReviewer());
+        //report.setEvaluation(evaluation);
+        //reportRepository.save(report);
 
         // Création d'une notification
         Notification notif = new Notification();
