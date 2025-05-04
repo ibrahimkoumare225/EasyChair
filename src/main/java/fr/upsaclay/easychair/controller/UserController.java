@@ -4,11 +4,13 @@ import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
-@RestController
+@Controller
 @RequestMapping("/users")
 public class UserController {
 
@@ -24,8 +26,8 @@ public class UserController {
     // GET /users/{id}
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.getUserByID(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        Optional<User> user = userService.findOne(id);
+        return user.isPresent() ? (ResponseEntity<User>) ResponseEntity.ok() : ResponseEntity.notFound().build();
     }
 
     // POST /users
@@ -34,8 +36,8 @@ public class UserController {
         return userService.save(user);
     }
 
-    // PUT /users
-    @PutMapping("/{id}")
+    // PUT /users/{id}
+    @PutMapping
     public User updateUser(@RequestBody User user) {
         return userService.update(user);
     }
@@ -44,6 +46,12 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.delete(id);
+    }
+
+    //GET /users/search
+    @GetMapping("/search")
+    public List<User> getByFirstNameIgnoreCaseOrLastNameIgnoreCaseOrPseudoIgnoreCaseOrEmailIgnoreCase(@RequestBody String firstName, @RequestBody String lastName,@RequestBody String pseudo,@RequestBody String email) {
+        return userService.findByFirstNameIgnoreCaseOrLastNameIgnoreCaseOrPseudoIgnoreCaseOrEmailIgnoreCase(firstName,lastName,pseudo,email);
     }
 }
 
