@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connection</title>
+    <!-- CDN Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-600 min-h-screen flex items-center justify-center">
+
+<div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h1>
+
+    <form action="#" th:action="@{/connection}" th:object="${connection}" method="post" class="space-y-4">
+        <div>
+            <label for="mail" class="block text-sm font-medium text-gray-700">Email :</label>
+            <input type="text" id="mail" name="mail" placeholder="Enter your email"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password :</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+
+        <input type="submit" value="Connect"
+               class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold cursor-pointer" />
+    </form>
+
+    <p class="text-sm text-center mt-4 text-gray-700">
+        You don't have an account yet?
+        <a href="register.html" class="text-blue-800 font-semibold hover:underline">Click here</a>
+    </p>
+    <p class="text-center mt-2">
+        <a href="#" class="text-sm text-blue-800 hover:underline">Forgot your password?</a>
+    </p>
+</div>
+
+</body>
+</html>
