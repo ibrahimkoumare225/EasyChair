@@ -53,8 +53,7 @@ public class DataInitializer {
     @Autowired
     private AlertRepository alertRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+
 
 
     public void initializeData() {
@@ -252,11 +251,8 @@ public class DataInitializer {
         alert.setOrganizer(organizer);
         alertRepository.save(alert);
 
-        //  Création d'un role
-        Role role = new Role();
-        role.setRole(RoleType.SPECTATOR);
-        role.setUser(user5);
-        roleRepository.save(role);
+
+
 
     }
 }
