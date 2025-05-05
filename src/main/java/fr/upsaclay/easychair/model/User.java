@@ -2,6 +2,7 @@ package fr.upsaclay.easychair.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class User {
     private String photo;
     
     @Column(name = "birth_date",nullable = false)
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
     
     @ElementCollection
     @CollectionTable(name = "user_keywords", joinColumns = @JoinColumn(name = "user_id"))
