@@ -11,7 +11,7 @@ public interface PostService {
 
     Post update(Post post);
 
-    Optional<Post> finOne(Long id);
+    Optional<Post> findOne(Long id);
 
     List<Post> findAll();
 
