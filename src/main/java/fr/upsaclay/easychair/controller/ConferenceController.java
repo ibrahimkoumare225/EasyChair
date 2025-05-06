@@ -55,5 +55,13 @@ public class ConferenceController {
     public List<Conference> getByTitleIgnoreCaseOrDescriptionIgnoreCase(@RequestBody String title, @RequestBody String description) {
         return conferenceService.findByTitleIgnoreCaseOrDescriptionIgnoreCase(title, description);
     }
+    //@Todo
+    //A choisir : Plus adapté que la précédente ?
+    //GET /conferences/search2
+    @GetMapping("/search2")
+    public List<Conference> getbySearchTerm(@RequestBody String term) {
+        return conferenceService.searchByTerm(term);
+
+    }
 
 }

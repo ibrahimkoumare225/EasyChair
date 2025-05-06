@@ -118,6 +118,7 @@ public class DataInitializer {
         conference.setFinalSubDate(conference.getEvaluationDate().plusDays(10));
         conference.setEndDate(conference.getFinalSubDate().plusDays(10));
         conference.setPhase(Phase.INITIALIZATION);
+        conference.getKeywords().add("test");
         conference = conferenceRepository.save(conference);
         conferenceRepository.flush();
         /*

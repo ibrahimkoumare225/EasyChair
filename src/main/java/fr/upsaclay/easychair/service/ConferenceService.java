@@ -19,4 +19,6 @@ public interface ConferenceService {
 
     List<Conference> findByTitleIgnoreCaseOrDescriptionIgnoreCase(String title, String description);
 
+    List<Conference> searchByTerm(String searchTerm);
+
 }

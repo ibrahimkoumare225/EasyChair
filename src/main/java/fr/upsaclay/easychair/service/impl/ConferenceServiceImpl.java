@@ -48,6 +48,8 @@ public class ConferenceServiceImpl implements ConferenceService {
         return conferenceRepository.findAll();
     }
 
+
+
     @Override
     public void deleteById(Long id) {
         conferenceRepository.deleteById(id);
@@ -60,4 +62,15 @@ public class ConferenceServiceImpl implements ConferenceService {
         }
         return conferenceRepository.findByTitleIgnoreCaseOrDescriptionIgnoreCase(title, description);
     }
+
+    @Override
+
+    public List<Conference> searchByTerm(String searchTerm) {
+        if (searchTerm==null)
+            throw new IllegalArgumentException("le terme  ne peut pas être null");
+        return conferenceRepository.searchByTermInTitleOrDescriptionOrKeywords(searchTerm);
+
+    }
+
+
 }
