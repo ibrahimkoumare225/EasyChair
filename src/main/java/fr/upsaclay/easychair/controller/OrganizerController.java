@@ -1,7 +1,9 @@
+/*
 package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.Organizer;
 import fr.upsaclay.easychair.service.OrganizerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,11 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+
+@RequiredArgsConstructor
 @Controller
 public class OrganizerController {
 
-    @Autowired
-    private OrganizerService organizerService;
+
+    private final OrganizerService organizerService;
 
     // GET /organizers
     @GetMapping
@@ -48,3 +52,4 @@ public class OrganizerController {
     }
 
 }
+*/

@@ -1,19 +1,22 @@
+/*
 package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.Post;
 import fr.upsaclay.easychair.service.PostService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
+
+@RequiredArgsConstructor
 @Controller
 public class PostController {
 
-    @Autowired
-    private PostService postService;
+
+    private final PostService postService;
 
     // GET /posts
     @GetMapping
@@ -54,3 +57,4 @@ public class PostController {
 
 
 }
+*/

@@ -50,6 +50,7 @@ public class Conference {
     @Enumerated(EnumType.STRING)
     private Phase phase;
 
+
     @Column(name="on_invitation", nullable = false,columnDefinition = "boolean default false")
     private boolean onInvitation;
     @Column(name="hidden_description", nullable = false, columnDefinition = "boolean default false")
@@ -90,4 +91,6 @@ public class Conference {
     
     @OneToMany(mappedBy = "conference")
     private List<Notification> notifications = new ArrayList<>();
+
+
 }
