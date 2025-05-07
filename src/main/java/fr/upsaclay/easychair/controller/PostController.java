@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("/posts")
 public class PostController {
 
 

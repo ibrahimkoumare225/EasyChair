@@ -1,5 +1,8 @@
 package fr.upsaclay.easychair.service;
 
+import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.Notification;
+import fr.upsaclay.easychair.model.Role;
 import fr.upsaclay.easychair.model.User;
 
 import java.util.List;

@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("/reviewers")
 public class ReviewerController {
 
     private final ReviewerService reviewerService;

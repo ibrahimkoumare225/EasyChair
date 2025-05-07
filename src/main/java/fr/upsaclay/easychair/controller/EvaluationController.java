@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("/evaluations")
 public class EvaluationController {
 
 

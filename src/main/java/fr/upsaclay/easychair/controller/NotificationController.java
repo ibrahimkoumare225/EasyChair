@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("/notifications")
 public class NotificationController {
 
 

@@ -65,7 +65,7 @@ public class DataInitializer {
         user1.setEmail("john@doe.com");
         user1.setPseudo("toto");
         user1.setPassword("password");
-        user1.setBirthDate(LocalDateTime.of(2000, 1, 1, 0, 0));
+        user1.setBirthDate(LocalDate.of(2000, 1, 1));
         user1=userRepository.save(user1);
 
         //Creation de user2
@@ -75,7 +75,7 @@ public class DataInitializer {
         user2.setPseudo("tata");
         user2.setEmail("jane@doe.com");
         user2.setPassword("password");
-        user2.setBirthDate(LocalDateTime.of(2001, 1, 1, 0, 0));
+        user2.setBirthDate(LocalDate.of(2001, 1, 1));
         user2=userRepository.save(user2);
 
         User user3 = new User();
@@ -84,7 +84,7 @@ public class DataInitializer {
         user3.setEmail("alban@cousin.com");
         user3.setPseudo("Banban");
         user3.setPassword("1234");
-        user3.setBirthDate(LocalDateTime.of(2003, 4, 12, 12, 4));
+        user3.setBirthDate(LocalDate.of(2003, 4, 12));
         user3=userRepository.save(user3);
 
         User user4 = new User();
@@ -93,7 +93,7 @@ public class DataInitializer {
         user4.setEmail("jeremie@pennec.com");
         user4.setPseudo("Jeje");
         user4.setPassword("5678");
-        user4.setBirthDate(LocalDateTime.of(1980, 12, 12, 12, 12));
+        user4.setBirthDate(LocalDate.of(1980, 12, 12));
         user4=userRepository.save(user4);
 
         User user5 = new User();
@@ -102,7 +102,7 @@ public class DataInitializer {
         user5.setEmail("ibrahim@koumare.com");
         user5.setPseudo("ibrah");
         user5.setPassword("9101");
-        user5.setBirthDate(LocalDateTime.of(2000, 12, 12, 12, 12));
+        user5.setBirthDate(LocalDate.of(2000, 12, 12));
         user5 =userRepository.save(user5);
 
         // Création de la conférence
