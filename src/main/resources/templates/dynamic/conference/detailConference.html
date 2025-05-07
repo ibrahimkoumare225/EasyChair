@@ -69,8 +69,14 @@
 
         <!-- A afficher en fonction des paramètres de la conférence -->
         <div class="flex justify-end space-x-4 pt-6">
-          <button class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Create Submission</button>
-          <button class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</button>
+          <!-- formulaire créer submission -->
+
+          <a th:if="${!conference.onInvitation}"
+             th:href="@{/submissions/ajouterSubmission}"
+             class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Create Submission</a>
+
+          <a th:if ="${conference.onInvitation}"
+             class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>
         </div>
 
       </div>
