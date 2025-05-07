@@ -53,5 +53,6 @@ public class UserController {
     public List<User> getByFirstNameIgnoreCaseOrLastNameIgnoreCaseOrPseudoIgnoreCaseOrEmailIgnoreCase(@RequestBody String firstName, @RequestBody String lastName,@RequestBody String pseudo,@RequestBody String email) {
         return userService.findByFirstNameIgnoreCaseOrLastNameIgnoreCaseOrPseudoIgnoreCaseOrEmailIgnoreCase(firstName,lastName,pseudo,email);
     }
+
 }
 

@@ -1,5 +1,8 @@
 package fr.upsaclay.easychair.service.impl;
 
+import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.Notification;
+import fr.upsaclay.easychair.model.Role;
 import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.repository.UserRepository;
 import fr.upsaclay.easychair.service.UserService;
@@ -9,14 +12,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-
 
     @Override
     public User save(User user) {
