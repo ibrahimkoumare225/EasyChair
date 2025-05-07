@@ -6,10 +6,10 @@
             <script src="https://cdn.tailwindcss.com"></script>
         </head>
         <body class="bg-gray-100 min-h-screen font-sans" th:fragment="sideBar">
-
                 <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
                     <div class="flex space-x-6">
-                        <a href="#" class="text-gray-700 font-medium hover:text-blue-600">My Submissions</a>
+                        <!--- à remplacer l'identifiant par défaut par un l'identifiant de l'utilisateur connecté-->
+                        <a th:href="@{/submissions/user/{id}(id=3)}" class="text-gray-700 font-medium hover:text-blue-600">My Submissions</a>
                         <a href="#" class="text-gray-700 font-medium hover:text-blue-600">Notification</a>
                         <a href="#" class="text-gray-700 font-medium hover:text-blue-600">My Conferences</a>
                     </div>
@@ -17,10 +17,5 @@
                         <a th:href="@{/conference/ajouterConference}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold">Create Conference</a>
                     </div>
                 </nav>
-
-                <div class="max-w-7xl mx-auto p-6">
-
-                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome to EasyChair</h1>
-                </div>
         </body>
     </html>

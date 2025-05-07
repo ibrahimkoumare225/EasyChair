@@ -9,6 +9,10 @@
 <!-- Insertion de la navbar -->
 <div th:replace="~{sidebar/sidebar :: sideBar}"></div>
 
+<div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome to EasyChair</h1>
+</div>
+
 <div class="flex justify-center items-center space-x-4 mb-6">
     <form th:action="@{/conference/searchConferences}" method="get" class="flex space-x-4">
         <input type="search" id="query" name="query" th:value="${query}"
