@@ -22,4 +22,6 @@ public interface SubmissionService {
 
     List<Submission> findByTitleIgnoreCase(String title);
 
+    List<Submission> findSubmissionsByAuthor(User user);
+
 }
