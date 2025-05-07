@@ -120,6 +120,22 @@ public class DataInitializer {
         conference.setPhase(Phase.INITIALIZATION);
         conference = conferenceRepository.save(conference);
         conferenceRepository.flush();
+
+
+        Conference conference1 = new Conference();
+        conference1.setTitle("conf1");
+        conference1.setDescription("Techno web.");
+        conference1.setCreationDate(LocalDate.now());
+        conference1.setCommiteeAssignmentDate(conference1.getCreationDate().plusDays(10));
+        conference1.setAbstractSubDate(conference1.getCommiteeAssignmentDate().plusDays(10));
+        conference1.setSubAssignmentDate(conference1.getAbstractSubDate().plusDays(10));
+        conference1.setConcreteSubDate(conference1.getSubAssignmentDate().plusDays(10));
+        conference1.setEvaluationDate(conference1.getConcreteSubDate().plusDays(10));
+        conference1.setFinalSubDate(conference1.getEvaluationDate().plusDays(10));
+        conference1.setEndDate(conference.getFinalSubDate().plusDays(10));
+        conference1.setPhase(Phase.INITIALIZATION);
+        conference1 = conferenceRepository.save(conference1);
+        conferenceRepository.flush();
         /*
         conference.setOnInvitation(false);
         conference.setHiddenDescription(false);

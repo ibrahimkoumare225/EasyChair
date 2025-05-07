@@ -1,23 +1,26 @@
+/*
 package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.Notification;
 import fr.upsaclay.easychair.service.NotificationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/notifications")
 public class NotificationController {
 
-    @Autowired
-    private NotificationService notificationService;
+
+    private final NotificationService notificationService;
 
     // GET /notifications
-    @GetMapping
+    @GetMapping("/homeNotification")
     public List<Notification> getAllNotifications() {
         return notificationService.findAll();
     }
@@ -54,3 +57,4 @@ public class NotificationController {
     }
 
 }
+*/
