@@ -57,10 +57,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 
     @Override
     public List<Conference> findByTitleIgnoreCaseOrDescriptionIgnoreCase(String title, String description) {
-        if (title == null || description == null) {
-            throw new IllegalArgumentException("title ou description ne peuvent pas être null");
-        }
-        return conferenceRepository.findByTitleIgnoreCaseOrDescriptionIgnoreCase(title, description);
+        return conferenceRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(title, description);
     }
 
     @Override
