@@ -31,16 +31,11 @@ public class Submission {
     
     @Column(name = "abstract_sub", length = 4000)
     private String abstractSub;
-    
+
     @ElementCollection
-    @CollectionTable(name = "concrete_sub_files", joinColumns = @JoinColumn(name = "submission_id"))
+    @CollectionTable(name = "sub_files", joinColumns = @JoinColumn(name = "submission_id"))
     @Column(name = "file_path")
-    private List<String> concreteSubFiles = new ArrayList<>();
-    
-    @ElementCollection
-    @CollectionTable(name = "final_sub_files", joinColumns = @JoinColumn(name = "submission_id"))
-    @Column(name = "file_path")
-    private List<String> finalSubFiles = new ArrayList<>();
+    private List<String> SubFiles = new ArrayList<>();
     
     @ElementCollection
     @CollectionTable(name = "submission_keywords", joinColumns = @JoinColumn(name = "submission_id"))

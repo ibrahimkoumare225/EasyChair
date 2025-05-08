@@ -21,16 +21,15 @@
     <form th:object="${submission}" th:action="@{/submission}" method="post">
         <!-- Méthode cachée uniquement en mode update à vérifier -->
         <input type="hidden" name="_method" value="put" th:if="${submission.id != null}">
-        <div class="bg-gray-100 rounded-2xl shadow-md p-8 w-full max-w-2xl border border-gray-300">
-            <h2 class="text-xl font-bold text-center mb-6" th:text="${submission.id == null}?'Creation Submision':'Update Submission'"
+        <div class="bg-gray-100 rounded-2xl shadow-md p-8 w-full max-w-4xl border border-gray-300">
+            <h2 class="text-xl font-bold text-center mb-6" th:text="${submission.id == null}?'Creating Submission':'Updating Submission'"
             ></h2>
 
             <!-- Titre -->
             <div class="mb-4">
                 <label class="block font-semibold mb-1">Title :</label>
-                <input type="text" th:field="*{title}" class="w-full border border-gray-300 rounded-md px-4 py-2 bg-white" />
+                <input type="text" th:field="*{title}" th:readonly="${submission.id != null}" class="w-full border border-gray-300 rounded-md px-4 py-2 bg-white" />
             </div>
-
 
             <div class="mb-4 flex space-x-6" th:unless="${submission.id==null}">
                 <!-- date de création (uniquement afficher si non null) -->
@@ -41,6 +40,7 @@
                     </p>
                 </div>
 
+
             <!-- statut (uniquement afficher si non null) -->
                 <div class="flex-1">
                     <label class="block font-semibold mb-1 text-gray-800">Statut :</label>
@@ -50,30 +50,73 @@
                 </div>
             </div>
 
-            <!-- Keywords -->
-            <div class="mb-4">
-                <label class="block font-semibold mb-1">Keywords :</label>
-                <div class="flex space-x-2 mb-2">
-                    <input type="text" class="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white" />
-                    <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-full shadow">Add Keyword</button>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- TODO: authors ? -->
+            <!-- left column -->
+            <div class = "space-y-4">
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1">Authors :</label>
 
-                <!-- Liste des mots-clés -->
-                <div class="space-y-1">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-semibold">Keyword 1 :</span> <span>test</span>
-                        <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                    <!-- Conteneur flexible et fluide -->
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+
+                        <!-- Champ de texte avec largeur réduite -->
+                        <input type="text" class="w-48 border border-gray-300 rounded-md px-4 py-2 bg-white" placeholder="Add author..."/>
+
+                        <!-- Bouton avec taille constante et espacée -->
+                        <button class="shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full shadow">Add Author</button>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="font-semibold">Keyword 2 :</span> <span>test</span>
-                        <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="font-semibold">Keyword 3 :</span> <span>test</span>
-                        <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+
+                    <!-- Liste des mots-clés -->
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">Keyword 1 :</span> <span>test</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">Keyword 2 :</span> <span>test</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">Keyword 3 :</span> <span>test</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- TODO: Keywords -->
+            <div class="space-y-4">
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1">Keywords :</label>
+                    <!-- Conteneur flexible et fluide -->
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+
+                        <!-- Champ de texte avec largeur réduite -->
+                        <input type="text" class="w-48 border border-gray-300 rounded-md px-4 py-2 bg-white" placeholder="Add keyword..."/>
+
+                        <!-- Bouton avec taille constante et espacée -->
+                        <button class="shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full shadow">Add Keyword</button>
+                    </div>
+
+                    <!-- Liste des mots-clés -->
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">Keyword 1 :</span> <span>test</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">Keyword 2 :</span> <span>test</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">Keyword 3 :</span> <span>test</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                </div>
 
             <!-- Abstract -->
             <!-- Champ editable si non verrouillé -->
@@ -82,8 +125,8 @@
                 <textarea id="abstract"
                           name="abstract"
                           th:field="*{abstractSub}"
-                          maxlength="200"
-                          rows="4"
+                          maxlength="300"
+                          rows="5"
                           class="w-full border border-gray-300 rounded-md px-4 py-2 bg-white text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"></textarea>
             </div>
 
