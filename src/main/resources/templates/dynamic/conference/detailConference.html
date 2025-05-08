@@ -71,9 +71,16 @@
         <div class="flex justify-end space-x-4 pt-6">
           <!-- formulaire créer submission -->
           <!-- check sur invitation faux et phase abstract vrai -->
-          <a th:if="${!conference.onInvitation and conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}"
-             th:href="@{/submissions/ajouterSubmission(conferenceId=${conference.id})}"
-             class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Create Submission</a>
+          <form th:if="${!conference.onInvitation and conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}"
+                th:action="@{/submissions/ajouterSubmission}" method="post">
+
+            <input type="hidden" name="conferenceId" th:value="${conference.id}" />
+
+            <button type="submit"
+                    class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
+              Create Submission
+            </button>
+          </form>
 
           <a th:if ="${conference.onInvitation}"
              class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>

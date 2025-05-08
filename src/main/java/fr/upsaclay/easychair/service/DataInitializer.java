@@ -134,7 +134,7 @@ public class DataInitializer {
         conference1.setEvaluationDate(conference1.getConcreteSubDate().plusDays(10));
         conference1.setFinalSubDate(conference1.getEvaluationDate().plusDays(10));
         conference1.setEndDate(conference.getFinalSubDate().plusDays(10));
-        conference1.setPhase(Phase.INITIALIZATION);
+        conference1.setPhase(Phase.ABSTRACT_SUBMISSION);
         conference1 = conferenceRepository.save(conference1);
         conferenceRepository.flush();
         /*
@@ -182,8 +182,8 @@ public class DataInitializer {
         submission1.setStatus(SubType.PROGRESS); // Vérifie que FULL_PAPER existe dans l'enum SubType
         submission1.setAbstractSub("Cet article traite de la reconnaissance de motifs dans les systèmes d'intelligence artificielle.");
         //à déterminer où l'on stocke les pdf
-        submission1.setConcreteSubFiles(List.of("soumissions/article1-v1.pdf"));
-        submission1.setFinalSubFiles(List.of("soumissions/article1-final.pdf"));
+        submission1.setSubFiles(List.of("soumissions/article1-v1.pdf"));
+        //submission1.setFinalSubFiles(List.of("soumissions/article1-final.pdf"));
         submission1.setKeywords(Arrays.asList("IA", "Reconnaissance de motifs", "Réseaux de neurones"));
         submission1.setConference(conference);
         submission1 = submissionRepository.save(submission1);
@@ -194,8 +194,8 @@ public class DataInitializer {
         submission2.setStatus(SubType.PROGRESS);
         submission2.setAbstractSub("Ce résumé aborde les défis liés à la protection de la vie privée dans les systèmes décentralisés.");
         //à déterminer où l'on stocke les pdf
-        submission2.setConcreteSubFiles(List.of("soumissions/vieprivee-v1.pdf"));
-        submission2.setFinalSubFiles(List.of("soumissions/vieprivee-final.pdf"));
+        submission2.setSubFiles(List.of("soumissions/vieprivee-v1.pdf"));
+        //submission2.setFinalSubFiles(List.of("soumissions/vieprivee-final.pdf"));
         submission2.setKeywords(Arrays.asList("Vie privée", "Blockchain", "Sécurité"));
         submission2.setConference(conference);
         submission2 = submissionRepository.save(submission2);
@@ -206,10 +206,10 @@ public class DataInitializer {
         submission3.setStatus(SubType.PROGRESS);
         submission3.setAbstractSub("Ce travail utilise des modèles d'apprentissage profond pour prédire les tendances climatiques.");
         //à déterminer où l'on stocke les pdf
-        submission3.setConcreteSubFiles(List.of("soumissions/climat-v1.pdf"));
-        submission3.setFinalSubFiles(List.of("soumissions/climat-final.pdf"));
+        submission3.setSubFiles(List.of("soumissions/climat-v1.pdf"));
+        //submission3.setFinalSubFiles(List.of("soumissions/climat-final.pdf"));
         submission3.setKeywords(Arrays.asList("Climat", "Apprentissage profond", "Prévisions"));
-        submission3.setConference(conference);
+        submission3.setConference(conference1);
         submission3 = submissionRepository.save(submission3);
 
         //Auteurs
