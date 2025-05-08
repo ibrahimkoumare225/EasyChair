@@ -19,6 +19,8 @@
 
     <!-- Formulaire -->
     <form th:object="${submission}" th:action="@{/submission}" method="post">
+        <!-- Méthode cachée uniquement en mode update à vérifier -->
+        <input type="hidden" name="_method" value="put" th:if="${submission.id != null}">
         <div class="bg-gray-100 rounded-2xl shadow-md p-8 w-full max-w-2xl border border-gray-300">
             <h2 class="text-xl font-bold text-center mb-6" th:text="${submission.id == null}?'Creation Submision':'Update Submission'"
             ></h2>
@@ -26,7 +28,26 @@
             <!-- Titre -->
             <div class="mb-4">
                 <label class="block font-semibold mb-1">Title :</label>
-                <input type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 bg-white" />
+                <input type="text" th:field="*{title}" class="w-full border border-gray-300 rounded-md px-4 py-2 bg-white" />
+            </div>
+
+
+            <div class="mb-4 flex space-x-6" th:unless="${submission.id==null}">
+                <!-- date de création (uniquement afficher si non null) -->
+                <div class="flex-1">
+                    <label class="block font-semibold mb-1 text-gray-800">Date de création :</label>
+                    <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium">
+                        <span th:text="${submission.creationDate}"></span>
+                    </p>
+                </div>
+
+            <!-- statut (uniquement afficher si non null) -->
+                <div class="flex-1">
+                    <label class="block font-semibold mb-1 text-gray-800">Statut :</label>
+                    <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium">
+                        <span th:text="${submission.status}"></span>
+                    </p>
+                </div>
             </div>
 
             <!-- Keywords -->
@@ -54,15 +75,56 @@
                 </div>
             </div>
 
-            <!-- Ajout de fichier -->
-            <div class="flex items-center space-x-3 mb-6">
-                <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-full shadow">Add a file</button>
-                <input type="text" placeholder="No file selected" class="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white" />
+            <!-- Abstract -->
+            <!-- Champ editable si non verrouillé -->
+            <div class="mb-6" th:unless="${conference.phase!=T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}">
+                <label for="abstract" class="block font-semibold mb-1 text-gray-800">Abstract (max 200 characters) :</label>
+                <textarea id="abstract"
+                          name="abstract"
+                          th:field="*{abstractSub}"
+                          maxlength="200"
+                          rows="4"
+                          class="w-full border border-gray-300 rounded-md px-4 py-2 bg-white text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"></textarea>
             </div>
 
+            <!-- Champ en lecture seule si verrouillé -->
+            <!-- pas writing si pas abstractPhase -->
+            <div class="mb-6" th:if="${conference.phase!=T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}">
+                <label class="block font-semibold mb-1 text-gray-800">Abstract :</label>
+                <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium whitespace-pre-wrap">
+                    <span th:text="${submission.abstractSub}"></span>
+                </p>
+            </div>
+
+
+
+            <!-- Ajout de fichier -->
+            <!-- grisé si pas bonne phase -->
+
+            <div class="flex items-center space-x-3 mb-6">
+                <button
+                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow
+               hover:bg-gray-300
+               disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed hover:disabled:bg-gray-300
+               disabled:opacity-50 transition disabled:transition-none"
+                        th:disabled="${conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
+                      and conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}">
+                    Add a file
+                </button>
+
+                <input type="text" placeholder="No file selected"
+                       class="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white" />
+            </div>
+
+
+
             <!-- Soumission -->
+
             <div class="text-center">
-                <button class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-full font-semibold transition">Add submission</button>
+                <button
+                        class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-full font-semibold transition"
+                        th:text="${submission.id == null} ? 'Add submission' : 'Update submission'">
+                </button>
             </div>
         </div>
     </form>

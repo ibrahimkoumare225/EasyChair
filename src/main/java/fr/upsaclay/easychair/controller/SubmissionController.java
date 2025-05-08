@@ -4,15 +4,18 @@ package fr.upsaclay.easychair.controller;
 import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Submission;
 import fr.upsaclay.easychair.model.User;
+import fr.upsaclay.easychair.model.enumates.SubType;
+import fr.upsaclay.easychair.service.ConferenceService;
 import fr.upsaclay.easychair.service.SubmissionService;
 import fr.upsaclay.easychair.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class SubmissionController {
 
     private final SubmissionService submissionService;
     private final UserService userService;
+    private final ConferenceService conferenceService;
 
     @GetMapping("/user/{userId}")
     public String showUserSubmissions(@PathVariable Long userId, Model model) {
@@ -37,9 +41,19 @@ public class SubmissionController {
     }
 
     @GetMapping("/ajouterSubmission")
-    public String showAddSubForm(Model model) {
-        model.addAttribute("submission", new Submission());
-        return "dynamic/submission/createSubmission";
+    public String showAddSubForm(@RequestParam Long conferenceId, Model model) {
+        //Ajout de la conference pour rattachement de la submission
+
+        Optional<Conference> conference = conferenceService.findOne(conferenceId);
+        if (conference.isPresent()) {
+            model.addAttribute("conference", conference.get());
+            model.addAttribute("submission", new Submission());
+            return "dynamic/submission/createSubmission";
+        }
+        else{
+            return "error/404";
+        }
+
     }
 
     public String saveSubmission(Submission submission) {
@@ -57,9 +71,14 @@ public class SubmissionController {
 
     // POST /submissions
     @PostMapping
-    public Submission createSubmission(@RequestBody Submission submission) {
+    public Submission createSubmission(@RequestBody Submission submission,Model model) {
+        //@Todo avis si c'est propre ?
+        submission.setConference((Conference)model.getAttribute("conference"));
+        submission.setCreationDate(Date.from(Instant.now()));
+        submission.setStatus(SubType.PROGRESS);
         return submissionService.save(submission);
     }
+
 
     // PUT /submissions/{id}
     @PutMapping
