@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-
 @Service
 public class DataInitializer {
 
@@ -25,6 +24,9 @@ public class DataInitializer {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private OrganizerRepository organizerRepository;
@@ -53,57 +55,66 @@ public class DataInitializer {
     @Autowired
     private AlertRepository alertRepository;
 
-
-
-
     public void initializeData() {
+        // Creation de user1
+        if (userRepository.findByEmail("john@doe.com").isEmpty()) {
+            User user1 = new User();
+            user1.setFirstName("John");
+            user1.setLastName("Doe");
+            user1.setEmail("john@doe.com");
+            user1.setPseudo("toto");
+            user1.setPassword("password123"); // Valid password (>= 6 characters)
+            user1.setBirthDate(LocalDate.of(2000, 1, 1));
+            user1 = userService.save(user1);
+        }
 
-        //Creation de user1
-        User user1 = new User();
-        user1.setFirstName("John");
-        user1.setLastName("Doe");
-        user1.setEmail("john@doe.com");
-        user1.setPseudo("toto");
-        user1.setPassword("password");
-        user1.setBirthDate(LocalDate.of(2000, 1, 1));
-        user1=userRepository.save(user1);
+        // Creation de user2
+        if (userRepository.findByEmail("jane@doe.com").isEmpty()) {
+            User user2 = new User();
+            user2.setFirstName("Jane");
+            user2.setLastName("Doe");
+            user2.setPseudo("tata");
+            user2.setEmail("jane@doe.com");
+            user2.setPassword("password123"); // Valid password (>= 6 characters)
+            user2.setBirthDate(LocalDate.of(2001, 1, 1));
+            user2 = userService.save(user2);
+        }
 
-        //Creation de user2
-        User user2 = new User();
-        user2.setFirstName("Jane");
-        user2.setLastName("Doe");
-        user2.setPseudo("tata");
-        user2.setEmail("jane@doe.com");
-        user2.setPassword("password");
-        user2.setBirthDate(LocalDate.of(2001, 1, 1));
-        user2=userRepository.save(user2);
+        // Creation de user3
+        if (userRepository.findByEmail("alban@cousin.com").isEmpty()) {
+            User user3 = new User();
+            user3.setFirstName("Alban");
+            user3.setLastName("Cousin");
+            user3.setEmail("alban@cousin.com");
+            user3.setPseudo("Banban");
+            user3.setPassword("alban123"); // Valid password (>= 6 characters)
+            user3.setBirthDate(LocalDate.of(2003, 4, 12));
+            user3 = userService.save(user3);
+        }
 
-        User user3 = new User();
-        user3.setFirstName("Alban");
-        user3.setLastName("Cousin");
-        user3.setEmail("alban@cousin.com");
-        user3.setPseudo("Banban");
-        user3.setPassword("1234");
-        user3.setBirthDate(LocalDate.of(2003, 4, 12));
-        user3=userRepository.save(user3);
+        // Creation de user4
+        if (userRepository.findByEmail("jeremie@pennec.com").isEmpty()) {
+            User user4 = new User();
+            user4.setFirstName("Jeremie");
+            user4.setLastName("Pennec");
+            user4.setEmail("jeremie@pennec.com");
+            user4.setPseudo("Jeje");
+            user4.setPassword("jeremie123"); // Valid password (>= 6 characters)
+            user4.setBirthDate(LocalDate.of(1980, 12, 12));
+            user4 = userService.save(user4);
+        }
 
-        User user4 = new User();
-        user4.setFirstName("Jeremie");
-        user4.setLastName("Pennec");
-        user4.setEmail("jeremie@pennec.com");
-        user4.setPseudo("Jeje");
-        user4.setPassword("5678");
-        user4.setBirthDate(LocalDate.of(1980, 12, 12));
-        user4=userRepository.save(user4);
-
-        User user5 = new User();
-        user5.setFirstName("Ibrahim");
-        user5.setLastName("Koumare");
-        user5.setEmail("ibrahim@koumare.com");
-        user5.setPseudo("ibrah");
-        user5.setPassword("9101");
-        user5.setBirthDate(LocalDate.of(2000, 12, 12));
-        user5 =userRepository.save(user5);
+        // Creation de user5
+        if (userRepository.findByEmail("ibrahim@koumare.com").isEmpty()) {
+            User user5 = new User();
+            user5.setFirstName("Ibrahim");
+            user5.setLastName("Koumare");
+            user5.setEmail("ibrahim@koumare.com");
+            user5.setPseudo("ibrah");
+            user5.setPassword("ibrahim123"); // Valid password (>= 6 characters)
+            user5.setBirthDate(LocalDate.of(2000, 12, 12));
+            user5 = userService.save(user5);
+        }
 
         // Création de la conférence
         Conference conference = new Conference();
@@ -122,7 +133,6 @@ public class DataInitializer {
         conference = conferenceRepository.save(conference);
         conferenceRepository.flush();
 
-
         Conference conference1 = new Conference();
         conference1.setTitle("conf1");
         conference1.setDescription("Techno web.");
@@ -133,45 +143,27 @@ public class DataInitializer {
         conference1.setConcreteSubDate(conference1.getSubAssignmentDate().plusDays(10));
         conference1.setEvaluationDate(conference1.getConcreteSubDate().plusDays(10));
         conference1.setFinalSubDate(conference1.getEvaluationDate().plusDays(10));
-        conference1.setEndDate(conference.getFinalSubDate().plusDays(10));
+        conference1.setEndDate(conference1.getFinalSubDate().plusDays(10));
         conference1.setPhase(Phase.INITIALIZATION);
         conference1 = conferenceRepository.save(conference1);
         conferenceRepository.flush();
-        /*
-        conference.setOnInvitation(false);
-        conference.setHiddenDescription(false);
-        conference.setHiddenConf(false);
-        conference.setAnonymousReviewersToAuthors(false);
-        conference.setAnonymousReviewersToReviewers(false);
-        conference.setAnonymousAuthors(false);
-        conference.setRestrictedAccessSubmission(false);
-        conference.setAssignmentByOrganizer(false);
-        */
 
-        /*conference.setKeywords(new ArrayList<>());
-        conference.setSubmissions(new ArrayList<>());
-        conference.setUsers(new ArrayList<>());
-        conference.setOrganizers(new ArrayList<>());
-        conference.setNotifications(new ArrayList<>());*/
-
-
-        // Création de l' organisateur
+        // Création de l'organisateur
         Organizer organizer = new Organizer();
         organizer.setConference(conference);
-        organizer.setUser(user1);
+        organizer.setUser(userRepository.findByEmail("john@doe.com").orElseThrow());
         organizer.setRole(RoleType.ORGANIZER);
-        organizer=organizerRepository.save(organizer);
-
+        organizer = organizerRepository.save(organizer);
 
         // Création du reviewer
         Reviewer reviewer = new Reviewer();
-        reviewer.setUser(user2);
+        reviewer.setUser(userRepository.findByEmail("jane@doe.com").orElseThrow());
         reviewer.setConference(conference);
         reviewer.setRole(RoleType.REVIEWER);
         reviewer = reviewerRepository.save(reviewer);
 
         Reviewer reviewer2 = new Reviewer();
-        reviewer2.setUser(user1);
+        reviewer2.setUser(userRepository.findByEmail("john@doe.com").orElseThrow());
         reviewer2.setConference(conference);
         reviewer2.setRole(RoleType.REVIEWER);
         reviewer2 = reviewerRepository.save(reviewer2);
@@ -179,9 +171,8 @@ public class DataInitializer {
         Submission submission1 = new Submission();
         submission1.setTitle("Systèmes intelligents pour la reconnaissance de motifs");
         submission1.setCreationDate(new Date());
-        submission1.setStatus(SubType.PROGRESS); // Vérifie que FULL_PAPER existe dans l'enum SubType
+        submission1.setStatus(SubType.PROGRESS);
         submission1.setAbstractSub("Cet article traite de la reconnaissance de motifs dans les systèmes d'intelligence artificielle.");
-        //à déterminer où l'on stocke les pdf
         submission1.setConcreteSubFiles(List.of("soumissions/article1-v1.pdf"));
         submission1.setFinalSubFiles(List.of("soumissions/article1-final.pdf"));
         submission1.setKeywords(Arrays.asList("IA", "Reconnaissance de motifs", "Réseaux de neurones"));
@@ -193,7 +184,6 @@ public class DataInitializer {
         submission2.setCreationDate(new Date());
         submission2.setStatus(SubType.PROGRESS);
         submission2.setAbstractSub("Ce résumé aborde les défis liés à la protection de la vie privée dans les systèmes décentralisés.");
-        //à déterminer où l'on stocke les pdf
         submission2.setConcreteSubFiles(List.of("soumissions/vieprivee-v1.pdf"));
         submission2.setFinalSubFiles(List.of("soumissions/vieprivee-final.pdf"));
         submission2.setKeywords(Arrays.asList("Vie privée", "Blockchain", "Sécurité"));
@@ -205,28 +195,26 @@ public class DataInitializer {
         submission3.setCreationDate(new Date());
         submission3.setStatus(SubType.PROGRESS);
         submission3.setAbstractSub("Ce travail utilise des modèles d'apprentissage profond pour prédire les tendances climatiques.");
-        //à déterminer où l'on stocke les pdf
         submission3.setConcreteSubFiles(List.of("soumissions/climat-v1.pdf"));
         submission3.setFinalSubFiles(List.of("soumissions/climat-final.pdf"));
         submission3.setKeywords(Arrays.asList("Climat", "Apprentissage profond", "Prévisions"));
         submission3.setConference(conference);
         submission3 = submissionRepository.save(submission3);
 
-        //Auteurs
+        // Auteurs
         Author author1 = new Author();
-        author1.setUser(user3);
+        author1.setUser(userRepository.findByEmail("alban@cousin.com").orElseThrow());
         author1.setSubmissions(Arrays.asList(submission1, submission2));
         author1.setRole(RoleType.AUTHOR);
         author1 = authorRepository.save(author1);
 
-
         Author author2 = new Author();
-        author2.setUser(user5);
+        author2.setUser(userRepository.findByEmail("ibrahim@koumare.com").orElseThrow());
         author2.setSubmissions(List.of(submission3));
         author2.setRole(RoleType.AUTHOR);
         author2 = authorRepository.save(author2);
 
-        // Création d évaluation
+        // Création d'évaluation
         Evaluation evaluation = new Evaluation();
         evaluation.setSpecDegree(5);
         evaluation.setGrade(5);
@@ -242,21 +230,13 @@ public class DataInitializer {
         post.setReviewer(reviewer);
         postRepository.save(post);
 
-        // Création du Report
-        //Report report = new Report();
-        //report.setGrade(4);
-        //report.setBody("Cet article traite en profondeur de la reconnaissance de motifs dans le domaine de l'IA, mais manque de détails sur l'optimisation des modèles.");
-        //report.setSpecDegree(4);
-        //report.setReviewer(report.getReviewer());
-        //report.setEvaluation(evaluation);
-        //reportRepository.save(report);
-
         // Création d'une notification
         Notification notif = new Notification();
         notif.setMessage("La conférence est ouverte");
         notif.setSendingDate(new Date());
         notif.setConference(conference);
-        notif.setUser(user1);
+        notif.setUser(userRepository.findByEmail("john@doe.com").orElseThrow());
+
         notificationRepository.save(notif);
 
         // Création d'une alerte
@@ -267,10 +247,5 @@ public class DataInitializer {
         alert.setReviewer(reviewer);
         alert.setOrganizer(organizer);
         alertRepository.save(alert);
-
-
-
-
     }
 }
-

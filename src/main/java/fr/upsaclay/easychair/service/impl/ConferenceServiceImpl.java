@@ -10,11 +10,31 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class ConferenceServiceImpl implements ConferenceService {
 
     private final ConferenceRepository conferenceRepository;
+
+    @Override
+    public List<Conference> findAll() {
+        return conferenceRepository.findAll();
+    }
+
+    @Override
+    public List<Conference> findAllWithOrganizers() {
+        return conferenceRepository.findAll();
+    }
+
+    @Override
+    public List<Conference> findByTitleIgnoreCaseOrDescriptionIgnoreCase(String title, String description, String keywords) {
+        return conferenceRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrKeywordsContainingIgnoreCase(title,description,keywords);
+    }
+
+    @Override
+    public Optional<Conference> findOne(Long id) {
+        return conferenceRepository.findById(id);
+    }
 
     @Override
     public Conference save(Conference conference) {
@@ -36,38 +56,11 @@ public class ConferenceServiceImpl implements ConferenceService {
             existingConf.setEndDate(conference.getEndDate());
             return conferenceRepository.save(existingConf);
         }).orElseThrow(() -> new EntityNotFoundException("Conference introuvable avec l’ID : " + conference.getId()));
+
     }
-
-    @Override
-    public Optional<Conference> findOne(Long id) {
-        return conferenceRepository.findById(id);
-    }
-
-    @Override
-    public List<Conference> findAll() {
-        return conferenceRepository.findAll();
-    }
-
-
 
     @Override
     public void deleteById(Long id) {
         conferenceRepository.deleteById(id);
     }
-
-    @Override
-    public List<Conference> findByTitleIgnoreCaseOrDescriptionIgnoreCase(String title, String description) {
-        return conferenceRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(title, description);
-    }
-
-    @Override
-
-    public List<Conference> searchByTerm(String searchTerm) {
-        if (searchTerm==null)
-            throw new IllegalArgumentException("le terme  ne peut pas être null");
-        return conferenceRepository.searchByTermInTitleOrDescriptionOrKeywords(searchTerm);
-
-    }
-
-
 }

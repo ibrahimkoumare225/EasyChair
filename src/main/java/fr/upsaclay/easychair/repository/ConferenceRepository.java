@@ -1,15 +1,18 @@
 package fr.upsaclay.easychair.repository;
 
 import fr.upsaclay.easychair.model.Conference;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ConferenceRepository extends JpaRepository<Conference, Long> {
 
-   /* @Query("SELECT c FROM Conference c LEFT JOIN FETCH c.organizers o LEFT JOIN FETCH o.user")
-    List<Conference> findAllWithOrganizersAndUsers();*/
+    @EntityGraph(attributePaths = {"organizers"})
+    Optional<Conference> findById(Long id);
 
-    List<Conference> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description);
+    List<Conference> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrKeywordsContainingIgnoreCase(
+            String title, String description, String keywords);
+
 }

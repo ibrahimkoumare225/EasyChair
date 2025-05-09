@@ -1,9 +1,11 @@
 package fr.upsaclay.easychair.model;
 
-// Organizer.java
-import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.enumates.RoleType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +14,17 @@ import java.util.List;
 @Table(name = "organizers")
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class Organizer extends Role {
 
-    @OneToMany(mappedBy = "organizer")
+    @ManyToOne
+    @JoinColumn(name = "conference_id", nullable = false)
+    private Conference conference;
+
+    @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Alert> receivedAlerts = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name="conference_id",nullable = false)
-    private Conference conference;
+    public Organizer() {
+        this.setRole(RoleType.ORGANIZER);
+    }
 }

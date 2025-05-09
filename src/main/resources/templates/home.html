@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Welcome to EasyChair</title>
@@ -11,6 +11,13 @@
 
 <div class="max-w-7xl mx-auto p-6">
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome to EasyChair</h1>
+    <div sec:authorize="isAuthenticated()" class="mb-4">
+        <p class="text-gray-700">Logged in as: <span sec:authentication="name"></span></p>
+        <a th:href="@{/logout}" class="text-blue-500 hover:underline">Logout</a>
+    </div>
+    <div sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}" class="text-blue-500 hover:underline">Login</a>
+    </div>
 </div>
 
 <div class="flex justify-center items-center space-x-4 mb-6">
@@ -45,8 +52,12 @@
         <tr th:each="conference : ${conferences}" class="hover:bg-gray-50">
             <td class="px-6 py-4" th:text="${conference.title}"></td>
             <td class="px-6 py-4" th:text="${conference.creationDate}"></td>
-            <td class="px-6 py-4"
-                th:text="${conference.organizers.empty ? 'No Organizer' : conference.organizers[0].user.firstName + ' ' + conference.organizers[0].user.lastName}"></td>
+            <td class="px-6 py-4">
+    <span th:if="${conference.organizers != null and !conference.organizers.isEmpty()}"
+          th:text="${conference.organizers[0].user.firstName + ' ' + conference.organizers[0].user.lastName}">
+    </span>
+                <span th:unless="${conference.organizers != null and !conference.organizers.isEmpty()}">Unknown</span>
+            </td>
             <td class="px-6 py-4" th:text="${conference.description}"></td>
             <td class="px-6 py-4" th:text="${conference.keywords}"></td>
             <td class="px-6 py-4">

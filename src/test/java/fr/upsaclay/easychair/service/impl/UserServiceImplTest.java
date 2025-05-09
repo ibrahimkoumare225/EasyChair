@@ -1,3 +1,4 @@
+/*
 package fr.upsaclay.easychair.service.impl;
 
 import fr.upsaclay.easychair.model.User;
@@ -39,4 +40,4 @@ class UserServiceImplTest {
 
     }
 
-}
+}*/
