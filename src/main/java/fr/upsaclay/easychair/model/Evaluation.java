@@ -22,8 +22,8 @@ public class Evaluation {
     @Column(nullable = false)
     private int grade;
 
-    @ManyToOne
-    @JoinColumn(name = "submission_id",nullable = false )
+    @OneToOne
+    @JoinColumn(name="submission_id")
     private Submission submission;
 
     @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true)

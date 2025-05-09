@@ -48,9 +48,10 @@ public class Submission {
     
     @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alert> alerts = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Evaluation> evaluations = new ArrayList<>();
+
+
+    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL)
+    private Evaluation evaluation ;
     
     @ManyToMany(mappedBy = "submissions")
     private List<Author> authors = new ArrayList<>();
