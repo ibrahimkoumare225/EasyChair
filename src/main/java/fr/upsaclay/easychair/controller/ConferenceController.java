@@ -36,7 +36,30 @@ public class ConferenceController {
         logger.debug("Accessing homePage with authentication: {}", authentication);
         try {
             List<Conference> conferences = conferenceService.findAll();
-            model.addAttribute("conferences", conferences);
+            // Log user authorities
+            if (authentication != null && authentication.isAuthenticated()) {
+                logger.debug("User authorities: {}", authentication.getAuthorities());
+            }
+            // Map conferences to include isOrganizer flag
+            List<ConferenceView> conferenceViews = conferences.stream().map(conference -> {
+                boolean isOrganizer = false;
+                if (authentication != null && authentication.isAuthenticated()) {
+                    String email = authentication.getName();
+                    logger.debug("Checking organizers for conference: {}, user email: {}", conference.getTitle(), email);
+                    isOrganizer = conference.getOrganizers().stream()
+                            .anyMatch(org -> {
+                                boolean match = org.getUser() != null &&
+                                        org.getUser().getEmail() != null &&
+                                        org.getUser().getEmail().equals(email);
+                                logger.debug("Organizer user: {}, email: {}, match: {}",
+                                        org.getUser(), org.getUser() != null ? org.getUser().getEmail() : "null", match);
+                                return match;
+                            });
+                }
+                return new ConferenceView(conference, isOrganizer);
+            }).toList();
+
+            model.addAttribute("conferences", conferenceViews);
             if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User) {
                 model.addAttribute("user", authentication.getPrincipal());
             }
@@ -47,8 +70,11 @@ public class ConferenceController {
         }
     }
 
+    // Helper class to hold conference and isOrganizer flag
+    record ConferenceView(Conference conference, boolean isOrganizer) {}
+
     @GetMapping("/searchConferences")
-    public String searchConferences(@RequestParam(value = "query", required = false) String query, Model model) {
+    public String searchConferences(@RequestParam(value = "query", required = false) String query, Model model, Authentication authentication) {
         logger.debug("Searching conferences with query: {}", query);
         try {
             List<Conference> conferences;
@@ -57,7 +83,30 @@ public class ConferenceController {
             } else {
                 conferences = conferenceService.findAll();
             }
-            model.addAttribute("conferences", conferences);
+            // Log user authorities
+            if (authentication != null && authentication.isAuthenticated()) {
+                logger.debug("User authorities: {}", authentication.getAuthorities());
+            }
+            // Map conferences to include isOrganizer flag
+            List<ConferenceView> conferenceViews = conferences.stream().map(conference -> {
+                boolean isOrganizer = false;
+                if (authentication != null && authentication.isAuthenticated()) {
+                    String email = authentication.getName();
+                    logger.debug("Checking organizers for conference: {}, user email: {}", conference.getTitle(), email);
+                    isOrganizer = conference.getOrganizers().stream()
+                            .anyMatch(org -> {
+                                boolean match = org.getUser() != null &&
+                                        org.getUser().getEmail() != null &&
+                                        org.getUser().getEmail().equals(email);
+                                logger.debug("Organizer user: {}, email: {}, match: {}",
+                                        org.getUser(), org.getUser() != null ? org.getUser().getEmail() : "null", match);
+                                return match;
+                            });
+                }
+                return new ConferenceView(conference, isOrganizer);
+            }).toList();
+
+            model.addAttribute("conferences", conferenceViews);
             model.addAttribute("query", query);
             return "home";
         } catch (Exception e) {
@@ -115,7 +164,7 @@ public class ConferenceController {
             return "redirect:/conference";
         } catch (Exception e) {
             logger.error("Error saving conference", e);
-            redirectAttributes.addFlashAttribute("error", "Failed to create conference.");
+            redirectAttributes.addFlashAttribute("error", "Failed to create conference: " + e.getMessage());
             return "redirect:/conference";
         }
     }
@@ -137,67 +186,11 @@ public class ConferenceController {
     }
 
     @GetMapping("/conference/{id}")
-    public String showUpdateConferenceForms(Model model, @PathVariable Long id, Authentication authentication) {
+    public String showUpdateConferenceForms(Model model, @PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
         logger.debug("Accessing update conference form for ID: {}", id);
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to update conference");
-            return "redirect:/login";
-        }
-
-        try {
-            Optional<Conference> conferenceOptional = conferenceService.findOne(id);
-            if (conferenceOptional.isEmpty()) {
-                logger.warn("Conference not found for ID: {}", id);
-                return "redirect:/home";
-            }
-
-            Conference conference = conferenceOptional.get();
-            String email = authentication.getName();
-            Optional<User> userOptional = userService.findByEmail(email);
-            if (userOptional.isEmpty()) {
-                logger.error("User not found for email: {}", email);
-                return "redirect:/home";
-            }
-
-            User user = userOptional.get();
-            boolean isOrganizer = conference.getOrganizers().stream()
-                    .anyMatch(org -> org.getUser().getId().equals(user.getId()));
-            if (!isOrganizer) {
-                logger.warn("User {} is not an organizer for conference {}", email, id);
-                return "redirect:/error?status=403";
-            }
-
-            model.addAttribute("conference", conference);
-            return "dynamic/conference/createConference";
-        } catch (Exception e) {
-            logger.error("Error in showUpdateConferenceForms", e);
-            throw e;
-        }
-    }
-
-    @GetMapping("/conferenceDetail/{id}")
-    public String showDetailConferenceForms(Model model, @PathVariable Long id) {
-        logger.debug("Accessing conference detail for ID: {}", id);
-        try {
-            Optional<Conference> conference = conferenceService.findOne(id);
-            if (conference.isPresent()) {
-                model.addAttribute("conference", conference.get());
-                return "dynamic/conference/detailConference";
-            } else {
-                logger.warn("Conference not found for ID: {}", id);
-                return "redirect:/home";
-            }
-        } catch (Exception e) {
-            logger.error("Error in showDetailConferenceForms", e);
-            throw e;
-        }
-    }
-
-    @PostMapping("/deleteConference/{id}")
-    public String deleteConference(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
-        logger.debug("Deleting conference with ID: {}", id);
-        if (authentication == null || !authentication.isAuthenticated()) {
-            logger.warn("Unauthenticated attempt to delete conference");
+            redirectAttributes.addFlashAttribute("error", "You must be logged in to update a conference.");
             return "redirect:/login";
         }
 
@@ -206,7 +199,7 @@ public class ConferenceController {
             if (conferenceOptional.isEmpty()) {
                 logger.warn("Conference not found for ID: {}", id);
                 redirectAttributes.addFlashAttribute("error", "Conference not found.");
-                return "redirect:/home";
+                return "redirect:/conference";
             }
 
             Conference conference = conferenceOptional.get();
@@ -215,25 +208,92 @@ public class ConferenceController {
             if (userOptional.isEmpty()) {
                 logger.error("User not found for email: {}", email);
                 redirectAttributes.addFlashAttribute("error", "User not found.");
-                return "redirect:/home";
+                return "redirect:/conference";
             }
 
             User user = userOptional.get();
             boolean isOrganizer = conference.getOrganizers().stream()
-                    .anyMatch(org -> org.getUser().getId().equals(user.getId()));
+                    .anyMatch(org -> org.getUser() != null && org.getUser().getId().equals(user.getId()));
+            if (!isOrganizer) {
+                logger.warn("User {} is not an organizer for conference {}", email, id);
+                redirectAttributes.addFlashAttribute("error", "You are not authorized to update this conference.");
+                return "redirect:/conference";
+            }
+
+            model.addAttribute("conference", conference);
+            return "dynamic/conference/createConference";
+        } catch (Exception e) {
+            logger.error("Error in showUpdateConferenceForms", e);
+            redirectAttributes.addFlashAttribute("error", "An error occurred while accessing the conference: " + e.getMessage());
+            return "redirect:/conference";
+        }
+    }
+
+    @GetMapping("/conferenceDetail/{id}")
+    public String showDetailConferenceForms(Model model, @PathVariable Long id, RedirectAttributes redirectAttributes) {
+        logger.debug("Accessing conference detail for ID: {}", id);
+        try {
+            Optional<Conference> conference = conferenceService.findOne(id);
+            if (conference.isPresent()) {
+                model.addAttribute("conference", conference.get());
+                return "dynamic/conference/detailConference";
+            } else {
+                logger.warn("Conference not found for ID: {}", id);
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+        } catch (Exception e) {
+            logger.error("Error in showDetailConferenceForms", e);
+            redirectAttributes.addFlashAttribute("error", "An error occurred while accessing the conference details: " + e.getMessage());
+            return "redirect:/conference";
+        }
+    }
+
+    @PostMapping("/deleteConference/{id}")
+    public String deleteConference(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Attempting to delete conference with ID: {}", id);
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to delete conference");
+            redirectAttributes.addFlashAttribute("error", "You must be logged in to delete a conference.");
+            return "redirect:/login";
+        }
+
+        try {
+            Optional<Conference> conferenceOptional = conferenceService.findOne(id);
+            if (conferenceOptional.isEmpty()) {
+                logger.warn("Conference not found for ID: {}", id);
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+
+            Conference conference = conferenceOptional.get();
+            String email = authentication.getName();
+            logger.debug("Authenticated user email: {}", email);
+            Optional<User> userOptional = userService.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                logger.error("User not found for email: {}", email);
+                redirectAttributes.addFlashAttribute("error", "User not found.");
+                return "redirect:/conference";
+            }
+
+            User user = userOptional.get();
+            boolean isOrganizer = conference.getOrganizers().stream()
+                    .anyMatch(org -> org.getUser() != null && org.getUser().getId().equals(user.getId()));
+            logger.debug("Is user an organizer for conference {}? {}", id, isOrganizer);
             if (!isOrganizer) {
                 logger.warn("User {} is not an organizer for conference {}", email, id);
                 redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this conference.");
-                return "redirect:/error?status=403";
+                return "redirect:/conference";
             }
 
             conferenceService.deleteById(id);
+            logger.info("Conference with ID {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("message", "Conference deleted successfully!");
-            return "redirect:/home";
+            return "redirect:/conference";
         } catch (Exception e) {
-            logger.error("Error deleting conference", e);
-            redirectAttributes.addFlashAttribute("error", "Failed to delete conference.");
-            return "redirect:/home";
+            logger.error("Error deleting conference with ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to delete conference: " + e.getMessage());
+            return "redirect:/conference";
         }
     }
 }

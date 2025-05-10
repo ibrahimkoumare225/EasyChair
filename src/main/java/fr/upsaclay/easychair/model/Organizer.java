@@ -2,10 +2,7 @@ package fr.upsaclay.easychair.model;
 
 import fr.upsaclay.easychair.model.enumates.RoleType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +13,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class Organizer extends Role {
-
-    @ManyToOne
-    @JoinColumn(name = "conference_id", nullable = false)
-    private Conference conference;
 
     @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Alert> receivedAlerts = new ArrayList<>();

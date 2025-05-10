@@ -18,17 +18,17 @@ public class ConferenceServiceImpl implements ConferenceService {
 
     @Override
     public List<Conference> findAll() {
-        return conferenceRepository.findAll();
+        return conferenceRepository.findAllWithOrganizers();
     }
 
     @Override
     public List<Conference> findAllWithOrganizers() {
-        return conferenceRepository.findAll();
+        return conferenceRepository.findAllWithOrganizers();
     }
 
     @Override
     public List<Conference> findByTitleIgnoreCaseOrDescriptionIgnoreCase(String title, String description, String keywords) {
-        return conferenceRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrKeywordsContainingIgnoreCase(title,description,keywords);
+        return conferenceRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrKeywordsContainingIgnoreCase(title, description, keywords);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 
     @Override
     public Conference update(Conference conference) {
-        return findOne(conference.getId()).map(existingConf ->{
+        return findOne(conference.getId()).map(existingConf -> {
             existingConf.setTitle(conference.getTitle());
             existingConf.setDescription(conference.getDescription());
             existingConf.setCreationDate(conference.getCreationDate());
@@ -56,7 +56,6 @@ public class ConferenceServiceImpl implements ConferenceService {
             existingConf.setEndDate(conference.getEndDate());
             return conferenceRepository.save(existingConf);
         }).orElseThrow(() -> new EntityNotFoundException("Conference introuvable avec l’ID : " + conference.getId()));
-
     }
 
     @Override
