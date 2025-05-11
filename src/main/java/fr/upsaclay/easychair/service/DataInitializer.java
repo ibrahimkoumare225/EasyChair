@@ -1,3 +1,4 @@
+/*
 package fr.upsaclay.easychair.service;
 
 import fr.upsaclay.easychair.model.*;
@@ -152,20 +153,20 @@ public class DataInitializer {
         Organizer organizer = new Organizer();
         organizer.setConference(conference);
         organizer.setUser(userRepository.findByEmail("john@doe.com").orElseThrow());
-        organizer.setRole(RoleType.ORGANIZER);
+        organizer.setRoleType(RoleType.ORGANIZER);
         organizer = organizerRepository.save(organizer);
 
         // Création du reviewer
         Reviewer reviewer = new Reviewer();
         reviewer.setUser(userRepository.findByEmail("jane@doe.com").orElseThrow());
         reviewer.setConference(conference);
-        reviewer.setRole(RoleType.REVIEWER);
+        reviewer.setRoleType(RoleType.REVIEWER);
         reviewer = reviewerRepository.save(reviewer);
 
         Reviewer reviewer2 = new Reviewer();
         reviewer2.setUser(userRepository.findByEmail("john@doe.com").orElseThrow());
         reviewer2.setConference(conference);
-        reviewer2.setRole(RoleType.REVIEWER);
+        reviewer2.setRoleType(RoleType.REVIEWER);
         reviewer2 = reviewerRepository.save(reviewer2);
 
         Submission submission1 = new Submission();
@@ -205,13 +206,13 @@ public class DataInitializer {
         Author author1 = new Author();
         author1.setUser(userRepository.findByEmail("alban@cousin.com").orElseThrow());
         author1.setSubmissions(Arrays.asList(submission1, submission2));
-        author1.setRole(RoleType.AUTHOR);
+        author1.setRoleType(RoleType.AUTHOR);
         author1 = authorRepository.save(author1);
 
         Author author2 = new Author();
         author2.setUser(userRepository.findByEmail("ibrahim@koumare.com").orElseThrow());
         author2.setSubmissions(List.of(submission3));
-        author2.setRole(RoleType.AUTHOR);
+        author2.setRoleType(RoleType.AUTHOR);
         author2 = authorRepository.save(author2);
 
         // Création d'évaluation
@@ -248,4 +249,4 @@ public class DataInitializer {
         alert.setOrganizer(organizer);
         alertRepository.save(alert);
     }
-}
+}*/

@@ -2,8 +2,12 @@ package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Organizer;
+import fr.upsaclay.easychair.model.Reviewer;
+import fr.upsaclay.easychair.model.Author;
 import fr.upsaclay.easychair.model.User;
-import fr.upsaclay.easychair.model.enumates.RoleType;
+import fr.upsaclay.easychair.repository.OrganizerRepository;
+import fr.upsaclay.easychair.repository.ReviewerRepository;
+import fr.upsaclay.easychair.repository.AuthorRepository;
 import fr.upsaclay.easychair.service.ConferenceService;
 import fr.upsaclay.easychair.service.OrganizerService;
 import fr.upsaclay.easychair.service.UserService;
@@ -11,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,47 +37,41 @@ public class ConferenceController {
     private final ConferenceService conferenceService;
     private final UserService userService;
     private final OrganizerService organizerService;
+    private final OrganizerRepository organizerRepository;
+    private final ReviewerRepository reviewerRepository;
+    private final AuthorRepository authorRepository;
+    private final UserDetailsService userDetailsService; // Ajout pour recharger les rôles
 
     @GetMapping
     public String homePage(Model model, Authentication authentication) {
         logger.debug("Accessing homePage with authentication: {}", authentication);
         try {
             List<Conference> conferences = conferenceService.findAll();
-            // Log user authorities
             if (authentication != null && authentication.isAuthenticated()) {
                 logger.debug("User authorities: {}", authentication.getAuthorities());
             }
-            // Map conferences to include isOrganizer flag
             List<ConferenceView> conferenceViews = conferences.stream().map(conference -> {
                 boolean isOrganizer = false;
                 if (authentication != null && authentication.isAuthenticated()) {
                     String email = authentication.getName();
                     logger.debug("Checking organizers for conference: {}, user email: {}", conference.getTitle(), email);
                     isOrganizer = conference.getOrganizers().stream()
-                            .anyMatch(org -> {
-                                boolean match = org.getUser() != null &&
-                                        org.getUser().getEmail() != null &&
-                                        org.getUser().getEmail().equals(email);
-                                logger.debug("Organizer user: {}, email: {}, match: {}",
-                                        org.getUser(), org.getUser() != null ? org.getUser().getEmail() : "null", match);
-                                return match;
-                            });
+                            .anyMatch(org -> org.getUser() != null &&
+                                    org.getUser().getEmail() != null &&
+                                    org.getUser().getEmail().equals(email));
                 }
                 return new ConferenceView(conference, isOrganizer);
             }).toList();
 
             model.addAttribute("conferences", conferenceViews);
-            if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User) {
-                model.addAttribute("user", authentication.getPrincipal());
-            }
             return "home";
         } catch (Exception e) {
             logger.error("Error in homePage", e);
-            throw e; // Let the error controller handle it
+            model.addAttribute("error", "An error occurred while loading the home page: " + e.getMessage());
+            return "error";
         }
     }
 
-    // Helper class to hold conference and isOrganizer flag
     record ConferenceView(Conference conference, boolean isOrganizer) {}
 
     @GetMapping("/searchConferences")
@@ -83,25 +84,14 @@ public class ConferenceController {
             } else {
                 conferences = conferenceService.findAll();
             }
-            // Log user authorities
-            if (authentication != null && authentication.isAuthenticated()) {
-                logger.debug("User authorities: {}", authentication.getAuthorities());
-            }
-            // Map conferences to include isOrganizer flag
             List<ConferenceView> conferenceViews = conferences.stream().map(conference -> {
                 boolean isOrganizer = false;
                 if (authentication != null && authentication.isAuthenticated()) {
                     String email = authentication.getName();
-                    logger.debug("Checking organizers for conference: {}, user email: {}", conference.getTitle(), email);
                     isOrganizer = conference.getOrganizers().stream()
-                            .anyMatch(org -> {
-                                boolean match = org.getUser() != null &&
-                                        org.getUser().getEmail() != null &&
-                                        org.getUser().getEmail().equals(email);
-                                logger.debug("Organizer user: {}, email: {}, match: {}",
-                                        org.getUser(), org.getUser() != null ? org.getUser().getEmail() : "null", match);
-                                return match;
-                            });
+                            .anyMatch(org -> org.getUser() != null &&
+                                    org.getUser().getEmail() != null &&
+                                    org.getUser().getEmail().equals(email));
                 }
                 return new ConferenceView(conference, isOrganizer);
             }).toList();
@@ -111,7 +101,8 @@ public class ConferenceController {
             return "home";
         } catch (Exception e) {
             logger.error("Error in searchConferences", e);
-            throw e;
+            model.addAttribute("error", "An error occurred while searching conferences: " + e.getMessage());
+            return "error";
         }
     }
 
@@ -127,18 +118,15 @@ public class ConferenceController {
         }
 
         try {
-            // Set creation date if not set
             if (conference.getCreationDate() == null) {
                 conference.setCreationDate(LocalDate.now());
             }
 
-            // Save the conference first
             Conference savedConference = conferenceService.save(conference);
 
-            // Get the authenticated user
             String email = authentication.getName();
+            logger.debug("Authenticated user email for saveConference: {}", email);
             Optional<User> userOptional = userService.findByEmail(email);
-
             if (userOptional.isEmpty()) {
                 logger.error("User not found for email: {}", email);
                 redirectAttributes.addFlashAttribute("error", "User not found.");
@@ -146,20 +134,21 @@ public class ConferenceController {
             }
 
             User user = userOptional.get();
-
-            // Create and assign ORGANIZER role
             Organizer organizer = new Organizer();
-            organizer.setRole(RoleType.ORGANIZER);
             organizer.setUser(user);
             organizer.setConference(savedConference);
 
-            // Save the organizer
-            organizer = organizerService.save(organizer);
+            organizerService.save(organizer);
+            logger.debug("Organizer saved for user: {}, conference: {}", email, savedConference.getId());
 
-            // Add organizer to conference's organizers list
-            savedConference.getOrganizers().add(organizer);
-            conferenceService.update(savedConference);
+            // Rafraîchir le contexte de sécurité
+            UserDetails updatedUserDetails = userDetailsService.loadUserByUsername(email);
+            Authentication newAuth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                    updatedUserDetails, authentication.getCredentials(), updatedUserDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+            logger.debug("Security context updated with authorities: {}", newAuth.getAuthorities());
 
+            logger.info("Conference created successfully with ID: {}", savedConference.getId());
             redirectAttributes.addFlashAttribute("message", "Conference created successfully!");
             return "redirect:/conference";
         } catch (Exception e) {
@@ -181,7 +170,8 @@ public class ConferenceController {
             return "dynamic/conference/createConference";
         } catch (Exception e) {
             logger.error("Error in showAddConferenceForms", e);
-            throw e;
+            model.addAttribute("error", "An error occurred while loading the add conference form: " + e.getMessage());
+            return "error";
         }
     }
 
@@ -202,25 +192,7 @@ public class ConferenceController {
                 return "redirect:/conference";
             }
 
-            Conference conference = conferenceOptional.get();
-            String email = authentication.getName();
-            Optional<User> userOptional = userService.findByEmail(email);
-            if (userOptional.isEmpty()) {
-                logger.error("User not found for email: {}", email);
-                redirectAttributes.addFlashAttribute("error", "User not found.");
-                return "redirect:/conference";
-            }
-
-            User user = userOptional.get();
-            boolean isOrganizer = conference.getOrganizers().stream()
-                    .anyMatch(org -> org.getUser() != null && org.getUser().getId().equals(user.getId()));
-            if (!isOrganizer) {
-                logger.warn("User {} is not an organizer for conference {}", email, id);
-                redirectAttributes.addFlashAttribute("error", "You are not authorized to update this conference.");
-                return "redirect:/conference";
-            }
-
-            model.addAttribute("conference", conference);
+            model.addAttribute("conference", conferenceOptional.get());
             return "dynamic/conference/createConference";
         } catch (Exception e) {
             logger.error("Error in showUpdateConferenceForms", e);
@@ -269,24 +241,40 @@ public class ConferenceController {
             Conference conference = conferenceOptional.get();
             String email = authentication.getName();
             logger.debug("Authenticated user email: {}", email);
-            Optional<User> userOptional = userService.findByEmail(email);
-            if (userOptional.isEmpty()) {
-                logger.error("User not found for email: {}", email);
-                redirectAttributes.addFlashAttribute("error", "User not found.");
-                return "redirect:/conference";
+
+            // Log organizers associated with the conference
+            logger.debug("Organizers for conference {}: {}", id, conference.getOrganizers());
+            for (Organizer org : conference.getOrganizers()) {
+                logger.debug("Organizer ID: {}, User: {}, Conference ID: {}, RoleType: {}",
+                        org.getId(), org.getUser() != null ? org.getUser().getEmail() : "null",
+                        org.getConference() != null ? org.getConference().getId() : "null",
+                        org.getRoleType());
             }
 
-            User user = userOptional.get();
-            boolean isOrganizer = conference.getOrganizers().stream()
-                    .anyMatch(org -> org.getUser() != null && org.getUser().getId().equals(user.getId()));
-            logger.debug("Is user an organizer for conference {}? {}", id, isOrganizer);
-            if (!isOrganizer) {
-                logger.warn("User {} is not an organizer for conference {}", email, id);
-                redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this conference.");
-                return "redirect:/conference";
+            // Delete associated organizers
+            for (Organizer organizer : List.copyOf(conference.getOrganizers())) {
+                logger.debug("Deleting organizer with ID: {} for conference: {}", organizer.getId(), id);
+                organizerRepository.deleteById(organizer.getId());
             }
 
+            // Delete associated reviewers
+            List<Reviewer> reviewers = reviewerRepository.findByConferenceId(id);
+            for (Reviewer reviewer : reviewers) {
+                logger.debug("Deleting reviewer with ID: {} for conference: {}", reviewer.getId(), id);
+                reviewerRepository.deleteById(reviewer.getId());
+            }
+
+            // Delete associated authors
+            List<Author> authors = authorRepository.findByConferenceId(id);
+            for (Author author : authors) {
+                logger.debug("Deleting author with ID: {} for conference: {}", author.getId(), id);
+                authorRepository.deleteById(author.getId());
+            }
+
+            // Delete the conference
+            logger.debug("Deleting conference with ID: {}", id);
             conferenceService.deleteById(id);
+
             logger.info("Conference with ID {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("message", "Conference deleted successfully!");
             return "redirect:/conference";
@@ -294,6 +282,24 @@ public class ConferenceController {
             logger.error("Error deleting conference with ID: {}", id, e);
             redirectAttributes.addFlashAttribute("error", "Failed to delete conference: " + e.getMessage());
             return "redirect:/conference";
+        }
+    }
+
+    @GetMapping("/post-login")
+    public String postLogin(Authentication authentication, RedirectAttributes redirectAttributes, Model model) {
+        logger.debug("Entering post-login with authentication: {}", authentication);
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to access post-login");
+            return "redirect:/login";
+        }
+        try {
+            logger.debug("User authorities after login: {}", authentication.getAuthorities());
+            redirectAttributes.addFlashAttribute("message", "Successfully logged in!");
+            return "redirect:/conference";
+        } catch (Exception e) {
+            logger.error("Error in postLogin", e);
+            model.addAttribute("error", "An error occurred during post-login: " + e.getMessage());
+            return "error";
         }
     }
 }

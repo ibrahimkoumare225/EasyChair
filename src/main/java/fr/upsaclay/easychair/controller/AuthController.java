@@ -54,7 +54,7 @@ public class AuthController {
 
         // Set default role (AUTHOR)
         Role role = new Role();
-        role.setRole(RoleType.AUTHOR);
+        role.setRoleType(RoleType.AUTHOR);
         role.setUser(user);
         user.setRoles(new ArrayList<>());
         user.getRoles().add(role);

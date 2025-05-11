@@ -15,5 +15,5 @@ public interface OrganizerService {
 
     List<Organizer> findAll();
 
-    void delete(Long id);
+    void deleteById(Long id);
 }

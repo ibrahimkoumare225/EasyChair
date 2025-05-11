@@ -31,7 +31,9 @@ public class Reviewer extends Role {
             inverseJoinColumns = @JoinColumn(name = "submission_id")
     )
     private List<Submission> evaluatedSubmissions = new ArrayList<>();
-    @ManyToOne
-    @JoinColumn(name="conference_id",nullable = false)
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "conference_id", nullable = false)
     private Conference conference;
 }

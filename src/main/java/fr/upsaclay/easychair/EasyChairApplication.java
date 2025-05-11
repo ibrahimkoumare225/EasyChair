@@ -1,6 +1,5 @@
 package fr.upsaclay.easychair;
 
-import fr.upsaclay.easychair.service.DataInitializer;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,10 +12,6 @@ public class EasyChairApplication {
         SpringApplication.run(EasyChairApplication.class, args);
     }
 
-    // ✅ Bonne manière d'injecter un service dans le runner
-    @Bean
-    CommandLineRunner init(DataInitializer dataInitializer) {
-        return args -> dataInitializer.initializeData();
-    }
+
 }
 

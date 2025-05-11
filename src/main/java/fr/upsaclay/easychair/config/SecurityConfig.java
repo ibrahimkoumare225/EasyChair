@@ -1,6 +1,8 @@
 package fr.upsaclay.easychair.config;
 
+import fr.upsaclay.easychair.config.CustomUserDetailsService;
 import jakarta.servlet.DispatcherType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +15,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -20,9 +29,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/public/**").permitAll()
-                        .requestMatchers("/", "/conference", "/conference/searchConferences", "/login", "/register").permitAll()
-                        .requestMatchers("/conference/ajouterConference").authenticated() // All authenticated users
-                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}").hasRole("ORGANIZER") // Organizer-only for delete/modify
+                        .requestMatchers("/", "/conference", "/conference/searchConferences", "/login", "/register", "/post-login").permitAll()
+                        .requestMatchers("/conference/ajouterConference").authenticated()
+                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}").hasRole("ORGANIZER")
                         .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**").hasRole("AUTHOR")
                         .requestMatchers("/submissions/**").hasRole("REVIEWER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -30,7 +39,7 @@ public class SecurityConfig {
                 )
                 .formLogin((login) -> login
                         .loginPage("/login")
-                        .defaultSuccessUrl("/conference", true)
+                        .defaultSuccessUrl("/conference", true) // Testez directement /conference
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
