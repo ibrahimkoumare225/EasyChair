@@ -23,7 +23,7 @@ public class Author extends Role {
     )
     private List<Submission> submissions = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "conference_id", nullable = false)
     private Conference conference;
 }

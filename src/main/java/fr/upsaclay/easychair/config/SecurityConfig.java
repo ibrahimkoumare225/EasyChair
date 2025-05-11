@@ -30,8 +30,8 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/public/**").permitAll()
                         .requestMatchers("/", "/conference", "/conference/searchConferences", "/login", "/register", "/post-login").permitAll()
-                        .requestMatchers("/conference/ajouterConference").authenticated()
-                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}").hasRole("ORGANIZER")
+                        .requestMatchers("/conference/ajouterConference","/conference/myConference").authenticated()
+                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}", "/conference/update").hasRole("ORGANIZER")
                         .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**").hasRole("AUTHOR")
                         .requestMatchers("/submissions/**").hasRole("REVIEWER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -39,7 +39,7 @@ public class SecurityConfig {
                 )
                 .formLogin((login) -> login
                         .loginPage("/login")
-                        .defaultSuccessUrl("/conference", true) // Testez directement /conference
+                        .defaultSuccessUrl("/conference", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

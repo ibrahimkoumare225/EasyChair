@@ -20,4 +20,6 @@ public interface ConferenceService {
     Conference update(Conference conference);
 
     void deleteById(Long id);
+
+    List<Conference> findConferencesByUserEmail(String email);
 }

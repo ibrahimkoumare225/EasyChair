@@ -5,6 +5,7 @@ import fr.upsaclay.easychair.model.Organizer;
 import fr.upsaclay.easychair.model.Reviewer;
 import fr.upsaclay.easychair.model.Author;
 import fr.upsaclay.easychair.model.User;
+import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.repository.OrganizerRepository;
 import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.repository.AuthorRepository;
@@ -19,11 +20,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +43,7 @@ public class ConferenceController {
     private final OrganizerRepository organizerRepository;
     private final ReviewerRepository reviewerRepository;
     private final AuthorRepository authorRepository;
-    private final UserDetailsService userDetailsService; // Ajout pour recharger les rôles
+    private final UserDetailsService userDetailsService;
 
     @GetMapping
     public String homePage(Model model, Authentication authentication) {
@@ -73,6 +76,7 @@ public class ConferenceController {
     }
 
     record ConferenceView(Conference conference, boolean isOrganizer) {}
+    record MyConferenceView(Conference conference, List<RoleType> userRoles, LocalDate nextPhaseDate) {}
 
     @GetMapping("/searchConferences")
     public String searchConferences(@RequestParam(value = "query", required = false) String query, Model model, Authentication authentication) {
@@ -107,10 +111,11 @@ public class ConferenceController {
     }
 
     @PostMapping
+    @Transactional
     public String saveConference(@ModelAttribute Conference conference,
                                  Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
-        logger.debug("Saving conference: {}", conference);
+        logger.debug("Saving new conference: {}", conference);
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to save conference");
@@ -141,7 +146,6 @@ public class ConferenceController {
             organizerService.save(organizer);
             logger.debug("Organizer saved for user: {}, conference: {}", email, savedConference.getId());
 
-            // Rafraîchir le contexte de sécurité
             UserDetails updatedUserDetails = userDetailsService.loadUserByUsername(email);
             Authentication newAuth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                     updatedUserDetails, authentication.getCredentials(), updatedUserDetails.getAuthorities());
@@ -154,6 +158,44 @@ public class ConferenceController {
         } catch (Exception e) {
             logger.error("Error saving conference", e);
             redirectAttributes.addFlashAttribute("error", "Failed to create conference: " + e.getMessage());
+            return "redirect:/conference";
+        }
+    }
+
+    @PostMapping("/update")
+    @Transactional
+    public String updateConference(@ModelAttribute Conference conference,
+                                   Authentication authentication,
+                                   RedirectAttributes redirectAttributes) {
+        logger.debug("Updating conference with ID: {}", conference.getId());
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to update conference");
+            return "redirect:/login";
+        }
+
+        try {
+            if (conference.getId() == null) {
+                logger.error("Conference ID is null during update");
+                redirectAttributes.addFlashAttribute("error", "Invalid conference ID.");
+                return "redirect:/conference";
+            }
+
+            Optional<Conference> existingConference = conferenceService.findOne(conference.getId());
+            if (existingConference.isEmpty()) {
+                logger.warn("Conference not found for ID: {}", conference.getId());
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+
+            logger.debug("Conference data before update: {}", conference);
+            Conference updatedConference = conferenceService.update(conference);
+            logger.info("Conference updated successfully with ID: {}", updatedConference.getId());
+            redirectAttributes.addFlashAttribute("message", "Conference updated successfully!");
+            return "redirect:/conference";
+        } catch (Exception e) {
+            logger.error("Error updating conference with ID: {}", conference.getId(), e);
+            redirectAttributes.addFlashAttribute("error", "Failed to update conference: " + e.getMessage());
             return "redirect:/conference";
         }
     }
@@ -242,7 +284,6 @@ public class ConferenceController {
             String email = authentication.getName();
             logger.debug("Authenticated user email: {}", email);
 
-            // Log organizers associated with the conference
             logger.debug("Organizers for conference {}: {}", id, conference.getOrganizers());
             for (Organizer org : conference.getOrganizers()) {
                 logger.debug("Organizer ID: {}, User: {}, Conference ID: {}, RoleType: {}",
@@ -251,27 +292,23 @@ public class ConferenceController {
                         org.getRoleType());
             }
 
-            // Delete associated organizers
             for (Organizer organizer : List.copyOf(conference.getOrganizers())) {
                 logger.debug("Deleting organizer with ID: {} for conference: {}", organizer.getId(), id);
                 organizerRepository.deleteById(organizer.getId());
             }
 
-            // Delete associated reviewers
             List<Reviewer> reviewers = reviewerRepository.findByConferenceId(id);
             for (Reviewer reviewer : reviewers) {
                 logger.debug("Deleting reviewer with ID: {} for conference: {}", reviewer.getId(), id);
                 reviewerRepository.deleteById(reviewer.getId());
             }
 
-            // Delete associated authors
             List<Author> authors = authorRepository.findByConferenceId(id);
             for (Author author : authors) {
                 logger.debug("Deleting author with ID: {} for conference: {}", author.getId(), id);
                 authorRepository.deleteById(author.getId());
             }
 
-            // Delete the conference
             logger.debug("Deleting conference with ID: {}", id);
             conferenceService.deleteById(id);
 
@@ -300,6 +337,78 @@ public class ConferenceController {
             logger.error("Error in postLogin", e);
             model.addAttribute("error", "An error occurred during post-login: " + e.getMessage());
             return "error";
+        }
+    }
+
+    @GetMapping("/myConference")
+    public String myConference(Model model, Authentication authentication) {
+        logger.debug("Accessing myConference with authentication: {}", authentication);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to access myConference");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            logger.debug("Fetching conferences for user email: {}", email);
+
+            List<Conference> conferences = conferenceService.findConferencesByUserEmail(email);
+
+            List<MyConferenceView> conferenceViews = conferences.stream().map(conference -> {
+                List<RoleType> userRoles = new ArrayList<>();
+
+                boolean isOrganizer = conference.getOrganizers().stream()
+                        .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
+                if (isOrganizer) {
+                    userRoles.add(RoleType.ORGANIZER);
+                }
+
+                boolean isReviewer = reviewerRepository.findByConferenceIdAndUserEmail(conference.getId(), email).isPresent();
+                if (isReviewer) {
+                    userRoles.add(RoleType.REVIEWER);
+                }
+
+                boolean isAuthor = authorRepository.findByConferenceIdAndUserEmail(conference.getId(), email).isPresent();
+                if (isAuthor) {
+                    userRoles.add(RoleType.AUTHOR);
+                }
+
+                LocalDate nextPhaseDate = getNextPhaseDate(conference);
+
+                return new MyConferenceView(conference, userRoles, nextPhaseDate);
+            }).toList();
+
+            model.addAttribute("conferenceViews", conferenceViews);
+            return "dynamic/conference/myConference";
+        } catch (Exception e) {
+            logger.error("Error in myConference", e);
+            model.addAttribute("error", "An error occurred while loading your conferences: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    private LocalDate getNextPhaseDate(Conference conference) {
+        switch (conference.getPhase()) {
+            case INITIALIZATION:
+                return conference.getCommiteeAssignmentDate();
+            case COMMITEE_ASSIGNMENT:
+                return conference.getAbstractSubDate();
+            case ABSTRACT_SUBMISSION:
+                return conference.getSubAssignmentDate();
+            case SUBMISSION_ASSIGNMENT:
+                return conference.getConcreteSubDate();
+            case CONCRETE_SUBMISSION:
+                return conference.getEvaluationDate();
+            case EVALUATION:
+                return conference.getFinalSubDate();
+            case FINAL_SUBMISSION:
+                return conference.getEndDate();
+            case VALIDATION:
+                return conference.getEndDate();
+            case CLOSED:
+            default:
+                return null;
         }
     }
 }
