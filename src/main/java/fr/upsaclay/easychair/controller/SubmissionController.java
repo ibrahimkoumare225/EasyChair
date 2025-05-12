@@ -47,7 +47,7 @@ public class SubmissionController {
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
             model.addAttribute("submission", submission.get());
-            return  "dynamic/submission/detailSubmission";//"dynamic/submission/detailSubmission";
+            return  "dynamic/submission/detailSubmission";
         } else {
             return "redirect:/home";
         }

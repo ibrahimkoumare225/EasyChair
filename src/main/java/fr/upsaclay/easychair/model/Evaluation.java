@@ -15,12 +15,7 @@ import java.util.List;
 public class Evaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
-
-    @Column(nullable = false)
-    private int specDegree;
-    @Column(nullable = false)
-    private int grade;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name="submission_id")

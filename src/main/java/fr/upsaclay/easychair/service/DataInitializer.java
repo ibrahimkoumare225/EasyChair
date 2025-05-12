@@ -52,8 +52,10 @@ public class DataInitializer {
 
     @Autowired
     private AlertRepository alertRepository;
-
-
+    @Autowired
+    private SubmissionService submissionService;
+    @Autowired
+    private EvaluationService evaluationService;
 
 
     public void initializeData() {
@@ -185,6 +187,7 @@ public class DataInitializer {
         submission1.setSubFiles(List.of("soumissions/article1-v1.pdf"));
         //submission1.setFinalSubFiles(List.of("soumissions/article1-final.pdf"));
         submission1.setKeywords(Arrays.asList("IA", "Reconnaissance de motifs", "Réseaux de neurones"));
+
         submission1.setConference(conference);
         submission1 = submissionRepository.save(submission1);
 
@@ -199,6 +202,7 @@ public class DataInitializer {
         submission2.setKeywords(Arrays.asList("Vie privée", "Blockchain", "Sécurité"));
         submission2.setConference(conference);
         submission2 = submissionRepository.save(submission2);
+
 
         Submission submission3 = new Submission();
         submission3.setTitle("Apprentissage profond pour la prévision climatique");
@@ -228,19 +232,24 @@ public class DataInitializer {
 
         // Création d évaluation
         Evaluation evaluation = new Evaluation();
-        evaluation.setSpecDegree(5);
-        evaluation.setGrade(5);
         evaluation.setSubmission(submission1);
         evaluation.setPosts(new ArrayList<>());
         evaluation = evaluationRepository.save(evaluation);
+        System.out.println(evaluation);
 
+        submission1.setEvaluation(evaluation);
+        submission1= submissionService.update(submission1);
         // Création du Post
         Post post = new Post();
+        post.setEvaluation(evaluation);
         post.setDate(LocalDateTime.now());
         post.setBody("Le corps du message de post de l'évaluation. Ce post contient des informations importantes concernant l'évaluation.");
-        post.setEvaluation(evaluation);
         post.setReviewer(reviewer);
         postRepository.save(post);
+        evaluation.getPosts().add(post);
+        evaluation=evaluationRepository.save(evaluation);
+        System.out.println("eval de sub1  :"+submission1.getEvaluation().getId());
+
 
         // Création du Report
         //Report report = new Report();
