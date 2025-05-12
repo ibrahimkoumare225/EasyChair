@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Conferences - EasyChair</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!-- Insertion de la navbar -->
+<div th:replace="~{sidebar/sidebar :: sideBar}"></div>
+
+<!-- Tableau des conférences -->
+<div class="p-6 max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">List of My Conferences</h1>
+
+    <!-- Messages d'erreur ou de succès -->
+    <div th:if="${error}" class="mb-4 text-red-600 bg-red-100 p-3 rounded-lg">
+        <span th:text="${error}"></span>
+    </div>
+
+    <div class="overflow-auto rounded-lg shadow">
+        <table class="w-full text-sm text-left text-gray-700">
+            <thead class="bg-blue-200 text-gray-800">
+            <tr>
+                <th class="px-4 py-2">Conference Title</th>
+                <th class="px-4 py-2">Creation Date</th>
+                <th class="px-4 py-2">Organizer</th>
+                <th class="px-4 py-2">My Roles</th>
+                <th class="px-4 py-2">Phase</th>
+                <th class="px-4 py-2">Next Phase Date</th>
+                <th class="px-4 py-2">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white">
+            <tr th:each="view : ${conferenceViews}" class="border-b">
+                <td class="px-4 py-2" th:text="${view.conference.title} ?: 'No Title'"></td>
+                <td class="px-4 py-2" th:text="${view.conference.creationDate} ?: 'N/A'"></td>
+                <td class="px-4 py-2">
+                            <span th:if="${view.conference.organizers != null and !view.conference.organizers.isEmpty()}"
+                                  th:text="${view.conference.organizers[0].user?.firstName + ' ' + view.conference.organizers[0].user?.lastName} ?: 'Unknown'"></span>
+                    <span th:unless="${view.conference.organizers != null and !view.conference.organizers.isEmpty()}">Unknown</span>
+                </td>
+                <td class="px-4 py-2">
+                    <select class="border border-gray-300 rounded px-2 py-1 text-sm">
+                        <option th:each="role : ${view.userRoles}" th:value="${role}" th:text="${role}"></option>
+                    </select>
+                </td>
+                <td class="px-4 py-2" th:text="${view.conference.phase} ?: 'N/A'"></td>
+                <td class="px-4 py-2" th:text="${view.nextPhaseDate} ?: 'N/A'"></td>
+                <td class="px-4 py-2">
+                    <a th:href="@{/conference/conferenceDetail/{id}(id=${view.conference.id})}"
+                       class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Enter</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(conferenceViews)}">
+                <td colspan="7" class="px-4 py-2 text-center text-gray-600">No conferences found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

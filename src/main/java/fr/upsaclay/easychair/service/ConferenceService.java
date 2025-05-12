@@ -7,13 +7,17 @@ import java.util.Optional;
 
 public interface ConferenceService {
 
-    Conference save(Conference conference);
+    public List<Conference> findAllWithOrganizers();
 
-    Conference update(Conference conference);
+    List<Conference> findAll();
+
+    List<Conference> findByTitleIgnoreCaseOrDescriptionIgnoreCase(String title, String description, String query);
 
     Optional<Conference> findOne(Long id);
 
-    List<Conference> findAll();
+    Conference save(Conference conference);
+
+    Conference update(Conference conference);
 
     void deleteById(Long id);
 
@@ -21,4 +25,5 @@ public interface ConferenceService {
 
     /*List<Conference> searchByTerm(String searchTerm);*/
 
+    List<Conference> findConferencesByUserEmail(String email);
 }

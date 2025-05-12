@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     List<Submission> findByTitleIgnoreCase(String title);
+
+
+
 }

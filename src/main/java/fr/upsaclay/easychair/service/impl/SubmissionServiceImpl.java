@@ -5,13 +5,12 @@ import fr.upsaclay.easychair.model.Submission;
 import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.repository.AuthorRepository;
 import fr.upsaclay.easychair.repository.SubmissionRepository;
-import fr.upsaclay.easychair.service.AuthorService;
 import fr.upsaclay.easychair.service.SubmissionService;
-import fr.upsaclay.easychair.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -59,10 +58,20 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
         return submissionRepository.findByTitleIgnoreCase(title);
     }
+
     @Override
-     public List<Submission> findSubmissionsByAuthor(User user) {
-        return authorRepository.findByUser(user)
-                .map(Author::getSubmissions)
-                .orElse(Collections.emptyList());
+    public List<Submission> findSubmissionsByAuthor(User user) {
+        List<Author> authors = authorRepository.findByUser(user);
+
+        List<Submission> allSubmissions = new ArrayList<>();
+        for (Author author : authors) {
+            if (author.getSubmissions() != null) {
+                allSubmissions.addAll(author.getSubmissions());
+            }
+        }
+
+        return allSubmissions;
     }
+
+
 }

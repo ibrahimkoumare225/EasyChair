@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Welcome to EasyChair</title>
@@ -11,6 +11,22 @@
 
 <div class="max-w-7xl mx-auto p-6">
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome to EasyChair</h1>
+    <!-- Display flash messages -->
+    <div th:if="${message}" class="mb-4 text-green-600 bg-green-100 p-3 rounded-lg">
+        <span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="mb-4 text-red-600 bg-red-100 p-3 rounded-lg">
+        <span th:text="${error}"></span>
+    </div>
+    <div sec:authorize="isAuthenticated()" class="mb-4">
+        <p class="text-gray-700">Logged in as: <span sec:authentication="name"></span></p>
+        <a th:href="@{/conference/ajouterConference}" class="text-blue-500 hover:underline">Create Conference</a> |
+        <a th:href="@{/logout}" class="text-blue-500 hover:underline">Logout</a>
+    </div>
+    <div sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}" class="text-blue-500 hover:underline">Login</a> |
+        <a th:href="@{/register}" class="text-blue-500 hover:underline">Register</a>
+    </div>
 </div>
 
 <div class="flex justify-center items-center space-x-4 mb-6">
@@ -23,7 +39,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                  class="bi bi-search" viewBox="0 0 16 16">
                 <path
-                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
             </svg>
         </button>
     </form>
@@ -38,26 +54,48 @@
             <th class="px-6 py-3 font-semibold">Organizer Name</th>
             <th class="px-6 py-3 font-semibold">Theme</th>
             <th class="px-6 py-3 font-semibold">Keywords</th>
-            <th class="px-6 py-3 font-semibold">Visualize</th>
+            <th class="px-6 py-3 font-semibold">Actions</th>
         </tr>
         </thead>
-        <tbody id="conferences" class="divide-y divide-gray-100 text-gray-700">
-        <tr th:each="conference : ${conferences}" class="hover:bg-gray-50">
-            <td class="px-6 py-4" th:text="${conference.title}"></td>
-            <td class="px-6 py-4" th:text="${conference.creationDate}"></td>
-            <td class="px-6 py-4"
-                th:text="${conference.organizers.empty ? 'No Organizer' : conference.organizers[0].user.firstName + ' ' + conference.organizers[0].user.lastName}"></td>
-            <td class="px-6 py-4" th:text="${conference.description}"></td>
-            <td class="px-6 py-4" th:text="${conference.keywords}"></td>
+        <tbody id="conferences" class="divide-y divide-gray-200 text-gray-700">
+        <tr th:each="confView : ${conferences}" class="hover:bg-gray-50">
+            <td class="px-6 py-4" th:text="${confView.conference?.title} ?: 'No Title'"></td>
+            <td class="px-6 py-4" th:text="${confView.conference?.creationDate} ?: 'N/A'"></td>
             <td class="px-6 py-4">
+                <span th:if="${confView.conference?.organizers != null and !confView.conference.organizers.isEmpty()}"
+                      th:text="${confView.conference.organizers[0].user?.firstName + ' ' + confView.conference.organizers[0].user?.lastName}">
+                </span>
+                <span th:unless="${confView.conference?.organizers != null and !confView.conference.organizers.isEmpty()}">Unknown</span>
+            </td>
+            <td class="px-6 py-4" th:text="${confView.conference?.description} ?: 'No Description'"></td>
+            <td class="px-6 py-4" th:text="${confView.conference?.keywords} ?: 'None'"></td>
+            <td class="px-6 py-4 flex space-x-2">
                 <button type="button"
                         class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm">
-                    <a th:href="@{/conference/conferenceDetail/{id}(id=${conference.id})}">Visualize</a>
+                    <a th:href="@{/conference/conferenceDetail/{id}(id=${confView.conference.id})}">Visualize</a>
                 </button>
+                <button type="button"
+                        class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
+                        th:if="${confView.isOrganizer}">
+                    <a th:href="@{/conference/conference/{id}(id=${confView.conference.id})}">Edit</a>
+                </button>
+                <form th:action="@{/conference/deleteConference/{id}(id=${confView.conference.id})}" method="post" class="inline"
+                      th:if="${confView.isOrganizer}">
+                    <button type="submit"
+                            class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
+                            onclick="return confirm('Are you sure you want to delete this conference?')">
+                        Delete
+                    </button>
+                </form>
             </td>
         </tr>
         </tbody>
     </table>
+</div>
+
+<!-- Message when no conferences are found -->
+<div th:if="${#lists.isEmpty(conferences)}" class="mt-4 text-gray-700 text-center">
+    <p>No conferences found.</p>
 </div>
 </body>
 </html>
