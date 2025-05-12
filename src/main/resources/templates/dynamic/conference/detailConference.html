@@ -1,92 +1,93 @@
 <!DOCTYPE html>
-  <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-      <meta charset="UTF-8">
-      <title>Welcome to EasyChair</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="bg-gray-100 min-h-screen font-sans">
-      <!--Insertion de la navbar-->
-      <div th:replace="~{sidebar/sidebar :: sideBar}"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to EasyChair</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!--Insertion de la navbar-->
+<div th:replace="~{sidebar/sidebar :: sideBar}"></div>
 
-      <div class="max-w-6xl mx-auto bg-white p-10 rounded-xl shadow-lg space-y-8 mt-10">
+<div class="max-w-6xl mx-auto bg-white p-10 rounded-xl shadow-lg space-y-8 mt-10">
 
-        <!-- Title -->
-        <h1 class="text-3xl font-bold text-black-600 text-center" th:text="${conference.title}">Conference Title</h1>
+  <!-- Title -->
+  <h1 class="text-3xl font-bold text-black-600 text-center" th:text="${conference.title}">Conference Title</h1>
 
-        <!-- Description at the top -->
-        <div class="border border-gray-300 bg-gray-50 p-6 rounded-lg shadow-sm">
-          <h2 class="text-xl font-semibold text-gray-800 mb-2">Description</h2>
-          <p class="text-gray-700" th:text="${conference.description}">This is a description.</p>
-        </div>
+  <!-- Description at the top -->
+  <div class="border border-gray-300 bg-gray-50 p-6 rounded-lg shadow-sm">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">Description</h2>
+    <p class="text-gray-700" th:text="${conference.description}">This is a description.</p>
+  </div>
 
-        <!-- Two Columns Layout -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  <!-- Two Columns Layout -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-          <!-- Left Column: Metadata + Keywords -->
-          <div class="space-y-6">
-            <div>
-              <p class="text-gray-700"><span class="font-semibold">Created on:</span>
-                <span th:text="${#temporals.format(conference.creationDate, 'dd/MM/yyyy')}">01/05/2025</span>
-              </p>
-            </div>
+    <!-- Left Column: Metadata + Keywords -->
+    <div class="space-y-6">
+      <div>
+        <p class="text-gray-700"><span class="font-semibold">Created on:</span>
+          <span th:text="${#temporals.format(conference.creationDate, 'dd/MM/yyyy')}">01/05/2025</span>
+        </p>
+      </div>
 
-            <div class="flex items-center space-x-2">
-              <span class="font-semibold text-gray-700">Current Phase:</span>
-              <span th:text="${conference.phase}">Submission</span>
-              <a href="#" th:href="@{/phases/{id}(id=${conference.phase})}"
-                 class="text-sm text-blue-600 hover:underline border border-blue-500 px-2 py-1 rounded">
-                Details
-              </a>
-            </div>
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold text-gray-700">Current Phase:</span>
+        <span th:text="${conference.phase}">Submission</span>
+        <a href="#" th:href="@{/phases/{id}(id=${conference.phase})}"
+           class="text-sm text-blue-600 hover:underline border border-blue-500 px-2 py-1 rounded">
+          Details
+        </a>
+      </div>
 
-            <div class="flex items-center space-x-2">
-              <span class="font-semibold text-gray-700">Organizer:</span>
-<!--              <span th:text="${conference.organizers.getF}">John Doe</span>-->
-<!--              <a th:href="@{/organizers/{id}(id=${conference.organizer.id})}"-->
-<!--                 class="text-sm text-green-600 hover:underline border border-green-500 px-2 py-1 rounded">-->
-<!--                View Profile-->
-<!--              </a>-->
-            </div>
+      <!-- Keywords Box -->
+      <div class="border border-gray-300 bg-gray-50 p-4 rounded-lg shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">Keywords</h2>
+        <ul class="list-disc list-inside text-gray-600">
+          <li th:each="keyword : ${conference.keywords}" th:text="${keyword}">Keyword 1</li>
+        </ul>
+      </div>
+    </div>
 
-            <!-- Keywords Box -->
-            <div class="border border-gray-300 bg-gray-50 p-4 rounded-lg shadow-sm">
-              <h2 class="text-lg font-semibold text-gray-800 mb-2">Keywords</h2>
-              <ul class="list-disc list-inside text-gray-600">
-                <li th:each="keyword : ${conference.keywords}" th:text="${keyword}">Keyword 1</li>
-              </ul>
-            </div>
-          </div>
+    <!-- Right Column: Phases List -->
+    <div class="border border-gray-300 bg-gray-50 p-4 rounded-lg shadow-sm h-full">
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">Phases</h2>
+      <ul class="list-decimal list-inside text-gray-600 space-y-1">
+        <li th:each="phase : ${conference.phase}" th:text="${phase}">Submission Phase</li>
+      </ul>
+    </div>
+  </div>
 
-          <!-- Right Column: Phases List -->
-          <div class="border border-gray-300 bg-gray-50 p-4 rounded-lg shadow-sm h-full">
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">Phases</h2>
-            <ul class="list-decimal list-inside text-gray-600 space-y-1">
-              <li th:each="phase : ${conference.phase}" th:text="${phase}">Submission Phase</li>
-            </ul>
-          </div>
-        </div>
+  <!-- Buttons Section -->
+  <div class="flex justify-between space-x-4 pt-6">
+    <a th:href="@{/conference}" onclick="history.back();" class="bg-gray-300 hover:bg-gray-400 text-black px-6 py-2 rounded-lg font-semibold">Back</a>
+    <a th:href="@{/conference/conference/{id}(id=${conference.id})}" class="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold">Edit</a>
+  </div>
 
-        <!-- A afficher en fonction des paramètres de la conférence -->
-        <div class="flex justify-end space-x-4 pt-6">
-          <!-- formulaire créer submission -->
-          <!-- check sur invitation faux et phase abstract vrai -->
+  <!-- Create Submission Section -->
+  <div class="flex justify-end space-x-4 pt-6">
+    <a th:if="${!conference.onInvitation and conference.phase.name() == T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION.name()}"
+       th:href="@{/submissions/ajouterSubmission(conferenceId=${conference.id})}"
+       class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Create Submission</a>
+      <!-- A afficher en fonction des paramètres de la conférence
+      <div class="flex justify-end space-x-4 pt-6">
+           formulaire créer submission
+           check sur invitation faux et phase abstract vrai
           <form th:if="${!conference.onInvitation and conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}"
                 th:action="@{/submissions/ajouterSubmission}" method="post">
 
-            <input type="hidden" name="conferenceId" th:value="${conference.id}" />
+              <input type="hidden" name="conferenceId" th:value="${conference.id}" />
 
-            <button type="submit"
-                    class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
-              Create Submission
-            </button>
-          </form>
+              <button type="submit"
+                      class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
+                  Create Submission
+              </button>
+          </form> -->
+    <a th:if ="${conference.onInvitation}"
+       class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>
+  </div>
 
-          <a th:if ="${conference.onInvitation}"
-             class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>
-        </div>
+</div>
 
-      </div>
-
-    </body>
-  </html>
+</body>
+</html>

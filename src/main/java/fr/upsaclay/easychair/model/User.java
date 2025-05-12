@@ -1,56 +1,83 @@
 package fr.upsaclay.easychair.model;
+
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class User {
+public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
-    @Column(name="first_name",nullable = false)
+    private Long id;
+
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name="last_name",nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(unique = true, nullable = false)
     private String pseudo;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(unique = true,nullable = false)
     private String email;
 
     private String photo;
-    
-    @Column(name = "birth_date",nullable = false)
+
+    @Column(name = "birth_date")
     private LocalDate birthDate;
-    
-    @ElementCollection
-    @CollectionTable(name = "user_keywords", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "keyword")
-    private List<String> keywords = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @Column(name = "conference_id")
+    private Long conferenceId;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Role> roles = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Notification> notifications = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "conference_id")
-    private Conference conference;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleType().name()));
+        }
+        return authorities;
+    }
 
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

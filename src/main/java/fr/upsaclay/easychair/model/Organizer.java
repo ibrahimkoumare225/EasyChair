@@ -1,7 +1,6 @@
 package fr.upsaclay.easychair.model;
 
-// Organizer.java
-import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.enumates.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,15 +11,25 @@ import java.util.List;
 @Table(name = "organizers")
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class Organizer extends Role {
 
-    @OneToMany(mappedBy = "organizer")
+    @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Alert> receivedAlerts = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name="conference_id",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "conference_id", nullable = false)
     private Conference conference;
+
+    // Constructors
+    public Organizer() {
+        super();
+        setRoleType(RoleType.ORGANIZER); // Définir le type de rôle par défaut
+    }
+
+    @Override
+    public String toString() {
+        return "Organizer{id=" + getId() + ", user=" + (getUser() != null ? getUser().getEmail() : "null") +
+                ", conference=" + (conference != null ? conference.getId() : "null") + ", roleType=" + getRoleType() + "}";
+    }
 }

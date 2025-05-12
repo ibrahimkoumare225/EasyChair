@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="h-full bg-gray-100">
+<head>
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Navbar en haut -->
+<div th:replace="~{sidebar/sidebar :: sideBar}" class="bg-blue-600 p-4 text-white shadow-md"></div>
+
+<!-- Formulaire de connexion avec un espace suffisant -->
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm mx-auto mt-8 space-y-4">
+    <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
+    <div th:if="${param.error}" class="mb-4">
+        <p class="text-red-500">Invalid email or password.</p>
+    </div>
+    <div th:if="${param.logout}" class="mb-4">
+        <p class="text-green-500">You have been logged out.</p>
+    </div>
+    <form th:action="@{/login}" method="post" class="space-y-4">
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+            <input type="email" id="email" name="username" required class="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+            <input type="password" id="password" name="password" required class="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold">Login</button>
+        </div>
+    </form>
+    <p class="mt-4 text-center text-sm">Don't have an account? <a th:href="@{/register}" class="text-blue-500 hover:underline">Register</a></p>
+</div>
+</body>
+</html>

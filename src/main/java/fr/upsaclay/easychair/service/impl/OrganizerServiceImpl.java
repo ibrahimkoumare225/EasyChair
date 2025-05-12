@@ -4,9 +4,9 @@ import fr.upsaclay.easychair.model.Organizer;
 import fr.upsaclay.easychair.repository.OrganizerRepository;
 import fr.upsaclay.easychair.service.OrganizerService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -14,9 +14,13 @@ import java.util.Optional;
 @Service
 public class OrganizerServiceImpl implements OrganizerService {
     private final OrganizerRepository organizerRepository;
+
     @Override
+    @Transactional
     public Organizer save(Organizer organizer) {
-        return organizerRepository.save(organizer);
+        Organizer savedOrganizer = organizerRepository.save(organizer);
+        organizerRepository.flush(); // Forcer le flush pour garantir la persistance immédiate
+        return savedOrganizer;
     }
 
     @Override
@@ -37,7 +41,12 @@ public class OrganizerServiceImpl implements OrganizerService {
     }
 
     @Override
-    public void delete(Long id) {
-        organizerRepository.deleteById(id);
+    @Transactional
+    public void deleteById(Long id) {
+        if (organizerRepository.existsById(id)) {
+            organizerRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("Organizer with ID " + id + " does not exist.");
+        }
     }
 }
