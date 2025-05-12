@@ -21,7 +21,5 @@ public class Report extends Post {
 
     private int specDegree;
 
-    @ManyToOne
-    @JoinColumn(name = "reviewer_id", insertable = false, updatable = false)
-    private Reviewer reviewer;
+
 }

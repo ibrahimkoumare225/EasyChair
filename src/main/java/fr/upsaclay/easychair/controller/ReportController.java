@@ -1,10 +1,16 @@
 package fr.upsaclay.easychair.controller;
 
+import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.Evaluation;
 import fr.upsaclay.easychair.model.Report;
+import fr.upsaclay.easychair.model.Submission;
+import fr.upsaclay.easychair.service.EvaluationService;
 import fr.upsaclay.easychair.service.ReportService;
+import fr.upsaclay.easychair.service.SubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +23,9 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
+    @Autowired
+    private EvaluationService  evaluationService;
+
     // GET /reports
     @GetMapping
     public List<Report> getAllReports() {
@@ -28,6 +37,27 @@ public class ReportController {
     public ResponseEntity<Report> getReportById(@PathVariable Long id) {
         Optional<Report> report = reportService.findOne(id);
         return report.isPresent() ? (ResponseEntity<Report>) ResponseEntity.ok() : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/ajouterReport")
+    public String showAddReportForm(@RequestParam Long evaluationId, Model model) {
+        Optional<Evaluation> evaluation = evaluationService.findOne(evaluationId);
+        if (evaluation.isPresent()) {
+            model.addAttribute("evaluation",evaluation.get());
+            model.addAttribute("report", new Report());
+            return "dynamic/evaluation/reportForm";
+        }
+        else return "error/404";
+    }
+    @PostMapping("/modifierReport")
+    public String showUpdateReportForm(@RequestParam Long reportId, Model model) {
+        Optional<Report> report = reportService.findOne(reportId);
+        if (report.isPresent()) {
+            model.addAttribute("submission",report.get().getEvaluation());
+            model.addAttribute("report", report.get());
+            return "dynamic/evaluation/reportForm";
+        }
+        else return "error/404";
     }
 
     // POST /reports

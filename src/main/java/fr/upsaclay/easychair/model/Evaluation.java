@@ -15,15 +15,10 @@ import java.util.List;
 public class Evaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
+    private Long id;
 
-    @Column(nullable = false)
-    private int specDegree;
-    @Column(nullable = false)
-    private int grade;
-
-    @ManyToOne
-    @JoinColumn(name = "submission_id",nullable = false )
+    @OneToOne
+    @JoinColumn(name="submission_id")
     private Submission submission;
 
     @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true)

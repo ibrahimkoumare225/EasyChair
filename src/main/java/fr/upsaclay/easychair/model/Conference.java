@@ -19,11 +19,13 @@ public class Conference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
-    
+
+    @Column(nullable = false)
     private String title;
+
     private String description;
     
-    @Column(name = "creation_date")
+    @Column(name = "creation_date",nullable = false)
     private LocalDate creationDate;
     
     @Column(name = "commitee_assignment_date")
@@ -48,6 +50,7 @@ public class Conference {
     private LocalDate endDate;
     
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Phase phase;
 
 

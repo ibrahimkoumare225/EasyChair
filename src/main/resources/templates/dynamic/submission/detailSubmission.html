@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Submission Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!-- Navbar -->
+<div th:replace="sidebar/sidebar::sideBar"></div>
+
+<div class="relative flex justify-center mt-10">
+  <div class="absolute left-10 top-0 mt-2">
+    <a th:href="@{/submission/submissionDetail/{id}(id=${submission.id})}" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 shadow flex items-center justify-center text-xl text-gray-600">
+      &lt;
+    </a>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-md p-8 w-full max-w-4xl border border-gray-300">
+    <h2 class="text-xl font-bold text-center mb-6">Submission Details</h2>
+
+    <div class="mb-4">
+      <label class="block font-semibold mb-1">Title:</label>
+      <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium" th:text="${submission.title}"></p>
+    </div>
+
+    <div class="mb-4 flex space-x-6">
+      <div class="flex-1">
+        <label class="block font-semibold mb-1">Date of creation:</label>
+        <span class="text-black font-medium" th:text="${submission.creationDate}"></span>
+      </div>
+      <div class="flex-1">
+        <label class="block font-semibold mb-1">Statut:</label>
+        <span class="text-black font-medium" th:text="${submission.status}"></span>
+      </div>
+    </div>
+    <!-- colonnes -->
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <!-- Authors -->
+      <!-- prise en compte du parametre auteurs anonymisés -->
+      <div th:unless="${submission.conference.anonymousAuthors}">
+        <label class="block font-semibold mb-1">Authors:</label>
+        <ul class="list-disc pl-5 text-black space-y-1">
+          <li th:each="author : ${submission.authors}" th:text="|${author.user.firstName} ${author.user.lastName}|">Author Name</li>
+        </ul>
+      </div>
+
+    <!-- Keywords -->
+      <div>
+        <label class="block font-semibold mb-1">Keywords:</label>
+        <ul class="list-disc pl-5 text-black space-y-1">
+          <li th:each="kw : ${submission.keywords}" th:text="${kw}">Keyword</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Abstract -->
+    <div class="mb-6">
+      <label class="block font-semibold mb-1 text-gray-800">Abstract:</label>
+      <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium whitespace-pre-wrap" th:text="${submission.abstractSub}"></p>
+    </div>
+
+    <!-- Fichier -->
+    <div class="mb-6">
+      <label class="block font-semibold mb-1 text-gray-800">Attached Files:</label>
+
+      <ul class="list-disc pl-5 text-black space-y-1" th:if="${#lists.isEmpty(submission.subFiles) == false}">
+        <li th:each="file : ${submission.subFiles}" th:text="${file}"></li>
+      </ul>
+
+      <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium" th:if="${#lists.isEmpty(submission.subFiles)}">
+        No files uploaded
+      </p>
+    </div>
+    <!-- A afficher en fonction des autorisations utilisateurs -->
+    <div class="flex justify-end space-x-4 pt-6">
+      <!-- TODO : check role -->
+        <!-- formulaire modifier submission -->
+        <!-- check sur l'existence de la submission et que la phase est appropriée -->
+        <form th:if="${submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION
+              or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
+              or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}"
+              th:action="@{/submissions/modifierSubmission}" method="post">
+
+          <input type="hidden" name="submissionId" th:value="${submission.id}" />
+
+          <button type="submit"
+                  class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
+            Modify Submission
+          </button>
+        </form>
+    </div>
+    <!-- TODO: evaluate -->
+    <form th:action="@{/reports/ajouterReport}" method="post">
+      <!--th:if="${submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).EVALUATION}"-->
+
+      <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
+
+      <button type="submit"
+              class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
+        Evaluate
+      </button>
+    </form>
+
+  </div>
+</div>
+</body>
+</html>

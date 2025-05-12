@@ -1,4 +1,4 @@
-/*
+
 package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.Evaluation;
@@ -34,7 +34,8 @@ public class EvaluationController {
 
     //POST /evaluations/
     @PostMapping
-    public Evaluation createEvaluation(@RequestBody Evaluation evaluation) {return evaluationService.save(evaluation);}
+    public Evaluation createEvaluation(@RequestBody Evaluation evaluation) {
+        return evaluationService.save(evaluation);}
 
     // PUT /evaluations/{id}
     @PutMapping
@@ -48,4 +49,4 @@ public class EvaluationController {
         evaluationService.delete(id);
     }
 }
-*/
+
