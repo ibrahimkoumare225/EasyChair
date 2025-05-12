@@ -24,8 +24,6 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     public Evaluation update(Evaluation evaluation) {
         return findOne(evaluation.getId()).map(existingEval->{
-                existingEval.setGrade(evaluation.getGrade());
-                existingEval.setSpecDegree(evaluation.getSpecDegree());
                 return evaluationRepository.save(existingEval);
         }).orElseThrow(() -> new EntityNotFoundException("Evaluation introuvable avec l’ID : " + evaluation.getId()));
     }

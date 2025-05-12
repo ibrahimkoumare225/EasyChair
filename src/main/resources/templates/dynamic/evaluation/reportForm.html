@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluation Thread</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!-- Sidebar inclusion -->
+<div th:replace="~{sidebar/sidebar :: sideBar}"></div>
+
+<div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Evaluation Thread</h1>
+
+    <form action="/submit-eval" method="post"
+          class="bg-white rounded-2xl shadow-md p-8 w-full max-w-4xl border border-gray-300 mt-10 mx-auto space-y-6">
+
+
+        <!-- Note on the submission -->
+        <div>
+            <label class="block font-semibold mb-2 text-gray-800">Note on the submission:</label>
+            <div class="grid grid-cols-6 gap-4 text-black">
+                <label><input type="radio" name="note" value="5"> : 5</label>
+                <label><input type="radio" name="note" value="4"> : 4</label>
+                <label><input type="radio" name="note" value="3"> : 3</label>
+                <label><input type="radio" name="note" value="2"> : 2</label>
+                <label><input type="radio" name="note" value="1"> : 1</label>
+                <label><input type="radio" name="note" value="0"> : 0</label>
+            </div>
+        </div>
+
+        <!-- Comment -->
+        <div>
+            <label class="block font-semibold mb-2 text-gray-800">Comment on the note:</label>
+            <textarea name="comment" rows="4"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      placeholder="Write your comment here..."></textarea>
+        </div>
+
+        <!-- Degree of confidence -->
+        <div>
+            <label class="block font-semibold mb-2 text-gray-800">Degree of confidence:</label>
+            <div class="grid grid-cols-6 gap-4 text-black">
+                <label><input type="radio" name="confidence" value="5"> : 5</label>
+                <label><input type="radio" name="confidence" value="4"> : 4</label>
+                <label><input type="radio" name="confidence" value="3"> : 3</label>
+                <label><input type="radio" name="confidence" value="2"> : 2</label>
+                <label><input type="radio" name="confidence" value="1"> : 1</label>
+                <label><input type="radio" name="confidence" value="0"> : 0</label>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-4 pt-4">
+            <button type="submit"
+                    class="bg-gray-200 hover:bg-gray-300 text-black px-6 py-2 rounded-lg font-semibold shadow">signal
+                submission
+            </button>
+            <button type="submit"
+                    class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold shadow">send report
+            </button>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

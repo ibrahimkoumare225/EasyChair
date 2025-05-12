@@ -2,6 +2,7 @@
 package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.Evaluation;
 import fr.upsaclay.easychair.model.Submission;
 import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.model.enumates.Phase;
@@ -46,7 +47,7 @@ public class SubmissionController {
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
             model.addAttribute("submission", submission.get());
-            return  "dynamic/submission/detailSubmission";//"dynamic/submission/detailSubmission";
+            return  "dynamic/submission/detailSubmission";
         } else {
             return "redirect:/home";
         }
@@ -102,6 +103,9 @@ public class SubmissionController {
         submission.setConference((Conference)model.getAttribute("conference"));
         submission.setCreationDate(Date.from(Instant.now()));
         submission.setStatus(SubType.PROGRESS);
+        submission.setEvaluation(new Evaluation());
+        //relation bi directionnelle
+        submission.getEvaluation().setSubmission(submission);
         return submissionService.save(submission);
     }
 
