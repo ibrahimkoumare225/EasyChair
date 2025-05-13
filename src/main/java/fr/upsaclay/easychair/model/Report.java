@@ -16,10 +16,8 @@ public class Report extends Post {
 
     private int grade;
 
-    @Column(length = 4000)
-    private String body;
+//    @Column(length = 4000)
+//    private String body;
 
     private int specDegree;
-
-
 }

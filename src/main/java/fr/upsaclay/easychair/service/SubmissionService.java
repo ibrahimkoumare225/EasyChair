@@ -1,5 +1,6 @@
 package fr.upsaclay.easychair.service;
 
+import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Submission;
 import fr.upsaclay.easychair.model.User;
 
@@ -24,4 +25,5 @@ public interface SubmissionService {
 
     List<Submission> findSubmissionsByAuthor(User user);
 
+    List <Submission> findSubmissionsByConference(Conference conference);
 }

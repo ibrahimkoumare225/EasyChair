@@ -58,12 +58,11 @@ public class SubmissionController {
     }
 
     @GetMapping("/submissionDetail/{id}")
-    public String showDetailSubmission(Model model, @PathVariable Long id,Authentication authentication) {
-
+    public String showDetailSubmission(Model model, @PathVariable Long id, Authentication authentication) {
         if (authentication==null||!authentication.isAuthenticated()){
             return "redirect:/login";
         }
-        logger.debug("Access to Submissions of user {}", authentication.getName());
+
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
             //Verif user est dans la conference
@@ -72,9 +71,8 @@ public class SubmissionController {
                 model.addAttribute("submission", submission.get());
                 return "dynamic/submission/detailSubmission";
             }
-        }
-        return "redirect:/home";
-    }
+        } else {
+            return "redirect:/home";
 
 
     @GetMapping("/ajouterSubmission")
@@ -237,6 +235,23 @@ public class SubmissionController {
         redirectAttributes.addAttribute("id",submission.getId());
 
         return "redirect:/conference";//"redirect:/submissions/submissionDetail{id}";
+    }
+
+    @GetMapping("/conference/{id_conference}")
+    public String showSubmissionConference(@PathVariable Long id_conference, Model model) {
+        Optional<Conference> conference = conferenceService.findOne(id_conference);
+        if (conference.isPresent()) {
+            Long id_user = conference.get().getOrganizers().get(0).getId();
+            Optional<User> user = userService.findOne(id_user);
+            if (user.isPresent()) {
+                model.addAttribute("user", user.get());
+            }
+            List<Submission> submissions = submissionService.findSubmissionsByConference(conference.get());
+            model.addAttribute("submissions", submissions); // Uniformiser le nom de l'attribut (submissions au lieu de submission)
+            return "dynamic/submission/listSubmission";
+        } else {
+            return "error/404";
+        }
     }
 
 
