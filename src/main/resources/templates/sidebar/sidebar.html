@@ -1,21 +1,79 @@
 <!DOCTYPE html>
-    <html xmlns:th="http://www.thymeleaf.org">
-        <head>
-            <meta charset="UTF-8">
-            <title>Welcome to EasyChair</title>
-            <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body class="bg-gray-100 min-h-screen font-sans" th:fragment="sideBar">
-                <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-                    <div class="flex space-x-6">
-                        <!--- à remplacer l'identifiant par défaut par un l'identifiant de l'utilisateur connecté-->
-                        <a th:href="@{/submissions/user/{id}(id=3)}" class="text-gray-700 font-medium hover:text-blue-600">My Submissions</a>
-                        <a href="#" class="text-gray-700 font-medium hover:text-blue-600">Notification</a>
-                        <a th:href="@{/conference/myConference}" class="text-gray-700 font-medium hover:text-blue-600">My Conferences</a>
-                    </div>
-                    <div>
-                        <a th:href="@{/conference/ajouterConference}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold">Create Conference</a>
-                    </div>
-                </nav>
-        </body>
-    </html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to EasyChair</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans" th:fragment="sideBar">
+<nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <!-- Liens à gauche -->
+    <div class="flex space-x-6">
+        <a th:href="@{/conference}"
+           class="text-gray-700 font-medium hover:text-blue-600">Home</a>
+        <a th:href="@{/submissions/user/{id}(id=3)}"
+           class="text-gray-700 font-medium hover:text-blue-600">My Submissions</a>
+        <a th:href="@{/conference/myNotification}" class="text-gray-700 font-medium hover:text-blue-600">Notification</a>
+        <a th:href="@{/conference/myConference}"
+           class="text-gray-700 font-medium hover:text-blue-600">My Conferences</a>
+        <a th:href="@{/conference/myRoleRequests}"
+           sec:authorize="isAuthenticated()"
+           class="text-gray-700 font-medium hover:text-blue-600">My Role Requests</a>
+    </div>
+
+    <!-- Icône utilisateur avec dropdown -->
+    <div class="relative">
+        <button id="userMenuBtn" class="flex items-center focus:outline-none">
+            <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                <!-- Icône utilisateur -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M10 2a5 5 0 00-3.547 8.547A7.001 7.001 0 003 17a1 1 0 102 0 5 5 0 0110 0 1 1 0 102 0 7.001 7.001 0 00-3.453-6.453A5 5 0 0010 2z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="userDropdown"
+             class="hidden absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <!-- Si connecté -->
+            <div sec:authorize="isAuthenticated()" class="p-4 text-sm text-gray-700 space-y-2">
+                <p>Bonjour, <span sec:authentication="name"></span></p>
+                <a th:href="@{/logout}"
+                   class="block text-red-600 hover:text-red-700 font-semibold">Se déconnecter</a>
+            </div>
+
+            <!-- Si non connecté -->
+            <div sec:authorize="!isAuthenticated()" class="p-4 text-sm text-gray-700 space-y-2">
+                <a th:href="@{/login}"
+                   class="block text-blue-600 hover:text-blue-700 font-semibold">Se connecter</a>
+                <a th:href="@{/register}"
+                   class="block text-green-600 hover:text-green-700 font-semibold">S'inscrire</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Script JS pour afficher/masquer le menu -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const userMenuBtn = document.getElementById("userMenuBtn");
+        const userDropdown = document.getElementById("userDropdown");
+
+        userMenuBtn.addEventListener("click", function (e) {
+            e.stopPropagation(); // Pour éviter de fermer immédiatement
+            userDropdown.classList.toggle("hidden");
+        });
+
+        // Fermer le menu si on clique ailleurs
+        document.addEventListener("click", function () {
+            if (!userDropdown.classList.contains("hidden")) {
+                userDropdown.classList.add("hidden");
+            }
+        });
+    });
+</script>
+</body>
+</html>

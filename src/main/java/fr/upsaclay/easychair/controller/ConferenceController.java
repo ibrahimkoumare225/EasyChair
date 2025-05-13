@@ -1,17 +1,12 @@
 package fr.upsaclay.easychair.controller;
 
-import fr.upsaclay.easychair.model.Conference;
-import fr.upsaclay.easychair.model.Organizer;
-import fr.upsaclay.easychair.model.Reviewer;
-import fr.upsaclay.easychair.model.Author;
-import fr.upsaclay.easychair.model.User;
+import fr.upsaclay.easychair.model.*;
 import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.repository.OrganizerRepository;
 import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.repository.AuthorRepository;
-import fr.upsaclay.easychair.service.ConferenceService;
-import fr.upsaclay.easychair.service.OrganizerService;
-import fr.upsaclay.easychair.service.UserService;
+import fr.upsaclay.easychair.repository.RoleRequestRepository;
+import fr.upsaclay.easychair.service.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +38,10 @@ public class ConferenceController {
     private final OrganizerRepository organizerRepository;
     private final ReviewerRepository reviewerRepository;
     private final AuthorRepository authorRepository;
+    private final RoleRequestService roleRequestService;
     private final UserDetailsService userDetailsService;
+    private final ReviewerService reviewerService;
+    private final AuthorService authorService;
 
     @GetMapping
     public String homePage(Model model, Authentication authentication) {
@@ -55,15 +53,31 @@ public class ConferenceController {
             }
             List<ConferenceView> conferenceViews = conferences.stream().map(conference -> {
                 boolean isOrganizer = false;
+                boolean hasAuthorRole = false;
+                boolean hasReviewerRole = false;
+                boolean hasPendingAuthorRequest = false;
+                boolean hasPendingReviewerRequest = false;
                 if (authentication != null && authentication.isAuthenticated()) {
                     String email = authentication.getName();
-                    logger.debug("Checking organizers for conference: {}, user email: {}", conference.getTitle(), email);
+                    logger.debug("Checking roles for conference: {}, user email: {}", conference.getTitle(), email);
                     isOrganizer = conference.getOrganizers().stream()
                             .anyMatch(org -> org.getUser() != null &&
                                     org.getUser().getEmail() != null &&
                                     org.getUser().getEmail().equals(email));
+                    hasAuthorRole = authorRepository.findByConferenceIdAndUserEmail(conference.getId(), email).isPresent();
+                    hasReviewerRole = reviewerRepository.findByConferenceIdAndUserEmail(conference.getId(), email).isPresent();
+                    Optional<User> userOptional = userService.findByEmail(email);
+                    if (userOptional.isPresent()) {
+                        Long userId = userOptional.get().getId();
+                        hasPendingAuthorRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, conference.getId(), RoleType.AUTHOR)
+                                .map(request -> request.getStatus().equals("PENDING"))
+                                .orElse(false);
+                        hasPendingReviewerRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, conference.getId(), RoleType.REVIEWER)
+                                .map(request -> request.getStatus().equals("PENDING"))
+                                .orElse(false);
+                    }
                 }
-                return new ConferenceView(conference, isOrganizer);
+                return new ConferenceView(conference, isOrganizer, hasAuthorRole, hasReviewerRole, hasPendingAuthorRequest, hasPendingReviewerRequest);
             }).toList();
 
             model.addAttribute("conferences", conferenceViews);
@@ -75,7 +89,15 @@ public class ConferenceController {
         }
     }
 
-    record ConferenceView(Conference conference, boolean isOrganizer) {}
+    record ConferenceView(
+            Conference conference,
+            boolean isOrganizer,
+            boolean hasAuthorRole,
+            boolean hasReviewerRole,
+            boolean hasPendingAuthorRequest,
+            boolean hasPendingReviewerRequest
+    ) {}
+
     record MyConferenceView(Conference conference, List<RoleType> userRoles, LocalDate nextPhaseDate) {}
 
     @GetMapping("/searchConferences")
@@ -90,14 +112,31 @@ public class ConferenceController {
             }
             List<ConferenceView> conferenceViews = conferences.stream().map(conference -> {
                 boolean isOrganizer = false;
+                boolean hasAuthorRole = false;
+                boolean hasReviewerRole = false;
+                boolean hasPendingAuthorRequest = false;
+                boolean hasPendingReviewerRequest = false;
                 if (authentication != null && authentication.isAuthenticated()) {
                     String email = authentication.getName();
+                    logger.debug("Checking roles for conference: {}, user email: {}", conference.getTitle(), email);
                     isOrganizer = conference.getOrganizers().stream()
                             .anyMatch(org -> org.getUser() != null &&
                                     org.getUser().getEmail() != null &&
                                     org.getUser().getEmail().equals(email));
+                    hasAuthorRole = authorRepository.findByConferenceIdAndUserEmail(conference.getId(), email).isPresent();
+                    hasReviewerRole = reviewerRepository.findByConferenceIdAndUserEmail(conference.getId(), email).isPresent();
+                    Optional<User> userOptional = userService.findByEmail(email);
+                    if (userOptional.isPresent()) {
+                        Long userId = userOptional.get().getId();
+                        hasPendingAuthorRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, conference.getId(), RoleType.AUTHOR)
+                                .map(request -> request.getStatus().equals("PENDING"))
+                                .orElse(false);
+                        hasPendingReviewerRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, conference.getId(), RoleType.REVIEWER)
+                                .map(request -> request.getStatus().equals("PENDING"))
+                                .orElse(false);
+                    }
                 }
-                return new ConferenceView(conference, isOrganizer);
+                return new ConferenceView(conference, isOrganizer, hasAuthorRole, hasReviewerRole, hasPendingAuthorRequest, hasPendingReviewerRequest);
             }).toList();
 
             model.addAttribute("conferences", conferenceViews);
@@ -244,34 +283,8 @@ public class ConferenceController {
     }
 
     @GetMapping("/conferenceDetail/{id}")
-    public String showDetailConferenceForms(Model model, @PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String showDetailConferenceForms(Model model, @PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
         logger.debug("Accessing conference detail for ID: {}", id);
-        try {
-            Optional<Conference> conference = conferenceService.findOne(id);
-            if (conference.isPresent()) {
-                model.addAttribute("conference", conference.get());
-                return "dynamic/conference/detailConference";
-            } else {
-                logger.warn("Conference not found for ID: {}", id);
-                redirectAttributes.addFlashAttribute("error", "Conference not found.");
-                return "redirect:/conference";
-            }
-        } catch (Exception e) {
-            logger.error("Error in showDetailConferenceForms", e);
-            redirectAttributes.addFlashAttribute("error", "An error occurred while accessing the conference details: " + e.getMessage());
-            return "redirect:/conference";
-        }
-    }
-
-    @PostMapping("/deleteConference/{id}")
-    public String deleteConference(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
-        logger.debug("Attempting to delete conference with ID: {}", id);
-        if (authentication == null || !authentication.isAuthenticated()) {
-            logger.warn("Unauthenticated attempt to delete conference");
-            redirectAttributes.addFlashAttribute("error", "You must be logged in to delete a conference.");
-            return "redirect:/login";
-        }
-
         try {
             Optional<Conference> conferenceOptional = conferenceService.findOne(id);
             if (conferenceOptional.isEmpty()) {
@@ -281,62 +294,249 @@ public class ConferenceController {
             }
 
             Conference conference = conferenceOptional.get();
-            String email = authentication.getName();
-            logger.debug("Authenticated user email: {}", email);
+            model.addAttribute("conference", conference);
 
-            logger.debug("Organizers for conference {}: {}", id, conference.getOrganizers());
-            for (Organizer org : conference.getOrganizers()) {
-                logger.debug("Organizer ID: {}, User: {}, Conference ID: {}, RoleType: {}",
-                        org.getId(), org.getUser() != null ? org.getUser().getEmail() : "null",
-                        org.getConference() != null ? org.getConference().getId() : "null",
-                        org.getRoleType());
+            if (authentication != null && authentication.isAuthenticated()) {
+                String email = authentication.getName();
+                boolean isOrganizer = conference.getOrganizers().stream()
+                        .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
+                boolean isReviewer = reviewerRepository.findByConferenceIdAndUserEmail(id, email).isPresent();
+                boolean isAuthor = authorRepository.findByConferenceIdAndUserEmail(id, email).isPresent();
+                model.addAttribute("isOrganizer", isOrganizer);
+                model.addAttribute("isReviewer", isReviewer);
+                model.addAttribute("isAuthor", isAuthor);
+
+                // Vérifier les demandes de rôle en cours
+                Optional<User> userOptional = userService.findByEmail(email);
+                if (userOptional.isPresent()) {
+                    Long userId = userOptional.get().getId();
+                    Optional<RoleRequest> authorRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, id, RoleType.AUTHOR);
+                    Optional<RoleRequest> reviewerRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, id, RoleType.REVIEWER);
+                    model.addAttribute("hasPendingAuthorRequest", authorRequest.isPresent() && authorRequest.get().getStatus().equals("PENDING"));
+                    model.addAttribute("hasPendingReviewerRequest", reviewerRequest.isPresent() && reviewerRequest.get().getStatus().equals("PENDING"));
+                }
             }
 
-            for (Organizer organizer : List.copyOf(conference.getOrganizers())) {
-                logger.debug("Deleting organizer with ID: {} for conference: {}", organizer.getId(), id);
-                organizerRepository.deleteById(organizer.getId());
-            }
-
-            List<Reviewer> reviewers = reviewerRepository.findByConferenceId(id);
-            for (Reviewer reviewer : reviewers) {
-                logger.debug("Deleting reviewer with ID: {} for conference: {}", reviewer.getId(), id);
-                reviewerRepository.deleteById(reviewer.getId());
-            }
-
-            List<Author> authors = authorRepository.findByConferenceId(id);
-            for (Author author : authors) {
-                logger.debug("Deleting author with ID: {} for conference: {}", author.getId(), id);
-                authorRepository.deleteById(author.getId());
-            }
-
-            logger.debug("Deleting conference with ID: {}", id);
-            conferenceService.deleteById(id);
-
-            logger.info("Conference with ID {} deleted successfully", id);
-            redirectAttributes.addFlashAttribute("message", "Conference deleted successfully!");
-            return "redirect:/conference";
+            return "dynamic/conference/detailConference";
         } catch (Exception e) {
-            logger.error("Error deleting conference with ID: {}", id, e);
-            redirectAttributes.addFlashAttribute("error", "Failed to delete conference: " + e.getMessage());
+            logger.error("Error in showDetailConferenceForms", e);
+            redirectAttributes.addFlashAttribute("error", "An error occurred while accessing the conference details: " + e.getMessage());
             return "redirect:/conference";
         }
     }
 
-    @GetMapping("/post-login")
-    public String postLogin(Authentication authentication, RedirectAttributes redirectAttributes, Model model) {
-        logger.debug("Entering post-login with authentication: {}", authentication);
+    @PostMapping("/requestRole/{conferenceId}")
+    @Transactional
+    public String requestRole(@PathVariable Long conferenceId, @RequestParam String roleType, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Requesting role {} for conference ID: {}", roleType, conferenceId);
+
         if (authentication == null || !authentication.isAuthenticated()) {
-            logger.warn("Unauthenticated attempt to access post-login");
+            logger.warn("Unauthenticated attempt to request role");
             return "redirect:/login";
         }
+
         try {
-            logger.debug("User authorities after login: {}", authentication.getAuthorities());
-            redirectAttributes.addFlashAttribute("message", "Successfully logged in!");
-            return "redirect:/conference";
+            String email = authentication.getName();
+            Optional<User> userOptional = userService.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                logger.error("User not found for email: {}", email);
+                redirectAttributes.addFlashAttribute("error", "User not found.");
+                return "redirect:/conference/conferenceDetail/" + conferenceId;
+            }
+
+            Optional<Conference> conferenceOptional = conferenceService.findOne(conferenceId);
+            if (conferenceOptional.isEmpty()) {
+                logger.warn("Conference not found for ID: {}", conferenceId);
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+
+            User user = userOptional.get();
+            Conference conference = conferenceOptional.get();
+            RoleType requestedRoleType = RoleType.valueOf(roleType);
+
+            // Vérifier si l'utilisateur a déjà ce rôle
+            if (requestedRoleType == RoleType.AUTHOR && authorRepository.findByConferenceIdAndUserEmail(conferenceId, email).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "You already have the Author role.");
+                return "redirect:/conference/conferenceDetail/" + conferenceId;
+            }
+            if (requestedRoleType == RoleType.REVIEWER && reviewerRepository.findByConferenceIdAndUserEmail(conferenceId, email).isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "You already have the Reviewer role.");
+                return "redirect:/conference/conferenceDetail/" + conferenceId;
+            }
+
+            // Vérifier si une demande en cours existe
+            Optional<RoleRequest> existingRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(user.getId(), conferenceId, requestedRoleType);
+            if (existingRequest.isPresent() && existingRequest.get().getStatus().equals("PENDING")) {
+                redirectAttributes.addFlashAttribute("error", "You already have a pending request for this role.");
+                return "redirect:/conference/conferenceDetail/" + conferenceId;
+            }
+
+            // Créer une nouvelle demande
+            RoleRequest roleRequest = new RoleRequest(user, conference, requestedRoleType);
+            roleRequestService.save(roleRequest);
+
+            logger.info("Role request created for user: {}, role: {}, conference: {}", email, roleType, conferenceId);
+            redirectAttributes.addFlashAttribute("message", "Role request submitted successfully!");
+            return "redirect:/conference/conferenceDetail/" + conferenceId;
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid role type: {}", roleType, e);
+            redirectAttributes.addFlashAttribute("error", "Invalid role type: " + roleType);
+            return "redirect:/conference/conferenceDetail/" + conferenceId;
         } catch (Exception e) {
-            logger.error("Error in postLogin", e);
-            model.addAttribute("error", "An error occurred during post-login: " + e.getMessage());
-            return "error";
+            logger.error("Error requesting role for conference ID: {}", conferenceId, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to submit role request: " + e.getMessage());
+            return "redirect:/conference/conferenceDetail/" + conferenceId;
+        }
+    }
+
+    @PostMapping("/acceptRoleRequest/{requestId}")
+    @Transactional
+    public String acceptRoleRequest(@PathVariable Long requestId, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Accepting role request ID: {}", requestId);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to accept role request");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            Optional<RoleRequest> requestOptional = roleRequestService.findOne(requestId);
+            if (requestOptional.isEmpty()) {
+                logger.warn("Role request not found for ID: {}", requestId);
+                redirectAttributes.addFlashAttribute("error", "Role request not found.");
+                return "redirect:/conference/myNotification";
+            }
+
+            RoleRequest roleRequest = requestOptional.get();
+            Conference conference = roleRequest.getConference();
+
+            // Vérifier si l'utilisateur est un organisateur
+            boolean isOrganizer = conference.getOrganizers().stream()
+                    .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
+            if (!isOrganizer) {
+                logger.warn("User {} is not an organizer for conference ID: {}", email, conference.getId());
+                redirectAttributes.addFlashAttribute("error", "You are not authorized to accept this request.");
+                return "redirect:/conference/myNotification";
+            }
+
+            // Mettre à jour le statut de la demande
+            roleRequest.setStatus("ACCEPTED");
+            roleRequestService.save(roleRequest);
+
+            // Ajouter le rôle à l'utilisateur
+            User user = roleRequest.getUser();
+            if (roleRequest.getRoleType() == RoleType.AUTHOR) {
+                Author author = new Author();
+                author.setUser(user);
+                author.setConference(conference);
+                author.setRoleType(RoleType.AUTHOR);
+                authorService.save(author);
+            } else if (roleRequest.getRoleType() == RoleType.REVIEWER) {
+                Reviewer reviewer = new Reviewer();
+                reviewer.setUser(user);
+                reviewer.setConference(conference);
+                reviewer.setRoleType(RoleType.REVIEWER);
+                reviewerService.save(reviewer);
+            }
+
+            logger.info("Role request ID: {} accepted for user: {}, role: {}", requestId, user.getEmail(), roleRequest.getRoleType());
+            redirectAttributes.addFlashAttribute("message", "Role request accepted successfully!");
+            return "redirect:/conference/myNotification";
+        } catch (Exception e) {
+            logger.error("Error accepting role request ID: {}", requestId, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to accept role request: " + e.getMessage());
+            return "redirect:/conference/myNotification";
+        }
+    }
+
+    @PostMapping("/rejectRoleRequest/{requestId}")
+    @Transactional
+    public String rejectRoleRequest(@PathVariable Long requestId, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Rejecting role request ID: {}", requestId);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to reject role request");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            Optional<RoleRequest> requestOptional = roleRequestService.findOne(requestId);
+            if (requestOptional.isEmpty()) {
+                logger.warn("Role request not found for ID: {}", requestId);
+                redirectAttributes.addFlashAttribute("error", "Role request not found.");
+                return "redirect:/conference/myNotification";
+            }
+
+            RoleRequest roleRequest = requestOptional.get();
+            Conference conference = roleRequest.getConference();
+
+            // Vérifier si l'utilisateur est un organisateur
+            boolean isOrganizer = conference.getOrganizers().stream()
+                    .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
+            if (!isOrganizer) {
+                logger.warn("User {} is not an organizer for conference ID: {}", email, conference.getId());
+                redirectAttributes.addFlashAttribute("error", "You are not authorized to reject this request.");
+                return "redirect:/conference/myNotification";
+            }
+
+            // Mettre à jour le statut de la demande
+            roleRequest.setStatus("REJECTED");
+            roleRequestService.save(roleRequest);
+
+            logger.info("Role request ID: {} rejected for user: {}, role: {}", requestId, roleRequest.getUser().getEmail(), roleRequest.getRoleType());
+            redirectAttributes.addFlashAttribute("message", "Role request rejected successfully!");
+            return "redirect:/conference/myNotification";
+        } catch (Exception e) {
+            logger.error("Error rejecting role request ID: {}", requestId, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to reject role request: " + e.getMessage());
+            return "redirect:/conference/myNotification";
+        }
+    }
+
+    @PostMapping("/cancelRoleRequest/{requestId}")
+    @Transactional
+    public String cancelRoleRequest(@PathVariable Long requestId, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Cancelling role request ID: {}", requestId);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to cancel role request");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            Optional<RoleRequest> requestOptional = roleRequestService.findOne(requestId);
+            if (requestOptional.isEmpty()) {
+                logger.warn("Role request not found for ID: {}", requestId);
+                redirectAttributes.addFlashAttribute("error", "Role request not found.");
+                return "redirect:/conference/myRoleRequests";
+            }
+
+            RoleRequest roleRequest = requestOptional.get();
+            if (!roleRequest.getUser().getEmail().equals(email)) {
+                logger.warn("User {} is not authorized to cancel role request ID: {}", email, requestId);
+                redirectAttributes.addFlashAttribute("error", "You are not authorized to cancel this request.");
+                return "redirect:/conference/myRoleRequests";
+            }
+
+            if (!roleRequest.getStatus().equals("PENDING")) {
+                logger.warn("Role request ID: {} is not in PENDING state", requestId);
+                redirectAttributes.addFlashAttribute("error", "Only pending requests can be cancelled.");
+                return "redirect:/conference/myRoleRequests";
+            }
+
+            roleRequestService.delete(requestId);
+
+            logger.info("Role request ID: {} cancelled by user: {}", requestId, email);
+            redirectAttributes.addFlashAttribute("message", "Role request cancelled successfully!");
+            return "redirect:/conference/myRoleRequests";
+        } catch (Exception e) {
+            logger.error("Error cancelling role request ID: {}", requestId, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to cancel role request: " + e.getMessage());
+            return "redirect:/conference/myRoleRequests";
         }
     }
 
@@ -384,6 +584,67 @@ public class ConferenceController {
         } catch (Exception e) {
             logger.error("Error in myConference", e);
             model.addAttribute("error", "An error occurred while loading your conferences: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    @GetMapping("/myNotification")
+    public String myNotification(Model model, Authentication authentication) {
+        logger.debug("Accessing myNotification with authentication: {}", authentication);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to access myNotification");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            logger.debug("Fetching notifications for user email: {}", email);
+
+            // Trouver les conférences où l'utilisateur est organisateur
+            List<Conference> organizedConferences = conferenceService.findConferencesByUserEmail(email).stream()
+                    .filter(conference -> conference.getOrganizers().stream()
+                            .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail())))
+                    .toList();
+
+            // Récupérer toutes les demandes de rôle pour ces conférences
+            List<RoleRequest> roleRequests = organizedConferences.stream()
+                    .flatMap(conference -> roleRequestService.findByConferenceIdAndStatus(conference.getId(), "PENDING").stream())
+                    .toList();
+
+            model.addAttribute("roleRequests", roleRequests);
+            return "dynamic/notification/myNotification";
+        } catch (Exception e) {
+            logger.error("Error in myNotification", e);
+            model.addAttribute("error", "An error occurred while loading notifications: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    @GetMapping("/myRoleRequests")
+    public String myRoleRequests(Model model, Authentication authentication) {
+        logger.debug("Accessing myRoleRequests with authentication: {}", authentication);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to access myRoleRequests");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            Optional<User> userOptional = userService.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                logger.error("User not found for email: {}", email);
+                model.addAttribute("error", "User not found.");
+                return "error";
+            }
+
+            List<RoleRequest> roleRequests = roleRequestService.findByUserId(userOptional.get().getId());
+            model.addAttribute("roleRequests", roleRequests);
+            return "dynamic/role/myRoleRequests";
+        } catch (Exception e) {
+            logger.error("Error in myRoleRequests", e);
+            model.addAttribute("error", "An error occurred while loading your role requests: " + e.getMessage());
             return "error";
         }
     }

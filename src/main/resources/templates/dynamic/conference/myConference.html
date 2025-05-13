@@ -47,9 +47,26 @@
                 </td>
                 <td class="px-4 py-2" th:text="${view.conference.phase} ?: 'N/A'"></td>
                 <td class="px-4 py-2" th:text="${view.nextPhaseDate} ?: 'N/A'"></td>
-                <td class="px-4 py-2">
-                    <a th:href="@{/conference/conferenceDetail/{id}(id=${view.conference.id})}"
-                       class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Enter</a>
+                <td class="px-6 py-4 flex space-x-2">
+                    <button type="button">
+                        <a th:href="@{/conference/conferenceDetail/{id}(id=${view.conference.id})}"
+                           class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm">Enter
+                        </a>
+                    <button/>
+
+                    <button type="button"
+                            class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
+                            sec:authorize="hasRole('ROLE_ORGANIZER')">
+                        <a th:href="@{/conference/conference/{id}(id=${view.conference.id})}">Edit</a>
+                    </button>
+                    <form th:action="@{/conference/deleteConference/{id}(id=${view.conference.id})}" method="post" class="inline"
+                          sec:authorize="hasRole('ROLE_ORGANIZER')">
+                        <button type="submit"
+                                class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
+                                onclick="return confirm('Are you sure you want to delete this conference?')">
+                            Delete
+                        </button>
+                    </form>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(conferenceViews)}">

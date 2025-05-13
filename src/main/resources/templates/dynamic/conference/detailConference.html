@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <title>Welcome to EasyChair</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
-<!--Insertion de la navbar-->
+<!-- Insertion de la navbar -->
 <div th:replace="~{sidebar/sidebar :: sideBar}"></div>
 
 <div class="max-w-6xl mx-auto bg-white p-10 rounded-xl shadow-lg space-y-8 mt-10">
@@ -65,29 +65,59 @@
   </div>
 
   <!-- Create Submission Section -->
-  <div class="flex justify-end space-x-4 pt-6">
-    <a th:if="${!conference.onInvitation and conference.phase.name() == T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION.name()}"
-       th:href="@{/submissions/ajouterSubmission(conferenceId=${conference.id})}"
-       class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Create Submission</a>
-      <!-- A afficher en fonction des paramètres de la conférence
-      <div class="flex justify-end space-x-4 pt-6">
-           formulaire créer submission
-           check sur invitation faux et phase abstract vrai
-          <form th:if="${!conference.onInvitation and conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}"
-                th:action="@{/submissions/ajouterSubmission}" method="post">
+  <div class="flex justify-end space-x-4 pt-6" sec:authorize="isAuthenticated()">
+   <button>
+     <a th:if="${isAuthor}"
+        th:href="@{/submissions/ajouterSubmission(conferenceId=${conference.id})}"
+        class="bg-blue-300 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold flex items-center space-x-2">
+       Create Submission
+     </a>
+   </button>
 
-              <input type="hidden" name="conferenceId" th:value="${conference.id}" />
-
-              <button type="submit"
-                      class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
-                  Create Submission
-              </button>
-          </form> -->
-    <a th:if ="${conference.onInvitation}"
-       class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>
+    <!-- Dropdown for requesting a role -->
+    <div class="flex justify-end pt-6" sec:authorize="isAuthenticated()">
+      <div th:if="${!isOrganizer}" class="relative">
+        <button id="dropdownButton" type="button" onclick="toggleDropdown()"
+                class="bg-blue-300 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold flex items-center space-x-2">
+          <span>Request Role</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+          <form th:action="@{/conference/requestRole/{id}(id=${conference.id})}" method="post" th:unless="${hasPendingAuthorRequest}">
+            <input type="hidden" name="roleType" value="AUTHOR"/>
+            <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 font-medium">
+              Request Author Role
+            </button>
+          </form>
+          <form th:action="@{/conference/requestRole/{id}(id=${conference.id})}" method="post" th:unless="${hasPendingReviewerRequest}">
+            <input type="hidden" name="roleType" value="REVIEWER"/>
+            <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 font-medium">
+              Request Reviewer Role
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
-</div>
+  </div>
 
+<script>
+  function toggleDropdown() {
+    const menu = document.getElementById('dropdownMenu');
+    menu.classList.toggle('hidden');
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function (event) {
+    const button = document.getElementById('dropdownButton');
+    const menu = document.getElementById('dropdownMenu');
+    if (menu && button && !button.contains(event.target) && !menu.contains(event.target)) {
+      menu.classList.add('hidden');
+    }
+  });
+</script>
 </body>
 </html>
