@@ -92,7 +92,7 @@
         </form>
     </div>
     <!-- TODO: evaluate -->
-    <form th:action="@{/reports/ajouterReport}" method="post" th:if="${submission.evaluation != null}">
+    <form th:action="@{/reports/ajouterReport}" method="post" th:if="${submission.evaluation != null}" >
       <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
       <button type="submit" class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
         Evaluate

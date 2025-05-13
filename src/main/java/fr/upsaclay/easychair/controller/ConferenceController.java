@@ -11,6 +11,7 @@ import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.repository.AuthorRepository;
 import fr.upsaclay.easychair.service.ConferenceService;
 import fr.upsaclay.easychair.service.OrganizerService;
+import fr.upsaclay.easychair.service.ReviewerService;
 import fr.upsaclay.easychair.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class ConferenceController {
     private final ReviewerRepository reviewerRepository;
     private final AuthorRepository authorRepository;
     private final UserDetailsService userDetailsService;
+    private final ReviewerService reviewerService;
 
     @GetMapping
     public String homePage(Model model, Authentication authentication) {
@@ -249,6 +251,14 @@ public class ConferenceController {
         try {
             Optional<Conference> conference = conferenceService.findOne(id);
             if (conference.isPresent()) {
+                String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                User user = userService.findByEmail(email).orElseThrow();
+                Optional<Reviewer> reviewer = reviewerService.findByUserId(user.getId());
+                if(reviewer.isPresent()) {
+                    model.addAttribute("authorized", true);
+                }else {
+                    model.addAttribute("authorized", false);
+                }
                 model.addAttribute("conference", conference.get());
                 return "dynamic/conference/detailConference";
             } else {

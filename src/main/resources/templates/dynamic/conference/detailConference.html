@@ -87,11 +87,11 @@
        class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>
 
     <!-- Show all submissions button -->
-    <a th:href="@{/submissions/conference/{id}(id=${conference.id})}"
+    <a th:href="@{/submissions/conference/{id}(id=${conference.id})}" th:if="${authorized}"
        class="bg-green-300 hover:bg-green-400 text-white px-6 py-2 rounded-lg font-semibold">
       Show all submissions
     </a>
-    
+
   </div>
 
 </div>

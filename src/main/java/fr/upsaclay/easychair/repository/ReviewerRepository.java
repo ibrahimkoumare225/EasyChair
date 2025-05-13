@@ -18,5 +18,4 @@ public interface ReviewerRepository extends JpaRepository<Reviewer, Long> {
     @Query("SELECT r FROM Reviewer r WHERE r.conference.id = :conferenceId AND r.user.email = :email")
     Optional<Reviewer> findByConferenceIdAndUserEmail(@Param("conferenceId") Long conferenceId, @Param("email") String email);
 
-    Optional<Reviewer> findFirstUserById(Long userId);
 }
