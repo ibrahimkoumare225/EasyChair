@@ -19,7 +19,7 @@
     <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-2xl">
         <!-- Formulaire -->
             <form th:object="${submission}"
-                  th:action="${submission.id == null} ? @{/submission/save} : @{/submission/update}"
+                  th:action="${submission.id == null} ? @{/submissions/save} : @{/submissions/update}"
                   method="post">
 
                 <input type="hidden" th:field="*{authors[0].id}" />
@@ -130,7 +130,7 @@
 
                 <!-- Abstract -->
                 <!-- Champ editable si non verrouillé -->
-                <div class="mb-6" th:unless="${conference.phase!=T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}">
+                <div class="mb-6" th:unless="${submission.conference.phase!=T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}">
                     <label for="abstract" class="block font-semibold mb-1 text-gray-800">Abstract (max 200 characters) :</label>
                     <textarea id="abstract"
                               name="abstract"
@@ -142,7 +142,7 @@
 
                 <!-- Champ en lecture seule si verrouillé -->
                 <!-- pas writing si pas abstractPhase -->
-                <div class="mb-6" th:if="${conference.phase!=T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}">
+                <div class="mb-6" th:if="${submission.conference.phase!=T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION}">
                     <label class="block font-semibold mb-1 text-gray-800">Abstract :</label>
                     <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium whitespace-pre-wrap">
                         <span th:text="${submission.abstractSub}"></span>
@@ -160,8 +160,8 @@
                    hover:bg-gray-300
                    disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed hover:disabled:bg-gray-300
                    disabled:opacity-50 transition disabled:transition-none"
-                            th:disabled="${conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
-                          and conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}">
+                            th:disabled="${submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
+                          and submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}">
                         Add a file
                     </button>
 
