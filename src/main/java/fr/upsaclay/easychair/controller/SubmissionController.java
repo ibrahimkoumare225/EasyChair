@@ -124,41 +124,42 @@ public class SubmissionController {
     @GetMapping("/modifierSubmission")
     public String showModifySubForm(@RequestParam Long submissionId,  Model model,Authentication authentication) {
 
-        if (authentication==null||!authentication.isAuthenticated()){
+        if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to showModifySubForm");
             return "redirect:/login";
         }
         try {
             Optional<Submission> submission = submissionService.findOne(submissionId);
-            if (submission.isPresent()) {
-                logger.debug("founded Submission   {}", submissionId);
-                Optional<User> user = userService.findByEmail(authentication.getName());
-                if (user.isPresent()) {
-                    //@TODO a revoir si plusieurs auteurs
-                    logger.debug("Matching user {} with submission {}", authentication.getName(), submissionId);
-                    Optional<Role> matchedAuthor = user.get().getRoles().stream()
-                            .filter(role -> role.getId().equals(submission.get().getAuthors().get(0).getId())
-                                    && role.getConference().getId().equals(submission.get().getConference().getId()))
-                            .findFirst();
-                    if (matchedAuthor.isPresent()) {
-                        return "dynamic/submission/submissionForm";
-                    }else {
-                    logger.warn("No match with  user {} as Author of submission{}", authentication.getName(), submissionId);
-                    return "redirect:/conference";
-                    }
-
-                } else {
-                logger.warn("user {} not found in database", authentication.getName());
-                return "redirect:/conference";
-                }
-            } else{
+            if (submission.isEmpty()) {
                 logger.warn("Submission {} not found in database", submissionId);
                 return "redirect:/conference";
             }
-        }catch (Exception e){
-        logger.error("error in showModifySubForm", e);
-        return "redirect:/conference";}
+
+            logger.debug("founded Submission   {}", submissionId);
+            Optional<User> user = userService.findByEmail(authentication.getName());
+            if (user.isEmpty()) {
+                logger.warn("user {} not found in database", authentication.getName());
+                return "redirect:/conference";
+            }
+            //@TODO a revoir si plusieurs auteurs
+            logger.debug("Matching user {} with submission {}", authentication.getName(), submissionId);
+            Optional<Role> matchedAuthor = user.get().getRoles().stream()
+                    .filter(role -> role.getId().equals(submission.get().getAuthors().get(0).getId())
+                            && role.getConference().getId().equals(submission.get().getConference().getId()))
+                    .findFirst();
+            if (matchedAuthor.isEmpty()) {
+                logger.warn("No match with  user {} as Author of submission{}", authentication.getName(), submissionId);
+                return "redirect:/conference";
+            }
+            model.addAttribute(submission.get());
+            return "dynamic/submission/submissionForm";
+        } catch (Exception e) {
+            logger.error("error in showModifySub",e);
+            return "redirect:/conference";
+        }
     }
+
+
 
 
     @PostMapping("/save")
