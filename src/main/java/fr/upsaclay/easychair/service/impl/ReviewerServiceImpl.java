@@ -42,9 +42,4 @@ public class ReviewerServiceImpl implements ReviewerService {
         return reviewerRepository.findById(userId);
     }
 
-    @Override
-    public Optional<Reviewer> findFirstUserById(Long userId) {
-        return reviewerRepository.findFirstUserById(userId);
-    }
-
 }

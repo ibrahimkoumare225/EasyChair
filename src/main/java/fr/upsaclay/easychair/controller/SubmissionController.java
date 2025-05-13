@@ -65,15 +65,14 @@ public class SubmissionController {
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
             //Verif user est dans la conference
-            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
-            if (conferences.contains(submission.get().getConference())) {
+//            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
+//            if (conferences.contains(submission.get().getConference())) {
                 model.addAttribute("submission", submission.get());
                 return "dynamic/submission/detailSubmission";
-            }
+//            }
         } else {
             return "redirect:/home";
         }
-        return "";
     }
 
 
@@ -159,9 +158,6 @@ public class SubmissionController {
             return "redirect:/conference";
         }
     }
-
-
-
 
     @PostMapping("/save")
     @Transactional

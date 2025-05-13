@@ -16,5 +16,4 @@ public interface ReviewerService {
     void delete(Long id);
     Optional<Reviewer> findByUserId(Long userId); // utilise la méthode existante
 
-    Optional<Reviewer> findFirstUserById(Long userId);
 }
