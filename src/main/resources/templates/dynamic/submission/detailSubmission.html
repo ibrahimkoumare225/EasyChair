@@ -81,7 +81,7 @@
         <form th:if="${submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION
               or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
               or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}"
-              th:action="@{/submissions/modifierSubmission}" method="post">
+              th:action="@{/submissions/modifierSubmission}" method="get">
 
           <input type="hidden" name="submissionId" th:value="${submission.id}" />
 

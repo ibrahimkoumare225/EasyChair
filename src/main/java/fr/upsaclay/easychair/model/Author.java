@@ -23,7 +23,5 @@ public class Author extends Role {
     )
     private List<Submission> submissions = new ArrayList<>();
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "conference_id", nullable = false)
-    private Conference conference;
+
 }

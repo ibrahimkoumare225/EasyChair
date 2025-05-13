@@ -17,10 +17,6 @@ public class Organizer extends Role {
     @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Alert> receivedAlerts = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conference_id", nullable = false)
-    private Conference conference;
-
     // Constructors
     public Organizer() {
         super();
