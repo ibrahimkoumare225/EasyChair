@@ -38,20 +38,22 @@ VALUES
     );
 
 
-INSERT INTO roles (user_id, role_type) VALUES (1, 'ORGANIZER');
-INSERT INTO organizers (id, conference_id) VALUES (1, 1);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'ORGANIZER',1);
+INSERT INTO organizers (id) VALUES (1);
 -- Reviewers
-INSERT INTO roles (user_id, role_type) VALUES (2, 'REVIEWER');
-INSERT INTO reviewers (id, conference_id) VALUES (2, 1);
-INSERT INTO roles (user_id, role_type) VALUES (1, 'REVIEWER');
-INSERT INTO reviewers (id, conference_id) VALUES (3, 1);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'REVIEWER',1);
+INSERT INTO reviewers (id) VALUES (2);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'REVIEWER',1);
+INSERT INTO reviewers (id) VALUES (3);
 -- Authors
-INSERT INTO roles (user_id, role_type) VALUES (3, 'AUTHOR'); -- Alban
-INSERT INTO authors (id, conference_id) VALUES (4, 1);
-INSERT INTO roles (user_id, role_type) VALUES (5, 'AUTHOR'); -- Ibrahim
-INSERT INTO authors (id, conference_id) VALUES ( 5,1);
-SELECT * FROM authors;
-
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (3, 'AUTHOR',1); -- Alban
+INSERT INTO authors (id) VALUES (4);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (5, 'AUTHOR',1); -- Ibrahim
+INSERT INTO authors (id) VALUES ( 5);
+INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'AUTHOR',2);
+INSERT INTO authors (id) VALUES (6);
+INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'REVIEWER',1);
+INSERT INTO reviewers (id) VALUES (7);
 -- Submissions (3 articles)
 INSERT INTO submissions (title, creation_date, status, abstract_sub, conference_id)
 VALUES
