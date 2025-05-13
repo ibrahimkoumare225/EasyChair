@@ -44,7 +44,6 @@ public class SubmissionController {
         if (authentication==null||!authentication.isAuthenticated()){
             return "redirect:/login";
         }
-        logger.debug("Access to Submissions of user {}", authentication.getName());
 
         Optional<User> user = userService.findByEmail(authentication.getName());
         if (user.isPresent()) {
@@ -59,7 +58,7 @@ public class SubmissionController {
 
     @GetMapping("/submissionDetail/{id}")
     public String showDetailSubmission(Model model, @PathVariable Long id, Authentication authentication) {
-        if (authentication==null||!authentication.isAuthenticated()){
+        if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
@@ -67,12 +66,16 @@ public class SubmissionController {
         if (submission.isPresent()) {
             //Verif user est dans la conference
             List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
-            if (conferences.contains(submission.get().getConference())){
+            if (conferences.contains(submission.get().getConference())) {
                 model.addAttribute("submission", submission.get());
                 return "dynamic/submission/detailSubmission";
             }
         } else {
             return "redirect:/home";
+        }
+        return "";
+    }
+
 
 
     @GetMapping("/ajouterSubmission")
