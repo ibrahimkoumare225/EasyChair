@@ -39,13 +39,17 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/public/**").permitAll()
                         .requestMatchers("/", "/conference", "/conference/searchConferences", "/login", "/register", "/post-login").permitAll()
-                        .requestMatchers("/conference/ajouterConference","/conference/myConference").authenticated()
-                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}", "/conference/update").hasRole("ORGANIZER")
-                        .requestMatchers("submissions/conference/**").authenticated()
+
+                        .requestMatchers("/conference/ajouterConference", "/conference/myConference", "/conference/myNotification", "/conference/myRoleRequests", "/conference/requestRole/**","/conference/conferenceDetail/**").authenticated()
+                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}", "/conference/update", "/conference/acceptRoleRequest/**", "/conference/rejectRoleRequest/**").hasRole("ORGANIZER")
                         .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**","/submissions/save",
-                                "submissions/modifierSubmission","submissions/update").hasRole("AUTHOR")
+                                "submissions/modifierSubmission","submissions/update").hasRole("AUTHOR")                        .requestMatchers("submissions/conference/**").authenticated()
+                        .requestMatchers("/submissions/**").hasRole("REVIEWER")
+==
+                        
                         .requestMatchers("/submissions/submissionDetail/**").hasAnyRole("AUTHOR", "REVIEWER")
                         .requestMatchers("/submissions/**", "/submissions/submissionDetail/{id}").hasRole("REVIEWER")
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
