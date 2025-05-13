@@ -249,25 +249,54 @@ public class SubmissionController {
         return submission.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST /submissions
-    @PostMapping
-    public Submission createSubmission(@RequestBody Submission submission,Model model) {
-
-
-        submission.setConference((Conference)model.getAttribute("conference"));
-        submission.setCreationDate(Date.from(Instant.now()));
-        submission.setStatus(SubType.PROGRESS);
-        submission.setEvaluation(new Evaluation());
-        //relation bi directionnelle
-        submission.getEvaluation().setSubmission(submission);
-        return submissionService.save(submission);
-    }
 
 
     // PUT /submissions/{id}
-    @PutMapping
-    public Submission updateSubmission(@RequestBody Submission submission) {
-        return submissionService.update(submission);
+    @PostMapping("/update")
+    public String updateSubmission(@ModelAttribute Submission submission,Authentication authentication,
+                                       RedirectAttributes redirectAttributes) {logger.debug("Saving new submission: {}", submission);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to save conference");
+            return "redirect:/login";
+        }
+
+        String email = authentication.getName();
+        logger.debug("Authenticated user email for saveSubmission: {}", email);
+        Optional<User> userOptional = userService.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            logger.error("User not found for email: {}", email);
+            redirectAttributes.addFlashAttribute("error", "User not found.");
+            return "redirect:/conference";
+        }
+        Long authorID = submission.getAuthors().get(0).getId();
+        Long conferenceId = submission.getConference().getId();
+        logger.debug("Checking user have  author {} and  Conference {}",authorID,conferenceId);
+
+        Optional<Role> matchedAuthor =userOptional.get().getRoles().stream()
+                .filter(role -> role.getId().equals(authorID)
+                        && role.getConference().getId().equals(conferenceId))
+                .findFirst();
+        if (matchedAuthor.isEmpty()) {
+            logger.warn("wrong Role Id , expected {}", authorID);
+            redirectAttributes.addFlashAttribute("error", "Wrong Role Id.");
+            return "redirect:/conference";
+        }
+        Optional<Submission> submissionToUpdate = submissionService.findOne(submission.getId());
+        if (submissionToUpdate.isEmpty()) {
+            logger.warn("submission {} not found in database", submission.getId());
+            return"redirect:/conference";
+        }
+        submissionToUpdate.get().setKeywords(submission.getKeywords());
+        if (submissionToUpdate.get().getConference().getPhase().equals(Phase.ABSTRACT_SUBMISSION)){
+            submissionToUpdate.get().setAbstractSub(submission.getAbstractSub());
+        }
+        if (submissionToUpdate.get().getConference().getPhase().equals(Phase.CONCRETE_SUBMISSION)){
+            submissionToUpdate.get().setSubFiles(submission.getSubFiles());
+        }
+        submissionService.update(submissionToUpdate.get());
+        return "redirect:/conference";
+
     }
 
     // DELETE /submissions/{id}

@@ -28,8 +28,8 @@
                 <!-- Champ ID caché pour l'édition -->
                 <input type="hidden" th:field="*{id}" th:if="${submission.id != null}" />
 
-                <!-- Méthode cachée uniquement en mode update -->
-                <input type="hidden" name="_method" value="put" th:if="${submission.id != null}" />
+
+
 
                 <div class="bg-gray-100 rounded-2xl shadow-md p-8 w-full max-w-4xl border border-gray-300">
                     <h2 class="text-xl font-bold text-center mb-6"

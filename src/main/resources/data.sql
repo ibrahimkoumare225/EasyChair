@@ -52,6 +52,8 @@ INSERT INTO roles (user_id, role_type,conference_id) VALUES (5, 'AUTHOR',1); -- 
 INSERT INTO authors (id) VALUES ( 5);
 INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'AUTHOR',2);
 INSERT INTO authors (id) VALUES (6);
+INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'REVIEWER',1);
+INSERT INTO reviewers (id) VALUES (7);
 -- Submissions (3 articles)
 INSERT INTO submissions (title, creation_date, status, abstract_sub, conference_id)
 VALUES
