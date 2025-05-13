@@ -38,10 +38,11 @@ VALUES
     );
 
 
-INSERT INTO roles (user_id, role_type) VALUES (1, 'ORGANIZER');
-INSERT INTO organizers (id, conference_id) VALUES (1, 1);
-INSERT INTO roles (user_id, role_type) VALUES (2, 'ORGANIZER');
-INSERT INTO organizers (id, conference_id) VALUES (2, 2);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'ORGANIZER',1);
+INSERT INTO organizers (id) VALUES (1);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'ORGANIZER',2);
+INSERT INTO organizers (id) VALUES (2);
+
 -- Reviewers
 INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'REVIEWER',1);
 INSERT INTO reviewers (id) VALUES (2);
