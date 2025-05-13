@@ -6,35 +6,44 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
+
 <!-- Sidebar inclusion -->
 <div th:replace="~{sidebar/sidebar :: sideBar}"></div>
 
 <div class="max-w-4xl mx-auto p-6">
   <h1 class="text-3xl font-bold text-gray-800 mb-6">Evaluation Thread</h1>
 
-  <!-- Posts List -->
+  <!-- Liste des Posts -->
   <div class="space-y-6">
     <div th:each="post : ${evaluation.posts}" class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+
+      <!-- Nom de l’auteur et date -->
       <div class="flex justify-between items-center mb-2">
-        <h2 class="text-lg font-semibold text-gray-800" th:text="${post.authorName}">Author Name</h2>
-        <span class="text-sm text-gray-500" th:text="${#dates.format(post.createdAt, 'dd MMM yyyy HH:mm')}">Date</span>
+        <h2 class="text-lg font-semibold text-gray-800"
+            th:text="${post.reviewer.user.firstName + ' ' + post.reviewer.user.lastName}">
+          Nom de l'auteur
+        </h2>
+        <span class="text-sm text-gray-500"
+              th:text="${#temporals.format(post.date, 'dd MMM yyyy HH:mm')}">
+          Date
+        </span>
       </div>
-      <p class="text-gray-700 whitespace-pre-line" th:text="${post.content}">
-        Example content of a comment or report.
+
+      <!-- Contenu du post -->
+      <p class="text-gray-700 whitespace-pre-line" th:text="${post.body}">
+        Contenu du post.
       </p>
-      <div th:if="${post.type != null}" class="mt-2 text-xs inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded">
-        <span th:text="${post.type}">Report</span>
-      </div>
     </div>
   </div>
 
-  <!-- Create New Post Button -->
+  <!-- Bouton Nouveau Post -->
   <div class="mt-10 text-center">
-    <a th:href="@{/templates/dynamic/evaluation/newPost/{evaluationId}(evaluationId=${evaluationId})}"
+    <a th:href="@{/posts/form/createPost/{evaluationId}(evaluationId=${evaluation.id})}"
        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-md font-semibold transition">
       + Create New Post
     </a>
   </div>
 </div>
+
 </body>
 </html>

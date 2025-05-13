@@ -31,12 +31,10 @@
         <td class="px-6 py-4" th:text="${submission.conference.title}">Conf Title</td>
         <td class="px-6 py-4" th:text="${#dates.format(submission.creationDate, 'yyyy-MM-dd')}">2025-05-01</td>
         <td class="px-6 py-4" th:text="${submission.title}">AI & Ethics</td>
-        <td class="px-6 py-4" ><!---th:text="${#lists.join(submission.authors.stream().map(a -> a.user.firstName + ' ' + a.user.lastName).toList(), ', ')}"-->
-          John Doe
-        </td>
+        <td class="px-6 py-4" th:text="*{user.pseudo}"></td>
         <td class="px-6 py-4" th:text="${submission.status}">SUBMITTED</td>
         <td class="px-6 py-4">
-          <a th:href="@{/submissions/submissionDetail/{id}(id=1)}"
+          <a th:href="@{/submissions/submissionDetail/{id}(id=${submission.id})}"
              class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1 px-3 rounded transition text-sm">
             Visualize
           </a>

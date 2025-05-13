@@ -1,21 +1,83 @@
 <!DOCTYPE html>
-    <html xmlns:th="http://www.thymeleaf.org">
-        <head>
-            <meta charset="UTF-8">
-            <title>Welcome to EasyChair</title>
-            <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body class="bg-gray-100 min-h-screen font-sans" th:fragment="sideBar">
-                <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-                    <div class="flex space-x-6">
-                        <!--- à remplacer l'identifiant par défaut par un l'identifiant de l'utilisateur connecté-->
-                        <a th:href="@{/submissions/user/{id}(id=)}" class="text-gray-700 font-medium hover:text-blue-600">My Submissions</a>
-                        <a href="#" class="text-gray-700 font-medium hover:text-blue-600">Notification</a>
-                        <a th:href="@{/conference/myConference}" class="text-gray-700 font-medium hover:text-blue-600">My Conferences</a>
-                    </div>
-                    <div>
-                        <a th:href="@{/conference/ajouterConference}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold">Create Conference</a>
-                    </div>
-                </nav>
-        </body>
-    </html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to EasyChair</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans" th:fragment="sideBar">
+<nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <div class="flex space-x-6 relative">
+        <!-- Menu déroulant pour My Submissions -->
+        <div class="dropdown relative">
+            <button class="dropdown-toggle text-gray-700 font-medium hover:text-blue-600 flex items-center" onclick="toggleDropdown(this)">
+                My list
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div class="dropdown-menu absolute hidden bg-white shadow-lg rounded-lg mt-1 py-2 w-48 z-50">
+                <a th:href="@{/conference/myConference}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">My Conferences</a>
+                <a th:href="@{/submissions/user/{id}(id=3)}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">My Submissions</a>
+                <a th:href="@{/evaluations/user/{id}(id=3)}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">My Evaluations</a>
+            </div>
+        </div>
+
+        <!-- Menu déroulant pour Notification -->
+        <div class="dropdown relative">
+            <button class="dropdown-toggle text-gray-700 font-medium hover:text-blue-600 flex items-center" onclick="toggleDropdown(this)">
+                Notification
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div class="dropdown-menu absolute hidden bg-white shadow-lg rounded-lg mt-1 py-2 w-48 z-50">
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">All Notifications</a>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a th:href="@{/conference/ajouterConference}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold">Create Conference</a>
+    </div>
+</nav>
+
+<!-- Script pour améliorer l'interaction avec les menus déroulants -->
+<script>
+    // Fonction pour basculer l'affichage du menu déroulant
+    function toggleDropdown(button) {
+        // Récupérer le menu associé au bouton
+        const menu = button.nextElementSibling;
+
+        // Fermer tous les autres menus déroulants
+        document.querySelectorAll('.dropdown-menu').forEach(dropdownMenu => {
+            if (dropdownMenu !== menu) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Basculer l'affichage du menu actuel
+        menu.classList.toggle('hidden');
+    }
+
+    // Fermer les menus déroulants si on clique ailleurs sur la page
+    document.addEventListener('click', function(event) {
+        const isDropdownButton = event.target.closest('.dropdown-toggle');
+        const isDropdownMenu = event.target.closest('.dropdown-menu');
+
+        if (!isDropdownButton && !isDropdownMenu) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        }
+    });
+
+    // Empêcher la fermeture du menu lors du clic à l'intérieur du menu
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.addEventListener('click', function(event) {
+            // Empêcher la propagation du clic pour éviter que le menu ne se ferme
+            event.stopPropagation();
+        });
+    });
+</script>
+</body>
+</html>
