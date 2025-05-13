@@ -1,4 +1,3 @@
-/*
 package fr.upsaclay.easychair.service;
 
 import fr.upsaclay.easychair.model.*;
@@ -8,6 +7,7 @@ import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.model.enumates.SubType;
 import fr.upsaclay.easychair.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -54,7 +54,11 @@ public class DataInitializer {
     @Autowired
     private AlertRepository alertRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserService userService;
 
 
     public void initializeData() {
@@ -65,7 +69,7 @@ public class DataInitializer {
             user1.setLastName("Doe");
             user1.setEmail("john@doe.com");
             user1.setPseudo("toto");
-            user1.setPassword("password123"); // Valid password (>= 6 characters)
+            user1.setPassword(passwordEncoder.encode("password123")); // Valid password (>= 6 characters)
             user1.setBirthDate(LocalDate.of(2000, 1, 1));
             user1 = userService.save(user1);
         }
@@ -77,7 +81,7 @@ public class DataInitializer {
             user2.setLastName("Doe");
             user2.setPseudo("tata");
             user2.setEmail("jane@doe.com");
-            user2.setPassword("password123"); // Valid password (>= 6 characters)
+            user2.setPassword(passwordEncoder.encode("password123")); // Valid password (>= 6 characters)
             user2.setBirthDate(LocalDate.of(2001, 1, 1));
             user2 = userService.save(user2);
         }
@@ -89,7 +93,7 @@ public class DataInitializer {
             user3.setLastName("Cousin");
             user3.setEmail("alban@cousin.com");
             user3.setPseudo("Banban");
-            user3.setPassword("alban123"); // Valid password (>= 6 characters)
+            user3.setPassword(passwordEncoder.encode("alban123")); // Valid password (>= 6 characters)
             user3.setBirthDate(LocalDate.of(2003, 4, 12));
             user3 = userService.save(user3);
         }
@@ -101,7 +105,7 @@ public class DataInitializer {
             user4.setLastName("Pennec");
             user4.setEmail("jeremie@pennec.com");
             user4.setPseudo("Jeje");
-            user4.setPassword("jeremie123"); // Valid password (>= 6 characters)
+            user4.setPassword(passwordEncoder.encode("jeremie123")); // Valid password (>= 6 characters)
             user4.setBirthDate(LocalDate.of(1980, 12, 12));
             user4 = userService.save(user4);
         }
@@ -113,11 +117,13 @@ public class DataInitializer {
             user5.setLastName("Koumare");
             user5.setEmail("ibrahim@koumare.com");
             user5.setPseudo("ibrah");
-            user5.setPassword("ibrahim123"); // Valid password (>= 6 characters)
+            user5.setPassword(passwordEncoder.encode("ibrahim123"));// Valid password (>= 6 characters)
             user5.setBirthDate(LocalDate.of(2000, 12, 12));
             user5 = userService.save(user5);
         }
-
+    }
+}
+/*
         // Création de la conférence
         Conference conference = new Conference();
         conference.setTitle("Sample Conference");
@@ -287,4 +293,4 @@ public class DataInitializer {
 
 
     }
-}
+}*/

@@ -105,30 +105,45 @@ public class ConferenceServiceImpl implements ConferenceService {
 
     @Override
     public List<Conference> findConferencesByUserEmail(String email) {
-        // Récupérer les conférences où l'utilisateur est Organizer
-        List<Conference> organizerConferences = organizerRepository.findByUserEmail(email)
+       List<Conference> organizerConferences=findConferencesByOrganizerEmail(email);
+       List<Conference> reviewerConferences=findConferencesByReviewerEmail(email);
+       List<Conference> authorConferences=findConferencesByAuthorEmail(email);
+       // Combiner et supprimer les doublons
+       Set<Conference> allConferences = new HashSet<>();
+       allConferences.addAll(organizerConferences);
+       allConferences.addAll(reviewerConferences);
+       allConferences.addAll(authorConferences);
+
+       return new ArrayList<>(allConferences);
+    }
+
+    @Override
+    public List<Conference> findConferencesByOrganizerEmail(String email) {
+           List<Conference> organizerConferences = organizerRepository.findByUserEmail(email)
                 .stream()
                 .map(Organizer::getConference)
                 .toList();
+           return new ArrayList<>(organizerConferences);
 
-        // Récupérer les conférences où l'utilisateur est Reviewer
-        List<Conference> reviewerConferences = reviewerRepository.findByUserEmail(email)
-                .stream()
-                .map(Reviewer::getConference)
-                .toList();
+    }
 
+    @Override
+    public List<Conference> findConferencesByAuthorEmail(String email) {
         // Récupérer les conférences où l'utilisateur est Author
         List<Conference> authorConferences = authorRepository.findByUserEmail(email)
                 .stream()
                 .map(Author::getConference)
                 .toList();
+        return new ArrayList<>(authorConferences);
+    }
 
-        // Combiner et supprimer les doublons
-        Set<Conference> allConferences = new HashSet<>();
-        allConferences.addAll(organizerConferences);
-        allConferences.addAll(reviewerConferences);
-        allConferences.addAll(authorConferences);
-
-        return new ArrayList<>(allConferences);
+    @Override
+    public List<Conference> findConferencesByReviewerEmail(String email) {
+        // Récupérer les conférences où l'utilisateur est Reviewer
+        List<Conference> reviewerConferences = reviewerRepository.findByUserEmail(email)
+                .stream()
+                .map(Reviewer::getConference)
+                .toList();
+        return new ArrayList<>(reviewerConferences);
     }
 }

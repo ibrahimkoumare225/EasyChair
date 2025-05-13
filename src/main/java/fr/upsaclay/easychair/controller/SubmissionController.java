@@ -1,22 +1,29 @@
 
 package fr.upsaclay.easychair.controller;
 
-import fr.upsaclay.easychair.model.Conference;
-import fr.upsaclay.easychair.model.Evaluation;
-import fr.upsaclay.easychair.model.Submission;
-import fr.upsaclay.easychair.model.User;
+import fr.upsaclay.easychair.model.*;
 import fr.upsaclay.easychair.model.enumates.Phase;
 import fr.upsaclay.easychair.model.enumates.SubType;
+import fr.upsaclay.easychair.service.AuthorService;
 import fr.upsaclay.easychair.service.ConferenceService;
 import fr.upsaclay.easychair.service.SubmissionService;
 import fr.upsaclay.easychair.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -28,65 +35,180 @@ public class SubmissionController {
     private final SubmissionService submissionService;
     private final UserService userService;
     private final ConferenceService conferenceService;
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionController.class);
+    private final AuthorService authorService;
 
     @GetMapping("/user/{userId}")
-    public String showUserSubmissions(@PathVariable Long userId, Model model) {
-        Optional<User> user = userService.findOne(userId);
+    public String showUserSubmissions( Model model,Authentication authentication) {
+
+        if (authentication==null||!authentication.isAuthenticated()){
+            return "redirect:/login";
+        }
+        logger.debug("Access to Submissions of user {}", authentication.getName());
+
+        Optional<User> user = userService.findByEmail(authentication.getName());
         if (user.isPresent()) {
             List<Submission> submissions = submissionService.findSubmissionsByAuthor(user.get());
             model.addAttribute("submissions", submissions);
             model.addAttribute("user", user.get());
             return "/dynamic/submission/listSubmission"; // Nom de la vue Thymeleaf
         } else {
-            return "error/404";
+            return "redirect:/conference";
         }
     }
 
     @GetMapping("/submissionDetail/{id}")
-    public String showDetailSubmission(Model model, @PathVariable Long id) {
+    public String showDetailSubmission(Model model, @PathVariable Long id,Authentication authentication) {
+
+        if (authentication==null||!authentication.isAuthenticated()){
+            return "redirect:/login";
+        }
+        logger.debug("Access to Submissions of user {}", authentication.getName());
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
-            model.addAttribute("submission", submission.get());
-            return  "dynamic/submission/detailSubmission";
-        } else {
-            return "redirect:/home";
+            //Verif user est dans la conference
+            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
+            if (conferences.contains(submission.get().getConference())){
+                model.addAttribute("submission", submission.get());
+                return "dynamic/submission/detailSubmission";
+            }
         }
+        return "redirect:/home";
     }
 
-    @PostMapping("/ajouterSubmission")
-    public String showAddSubForm(@RequestParam Long conferenceId, Model model) {
+
+    @GetMapping("/ajouterSubmission")
+    public String showAddSubForm(@RequestParam Long conferenceId, Model model, Authentication authentication) {
         //Ajout de la conference pour rattachement de la submission
+        if (authentication==null||!authentication.isAuthenticated()){
+            logger.warn("Unauthenticated attempt to showAddSubForm");
+            return "redirect:/login";
+        }
+        try {
+            Optional<Conference> conference = conferenceService.findOne(conferenceId);
+            if (conference.isPresent()) {
+                logger.debug("Founded conference ID :{}", conference.get().getId());
+                List<Conference> conferences = conferenceService.findConferencesByAuthorEmail(authentication.getName());
+                Optional<Author> matchedAuthor =  conferences.stream()
+                        .flatMap(c -> c.getAuthors().stream())
+                        .filter(author -> author.getUser().getEmail().equals(authentication.getName()))
+                        .findFirst();
+                logger.debug(" Matching conference  with Author");
+                if (matchedAuthor.isPresent() && matchedAuthor.get().getConference().equals(conference.get()))  {
+                    model.addAttribute("conference", conference.get());
+                    //Doit etre set dans l'autre sens dans save
+                    Submission submission = new Submission();
+                    submission.setConference(conference.get());
+                    submission.getAuthors().add(matchedAuthor.get());
+                    model.addAttribute("submission", submission);
+                    return "dynamic/submission/submissionForm";
+                } else {
+                    logger.warn("No match with of conference {} for Author with user {}", conference.get().getId(), authentication.getName());
+                    return "redirect:/conference";
+                }
 
-        Optional<Conference> conference = conferenceService.findOne(conferenceId);
-        //@Todo condition d'accès a rajouter avec verif du user par rapport a la conf
-        if (conference.isPresent()){
-            model.addAttribute("conference", conference.get());
-            model.addAttribute("submission", new Submission());
-            return "dynamic/submission/submissionForm";
-        }
-        else{
-            return "error/404";
-        }
-
-    }
-    @PostMapping("/modifierSubmission")
-    public String showModifySubForm(@RequestParam Long submissionId,  Model model) {
-        //@Todo condition d'accès a rajouter avec verif du user par rapport a la conf
-        Optional<Submission> submission= submissionService.findOne(submissionId);
-        if (submission.isPresent()) {
-            model.addAttribute("conference", submission.get().getConference());
-            model.addAttribute("submission", submission.get());
-            return "dynamic/submission/submissionForm";
-        }
-        else{
-            return "error/404";
-        }
-    }
-
-    public String saveSubmission(Submission submission) {
-        submissionService.save(submission);
+            } else {
+                logger.warn("No conference with ID {}", conferenceId);
+                return "redirect:/conference";
+            }
+        }catch (Exception e){
+        logger.error("error in showAddSubForm", e);}
         return "redirect:/conference";
     }
+
+
+    @GetMapping("/modifierSubmission")
+    public String showModifySubForm(@RequestParam Long submissionId,  Model model,Authentication authentication) {
+
+        if (authentication==null||!authentication.isAuthenticated()){
+            logger.warn("Unauthenticated attempt to showModifySubForm");
+            return "redirect:/login";
+        }
+        try{
+            Optional<Submission> submission= submissionService.findOne(submissionId);
+            if (submission.isPresent()) {
+                logger.debug("founded Submission   {}", submissionId);
+                Optional<User> user = userService.findByEmail(authentication.getName());
+                if (user.isPresent()) {
+
+                    //@TODO a revoir si plusieurs auteurs
+                    logger.debug("Matching user {} with submission {}",authentication.getName(),submissionId);
+                    if (user.get().getRoles().contains(submission.get().getAuthors().get(0))){
+                        model.addAttribute("conference", submission.get().getConference());
+                        model.addAttribute("submission", submission.get());
+                        return "dynamic/submission/submissionForm";
+                    }else{
+                        logger.warn("No match with  user {} as Author of submission{}", authentication.getName(),submissionId);
+                        return "redirect:/conference";
+                    }
+                }else{
+                    logger.warn("user {} not found in database",authentication.getName());
+                    return "redirect:/conference";
+                }
+            }
+            logger.warn("Submission {} not found in database",submissionId);
+            return "redirect:/conference";
+        }catch (Exception e){
+        logger.error("error in showModifySubForm", e);
+        return "redirect:/conference";}
+    }
+
+
+    @PostMapping("/save")
+    @Transactional
+    public String saveSubmission(@ModelAttribute Submission submission,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        logger.debug("Saving new submission: {}", submission);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to save conference");
+            return "redirect:/login";
+        }
+
+        String email = authentication.getName();
+        logger.debug("Authenticated user email for saveSubmission: {}", email);
+        Optional<User> userOptional = userService.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            logger.error("User not found for email: {}", email);
+            redirectAttributes.addFlashAttribute("error", "User not found.");
+            return "redirect:/conference";
+        }
+        submissionService.save(submission);
+        logger.debug("Saved new submission: {}", submission.getId());
+        Optional<Conference> conference = conferenceService.findOne(submission.getConference().getId());
+        if (conference.isPresent()) {
+            conference.get().getSubmissions().add(submission);
+            conferenceService.save(conference.get());
+            logger.debug("conference {}linked with new submission{}", conference.get().getId(), submission.getId());
+
+
+        } else {
+            //Rollback
+            logger.warn("Conference {} not found in database", submission.getConference().getId());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            logger.debug("Rollback for {}", submission.getId());
+            redirectAttributes.addFlashAttribute("error", "Conference not found.");
+            return "redirect:/conference";
+        }
+        //@TODO qu'un author géré
+        Optional<Author> author = authorService.findOne(submission.getAuthors().get(0).getId());
+        if (author.isPresent()) {
+            author.get().getSubmissions().add(submission);
+            authorService.save(author.get());
+            logger.debug("author {}linked with new submission{}", author.get().getId(), submission.getId());
+        } else {
+            logger.warn("Author {} not found in database", submission.getAuthors().get(0).getId());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            logger.debug("Rollback for {}", submission.getId());
+            redirectAttributes.addFlashAttribute("error", "Author not found.");
+            return "redirect:/conference";
+        }
+        logger.debug("Saved new submission: {}", submission);
+        return"redirect:/conference/conferenceDetail/{"+submission.getConference().getId()+"}";
+    }
+
+
 
 
     // GET /submissions/{id}
@@ -99,7 +221,8 @@ public class SubmissionController {
     // POST /submissions
     @PostMapping
     public Submission createSubmission(@RequestBody Submission submission,Model model) {
-        //@Todo avis si c'est propre ?
+
+
         submission.setConference((Conference)model.getAttribute("conference"));
         submission.setCreationDate(Date.from(Instant.now()));
         submission.setStatus(SubType.PROGRESS);
