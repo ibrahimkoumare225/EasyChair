@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un Post</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+<!-- Sidebar -->
+<div th:replace="~{sidebar/sidebar :: sideBar}"></div>
+
+<div class="max-w-2xl mx-auto p-6 bg-white rounded shadow-md mt-10">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Ajouter un nouveau post</h1>
+
+    <form th:action="@{/posts/add}" th:object="${post}" method="post" class="space-y-4">
+
+        <!-- Corps du post -->
+        <div>
+            <label for="body" class="block text-sm font-medium text-gray-700">Contenu du post</label>
+            <textarea id="body" name="body" th:field="*{body}" rows="5"
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Rédigez votre message ici..."></textarea>
+        </div>
+
+        <!-- Champ caché : ID de l'évaluation -->
+        <input type="hidden" th:field="*{evaluation.id}" />
+
+        <!-- Champ caché : ID du reviewer -->
+        <input type="hidden" th:field="*{reviewer.id}" />
+
+        <!-- Bouton de soumission -->
+        <div>
+            <button type="submit"
+                    class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                Poster
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

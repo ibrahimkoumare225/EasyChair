@@ -16,4 +16,5 @@ public interface ReportService {
     void delete(Long id);
     List<Report> findByBodyIgnoreCase(String body);
 
+    Optional<Report> findByEvaluationId(Long evaluationId);
 }

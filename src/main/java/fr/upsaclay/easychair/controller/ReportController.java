@@ -42,13 +42,22 @@ public class ReportController {
     @PostMapping("/ajouterReport")
     public String showAddReportForm(@RequestParam Long evaluationId, Model model) {
         Optional<Evaluation> evaluation = evaluationService.findOne(evaluationId);
-        if (evaluation.isPresent()) {
-            model.addAttribute("evaluation",evaluation.get());
+
+        if (evaluation.isEmpty()) {
+            return "error/404";
+        }
+
+        Optional<Report> report = reportService.findByEvaluationId(evaluationId);
+
+        if (!report.isPresent()) {
+            model.addAttribute("evaluation", evaluation.get());
             model.addAttribute("report", new Report());
             return "dynamic/evaluation/reportForm";
+        } else {
+            return "redirect:/posts/form/ajouterPost/" + evaluationId;
         }
-        else return "error/404";
     }
+
     @PostMapping("/modifierReport")
     public String showUpdateReportForm(@RequestParam Long reportId, Model model) {
         Optional<Report> report = reportService.findOne(reportId);
