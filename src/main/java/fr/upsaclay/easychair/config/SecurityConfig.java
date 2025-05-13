@@ -33,9 +33,11 @@ public class SecurityConfig {
                         .requestMatchers("/conference/ajouterConference","/conference/myConference").authenticated()
                         .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}", "/conference/update").hasRole("ORGANIZER")
                         .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**").hasRole("AUTHOR")
+                        .requestMatchers("submissions/conference/**").authenticated()
                         .requestMatchers("/submissions/submissionDetail/**").hasAnyRole("AUTHOR", "REVIEWER")
                         .requestMatchers("/submissions/**", "/submissions/submissionDetail/{id}").hasRole("REVIEWER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .formLogin((login) -> login

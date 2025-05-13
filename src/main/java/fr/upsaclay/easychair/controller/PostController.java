@@ -78,7 +78,7 @@ public class PostController {
         post.setReviewer(reviewer);
         postService.save(post);
 
-        return "redirect:/form/ajouterPost/" + post.getEvaluation().getId();
+        return "redirect:/conference";
     }
 
     // GET /posts

@@ -40,6 +40,9 @@ VALUES
 
 INSERT INTO roles (user_id, role_type) VALUES (1, 'ORGANIZER');
 INSERT INTO organizers (id, conference_id) VALUES (1, 1);
+INSERT INTO roles (user_id, role_type) VALUES (2, 'ORGANIZER');
+INSERT INTO organizers (id, conference_id) VALUES (2, 2);
+
 -- Reviewers
 INSERT INTO roles (user_id, role_type) VALUES (2, 'REVIEWER');
 INSERT INTO reviewers (id, conference_id) VALUES (2, 1);

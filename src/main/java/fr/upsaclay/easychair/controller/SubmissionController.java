@@ -48,11 +48,17 @@ public class SubmissionController {
 
     @GetMapping("/submissionDetail/{id}")
     public String showDetailSubmission(Model model, @PathVariable Long id) {
+        if (id == null) {
+            return "redirect:/conference";
+        }
+
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
-            model.addAttribute("submission", submission.get());
-            return  "dynamic/submission/detailSubmission";
+            Submission sub = submission.get();
+            model.addAttribute("submission", sub);
+            return "dynamic/submission/detailSubmission";
         } else {
+            System.out.println("Aucune soumission trouvée avec l'ID: " + id);
             return "redirect:/home";
         }
     }
@@ -90,6 +96,23 @@ public class SubmissionController {
     public String saveSubmission(Submission submission) {
         submissionService.save(submission);
         return "redirect:/conference";
+    }
+
+    @GetMapping("/conference/{id_conference}")
+    public String showSubmissionConference(@PathVariable Long id_conference, Model model) {
+        Optional<Conference> conference = conferenceService.findOne(id_conference);
+        if (conference.isPresent()) {
+            Long id_user = conference.get().getOrganizers().get(0).getId();
+            Optional<User> user = userService.findOne(id_user);
+            if (user.isPresent()) {
+                model.addAttribute("user", user.get());
+            }
+            List<Submission> submissions = submissionService.findSubmissionsByConference(conference.get());
+            model.addAttribute("submissions", submissions); // Uniformiser le nom de l'attribut (submissions au lieu de submission)
+            return "dynamic/submission/listSubmission";
+        } else {
+            return "error/404";
+        }
     }
 
 

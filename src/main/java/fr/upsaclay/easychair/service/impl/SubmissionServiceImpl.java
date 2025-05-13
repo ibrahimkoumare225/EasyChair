@@ -1,6 +1,7 @@
 package fr.upsaclay.easychair.service.impl;
 
 import fr.upsaclay.easychair.model.Author;
+import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Submission;
 import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.repository.AuthorRepository;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,8 +69,13 @@ public class SubmissionServiceImpl implements SubmissionService {
                 allSubmissions.addAll(author.getSubmissions());
             }
         }
-
         return allSubmissions;
+    }
+
+    @Override
+    public List <Submission> findSubmissionsByConference(Conference conference)
+    {
+        return submissionRepository.findByConference(conference);
     }
 
 
