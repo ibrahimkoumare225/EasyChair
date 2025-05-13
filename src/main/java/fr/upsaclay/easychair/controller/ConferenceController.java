@@ -7,6 +7,11 @@ import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.repository.AuthorRepository;
 import fr.upsaclay.easychair.repository.RoleRequestRepository;
 import fr.upsaclay.easychair.service.*;
+import fr.upsaclay.easychair.service.ConferenceService;
+import fr.upsaclay.easychair.service.OrganizerService;
+import fr.upsaclay.easychair.service.ReviewerService;
+import fr.upsaclay.easychair.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +47,7 @@ public class ConferenceController {
     private final UserDetailsService userDetailsService;
     private final ReviewerService reviewerService;
     private final AuthorService authorService;
+
 
     @GetMapping
     public String homePage(Model model, Authentication authentication) {
@@ -286,8 +292,24 @@ public class ConferenceController {
     public String showDetailConferenceForms(Model model, @PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
         logger.debug("Accessing conference detail for ID: {}", id);
         try {
+
             Optional<Conference> conferenceOptional = conferenceService.findOne(id);
             if (conferenceOptional.isEmpty()) {
+
+            Optional<Conference> conference = conferenceService.findOne(id);
+            if (conference.isPresent()) {
+                String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                User user = userService.findByEmail(email).orElseThrow();
+                Optional<Reviewer> reviewer = reviewerService.findByUserId(user.getId());
+                if(reviewer.isPresent()) {
+                    model.addAttribute("authorized", true);
+                }else {
+                    model.addAttribute("authorized", false);
+                }
+                model.addAttribute("conference", conference.get());
+                return "dynamic/conference/detailConference";
+            } else {
+
                 logger.warn("Conference not found for ID: {}", id);
                 redirectAttributes.addFlashAttribute("error", "Conference not found.");
                 return "redirect:/conference";

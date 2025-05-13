@@ -4,6 +4,7 @@ import fr.upsaclay.easychair.model.Role;
 import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -66,5 +67,11 @@ public class AuthController {
         userService.save(user);
 
         return "redirect:/login?registered=true";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login?logout=true";
     }
 }
