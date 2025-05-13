@@ -22,6 +22,9 @@
                   th:action="${submission.id == null} ? @{/submission/save} : @{/submission/update}"
                   method="post">
 
+                <input type="hidden" th:field="*{authors[0].id}" />
+                <input type="hidden" th:field="*{conference.id}" />
+
                 <!-- Champ ID caché pour l'édition -->
                 <input type="hidden" th:field="*{id}" th:if="${submission.id != null}" />
 

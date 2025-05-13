@@ -4,10 +4,7 @@ package fr.upsaclay.easychair.controller;
 import fr.upsaclay.easychair.model.*;
 import fr.upsaclay.easychair.model.enumates.Phase;
 import fr.upsaclay.easychair.model.enumates.SubType;
-import fr.upsaclay.easychair.service.AuthorService;
-import fr.upsaclay.easychair.service.ConferenceService;
-import fr.upsaclay.easychair.service.SubmissionService;
-import fr.upsaclay.easychair.service.UserService;
+import fr.upsaclay.easychair.service.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +36,7 @@ public class SubmissionController {
     private final ConferenceService conferenceService;
     private static final Logger logger = LoggerFactory.getLogger(SubmissionController.class);
     private final AuthorService authorService;
+    private final EvaluationService evaluationService;
 
     @GetMapping("/user/{userId}")
     public String showUserSubmissions( Model model,Authentication authentication) {
@@ -132,11 +130,10 @@ public class SubmissionController {
                 logger.debug("founded Submission   {}", submissionId);
                 Optional<User> user = userService.findByEmail(authentication.getName());
                 if (user.isPresent()) {
-
                     //@TODO a revoir si plusieurs auteurs
                     logger.debug("Matching user {} with submission {}",authentication.getName(),submissionId);
                     if (user.get().getRoles().contains(submission.get().getAuthors().get(0))){
-                        model.addAttribute("conference", submission.get().getConference());
+                        submission.get().getAuthors().
                         model.addAttribute("submission", submission.get());
                         return "dynamic/submission/submissionForm";
                     }else{
@@ -176,12 +173,34 @@ public class SubmissionController {
             redirectAttributes.addFlashAttribute("error", "User not found.");
             return "redirect:/conference";
         }
-        submissionService.save(submission);
-        logger.debug("Saved new submission: {}", submission.getId());
+        Long authorID = submission.getAuthors().get(0).getId();
+        Long conferenceId = submission.getConference().getId();
+        logger.debug("Checking user have  author {} and  Conference {}",authorID,conferenceId);
+
+        Optional<Role> matchedAuthor =userOptional.get().getRoles().stream()
+                .filter(role -> role.getId().equals(authorID)
+                        && role.getConference().getId().equals(conferenceId))
+                .findFirst();
+        if (matchedAuthor.isEmpty()) {
+            logger.warn("wrong Role Id , expected {}", authorID);
+            redirectAttributes.addFlashAttribute("error", "Wrong Role Id.");
+            return "redirect:/conference";
+        }
+        //setConference & setAuthor done in showModifyForm
+        submission.setCreationDate(Date.from(Instant.now()));
+        submission.setStatus(SubType.PROGRESS);
+        logger.debug("Setting creationDate and Status for {}", submission.getId());
+        Evaluation evaluation = new Evaluation();
+        evaluation.setSubmission(submission);
+        evaluation=evaluationService.save(evaluation);
+        logger.debug("creating empty Evaluation {} for submission ",evaluation.getId());
+        submission.setEvaluation(evaluation);
+        submission=submissionService.save(submission);
+        logger.debug("Saved new submission: {}", submission.toString());
         Optional<Conference> conference = conferenceService.findOne(submission.getConference().getId());
         if (conference.isPresent()) {
             conference.get().getSubmissions().add(submission);
-            conferenceService.save(conference.get());
+            conferenceService.update(conference.get());
             logger.debug("conference {}linked with new submission{}", conference.get().getId(), submission.getId());
 
 
@@ -197,7 +216,7 @@ public class SubmissionController {
         Optional<Author> author = authorService.findOne(submission.getAuthors().get(0).getId());
         if (author.isPresent()) {
             author.get().getSubmissions().add(submission);
-            authorService.save(author.get());
+            authorService.update(author.get());
             logger.debug("author {}linked with new submission{}", author.get().getId(), submission.getId());
         } else {
             logger.warn("Author {} not found in database", submission.getAuthors().get(0).getId());
@@ -206,8 +225,9 @@ public class SubmissionController {
             redirectAttributes.addFlashAttribute("error", "Author not found.");
             return "redirect:/conference";
         }
-        logger.debug("Saved new submission: {}", submission);
-        return"redirect:/conference/conferenceDetail/{"+submission.getConference().getId()+"}";
+        redirectAttributes.addAttribute("id",submission.getId());
+
+        return "redirect:/conference";//"redirect:/submissions/submissionDetail{id}";
     }
 
 
