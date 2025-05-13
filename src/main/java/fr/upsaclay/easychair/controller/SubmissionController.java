@@ -11,6 +11,8 @@ import fr.upsaclay.easychair.service.ConferenceService;
 import fr.upsaclay.easychair.service.SubmissionService;
 import fr.upsaclay.easychair.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +30,8 @@ public class SubmissionController {
     private final SubmissionService submissionService;
     private final UserService userService;
     private final ConferenceService conferenceService;
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionController.class);
+
 
     @GetMapping("/user/{userId}")
     public String showUserSubmissions(@PathVariable Long userId, Model model) {

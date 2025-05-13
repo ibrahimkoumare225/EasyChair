@@ -14,6 +14,7 @@ import java.util.Optional;
 @Service
 public class ReportServiceImpl implements ReportService {
     private final ReportRepository reportRepository;
+
     @Override
     public Report save(Report report) {
         return reportRepository.save(report);
@@ -50,4 +51,9 @@ public class ReportServiceImpl implements ReportService {
         }
         return reportRepository.findByBodyIgnoreCase(body);
     }
+    @Override
+    public Optional<Report> findByEvaluationId(Long evaluationId) {
+        return reportRepository.findByEvaluationId(evaluationId);
+    }
+
 }
