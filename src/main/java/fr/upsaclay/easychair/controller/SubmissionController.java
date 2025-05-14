@@ -372,7 +372,8 @@ public class SubmissionController {
             conference.get().getSubmissions().removeIf(sub -> sub.getId().equals(submissionId));
             conferenceService.update(conference.get());
             submissionService.delete(submissionId);
-            redirectAttributes.addFlashAttribute("success", "Submission deleted.");
+            logger.debug("submission {} deleted", submissionId);
+            redirectAttributes.addFlashAttribute("message", "Submission deleted.");
             return "redirect:/conference";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error in Deletion");
