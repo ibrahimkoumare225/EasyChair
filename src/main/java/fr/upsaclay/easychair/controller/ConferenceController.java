@@ -102,9 +102,11 @@ public class ConferenceController {
             boolean hasReviewerRole,
             boolean hasPendingAuthorRequest,
             boolean hasPendingReviewerRequest
-    ) {}
+    ) {
+    }
 
-    record MyConferenceView(Conference conference, List<RoleType> userRoles, LocalDate nextPhaseDate) {}
+    record MyConferenceView(Conference conference, List<RoleType> userRoles, LocalDate nextPhaseDate) {
+    }
 
     @GetMapping("/searchConferences")
     public String searchConferences(@RequestParam(value = "query", required = false) String query, Model model, Authentication authentication) {
@@ -292,24 +294,8 @@ public class ConferenceController {
     public String showDetailConferenceForms(Model model, @PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
         logger.debug("Accessing conference detail for ID: {}", id);
         try {
-
             Optional<Conference> conferenceOptional = conferenceService.findOne(id);
             if (conferenceOptional.isEmpty()) {
-
-            Optional<Conference> conference = conferenceService.findOne(id);
-            if (conference.isPresent()) {
-                String email = SecurityContextHolder.getContext().getAuthentication().getName();
-                User user = userService.findByEmail(email).orElseThrow();
-                Optional<Reviewer> reviewer = reviewerService.findByUserId(user.getId());
-                if(reviewer.isPresent()) {
-                    model.addAttribute("authorized", true);
-                }else {
-                    model.addAttribute("authorized", false);
-                }
-                model.addAttribute("conference", conference.get());
-                return "dynamic/conference/detailConference";
-            } else {
-
                 logger.warn("Conference not found for ID: {}", id);
                 redirectAttributes.addFlashAttribute("error", "Conference not found.");
                 return "redirect:/conference";
@@ -320,27 +306,30 @@ public class ConferenceController {
 
             if (authentication != null && authentication.isAuthenticated()) {
                 String email = authentication.getName();
+
                 boolean isOrganizer = conference.getOrganizers().stream()
                         .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
                 boolean isReviewer = reviewerRepository.findByConferenceIdAndUserEmail(id, email).isPresent();
                 boolean isAuthor = authorRepository.findByConferenceIdAndUserEmail(id, email).isPresent();
+
                 model.addAttribute("isOrganizer", isOrganizer);
                 model.addAttribute("isReviewer", isReviewer);
                 model.addAttribute("isAuthor", isAuthor);
 
-                // Vérifier les demandes de rôle en cours
                 Optional<User> userOptional = userService.findByEmail(email);
                 if (userOptional.isPresent()) {
                     Long userId = userOptional.get().getId();
                     Optional<RoleRequest> authorRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, id, RoleType.AUTHOR);
                     Optional<RoleRequest> reviewerRequest = roleRequestService.findByUserIdAndConferenceIdAndRoleType(userId, id, RoleType.REVIEWER);
-                    model.addAttribute("hasPendingAuthorRequest", authorRequest.isPresent() && authorRequest.get().getStatus().equals("PENDING"));
-                    model.addAttribute("hasPendingReviewerRequest", reviewerRequest.isPresent() && reviewerRequest.get().getStatus().equals("PENDING"));
+
+                    model.addAttribute("hasPendingAuthorRequest", authorRequest.isPresent() && "PENDING".equals(authorRequest.get().getStatus()));
+                    model.addAttribute("hasPendingReviewerRequest", reviewerRequest.isPresent() && "PENDING".equals(reviewerRequest.get().getStatus()));
                 }
             }
 
             return "dynamic/conference/detailConference";
-        } catch (Exception e) {
+
+        } catch(Exception e){
             logger.error("Error in showDetailConferenceForms", e);
             redirectAttributes.addFlashAttribute("error", "An error occurred while accessing the conference details: " + e.getMessage());
             return "redirect:/conference";

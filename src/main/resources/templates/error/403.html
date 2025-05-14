@@ -3,34 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Accès refusé</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f2f2f2;
-        }
-        h1 {
-            font-size: 50px;
-            color: #cc0000;
-        }
-        p {
-            font-size: 20px;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h1>403 - Accès refusé</h1>
-<p>Vous n'avez pas la permission d'accéder à cette page.</p>
-<p><a th:href="@{/home}">Retour à l'accueil</a></p>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white p-10 rounded-xl shadow-xl max-w-md text-center space-y-6">
+    <div class="text-red-600 text-6xl font-bold">403</div>
+    <h1 class="text-2xl font-semibold text-gray-800">Accès refusé</h1>
+    <p class="text-gray-600">Vous n'avez pas les autorisations nécessaires pour accéder à cette page.</p>
+    <a th:href="@{/conference}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+        Retour à l'accueil
+    </a>
+</div>
+
 </body>
 </html>
