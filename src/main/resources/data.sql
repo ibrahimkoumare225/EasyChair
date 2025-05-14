@@ -93,6 +93,11 @@ VALUES
 INSERT INTO evaluations ( submission_id)
 VALUES ( 1);
 
+INSERT INTO evaluations ( submission_id)
+VALUES ( 3);
+
+
+
 -- Post lié à l'évaluation précédente (evaluation_id = 1), reviewer 1 (Jane Doe = 2)
 INSERT INTO posts (evaluation_id, reviewer_id, date, body)
 VALUES (

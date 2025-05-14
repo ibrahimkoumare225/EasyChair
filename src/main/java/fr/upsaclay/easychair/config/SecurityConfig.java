@@ -43,13 +43,12 @@ public class SecurityConfig {
                         .requestMatchers("/conference/ajouterConference", "/conference/myConference", "/conference/myNotification", "/conference/myRoleRequests", "/conference/requestRole/**","/conference/conferenceDetail/**").authenticated()
                         .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}", "/conference/update", "/conference/acceptRoleRequest/**", "/conference/rejectRoleRequest/**").hasRole("ORGANIZER")
                         .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**","/submissions/save",
-                                "submissions/modifierSubmission","submissions/update").hasRole("AUTHOR")                        .requestMatchers("submissions/conference/**").authenticated()
-                        .requestMatchers("/submissions/**").hasRole("REVIEWER")
-==
-                        
-                        .requestMatchers("/submissions/submissionDetail/**").hasAnyRole("AUTHOR", "REVIEWER")
-                        .requestMatchers("/submissions/**", "/submissions/submissionDetail/{id}").hasRole("REVIEWER")
-
+                                "submissions/modifierSubmission","submissions/update").hasRole("AUTHOR")
+                                .requestMatchers("submissions/conference/**").authenticated()
+                                .requestMatchers("/submissions/submissionDetail/**").hasAnyRole("AUTHOR", "REVIEWER","ORGANIZER")
+                                .requestMatchers("/submissions/**").hasRole("REVIEWER")
+//                        .requestMatchers("/submissions/**").hasAnyRole("AUTHOR", "REVIEWER")
+//                        "/submissions/submissionDetail/{id}")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()

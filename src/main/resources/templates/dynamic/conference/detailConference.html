@@ -11,6 +11,15 @@
 
 <div class="max-w-6xl mx-auto bg-white p-10 rounded-xl shadow-lg space-y-8 mt-10">
 
+  <!-- Header with Show All Alerts Button -->
+  <div class="flex justify-between items-center">
+    <div></div> <!-- Empty div to balance flex space if needed -->
+    <a th:href="@{/alerts/conference/{id}(id=${conference.id})}" th:if="${isOrganizer}"
+       class="bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-semibold shadow">
+      Show All Alerts
+    </a>
+  </div>
+
   <!-- Title -->
   <h1 class="text-3xl font-bold text-black-600 text-center" th:text="${conference.title}">Conference Title</h1>
 
@@ -72,6 +81,14 @@
         class="bg-blue-300 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold flex items-center space-x-2">
        Create Submission
      </a>
+     <a th:if ="${conference.onInvitation}"
+        class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">Ask for role</a>
+
+     <!-- Show all submissions button -->
+     <a th:href="@{/submissions/conference/{id}(id=${conference.id})}" th:if="${isReviewer}"
+        class="bg-green-300 hover:bg-green-400 text-white px-6 py-2 rounded-lg font-semibold">
+       Show all submissions
+     </a>
    </button>
 
     <!-- Dropdown for requesting a role -->
@@ -116,5 +133,6 @@
     }
   });
 </script>
+</div>
 </body>
 </html>

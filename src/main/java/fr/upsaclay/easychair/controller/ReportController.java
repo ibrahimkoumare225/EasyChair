@@ -1,11 +1,8 @@
 package fr.upsaclay.easychair.controller;
 
+import fr.upsaclay.easychair.model.*;
 import fr.upsaclay.easychair.service.*;
 import org.springframework.security.core.context.SecurityContextHolder;
-import fr.upsaclay.easychair.model.User;
-import fr.upsaclay.easychair.model.Evaluation;
-import fr.upsaclay.easychair.model.Report;
-import fr.upsaclay.easychair.model.Reviewer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -79,14 +76,16 @@ public class ReportController {
     public String createReport(@ModelAttribute Report report,
                                @RequestParam Long id_evaluation,
                                @RequestParam("action") String action) {
-        if ("signal".equals(action)) {
-            return "redirect:/alerts/alertForm"; // pas de save ici
-        }
+
 
         // Sinon, on continue pour créer un report
         Evaluation evaluation = evaluationService.findOne(id_evaluation)
                 .orElseThrow(() -> new RuntimeException("Evaluation not found"));
 
+        Submission submission = evaluation.getSubmission();
+        if ("signal".equals(action)) {
+            return "redirect:/alerts/alertForm/"+ submission.getId() ; // pas de save ici
+        }
         report.setEvaluation(evaluation);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.findByEmail(email).orElseThrow();
