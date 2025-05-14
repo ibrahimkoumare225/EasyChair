@@ -64,6 +64,10 @@ public class ConferenceServiceImpl implements ConferenceService {
             if (conference.getCreationDate() != null) {
                 existingConf.setCreationDate(conference.getCreationDate());
             }
+            //mettre à jout les keywords
+            if(conference.getKeywords()!=null){
+                existingConf.setKeywords(conference.getKeywords());
+            }
             // Mettre à jour les autres dates seulement si non null
             if (conference.getCommiteeAssignmentDate() != null) {
                 existingConf.setCommiteeAssignmentDate(conference.getCommiteeAssignmentDate());

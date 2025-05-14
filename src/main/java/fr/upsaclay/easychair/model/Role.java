@@ -28,6 +28,7 @@ public class Role {
     public String toString() {
         return "Role{id=" + id + ", user=" + (user != null ? user.getEmail() : "null") + ", roleType=" + roleType + "}";
     }
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "conference_id", nullable = false)
     protected Conference conference;
