@@ -10,7 +10,6 @@ public interface ReviewerService {
     Reviewer save(Reviewer reviewer);
 
     Reviewer update(Reviewer reviewer);
-
     Optional<Reviewer> findOne(Long id);
     List<Reviewer> findAll();
     void delete(Long id);

@@ -13,4 +13,5 @@ public interface OrganizerRepository extends JpaRepository<Organizer, Long> {
 
     @Query("SELECT o FROM Organizer o WHERE o.user.email = :email")
     List<Organizer> findByUserEmail(@Param("email") String email);
+    void deleteByConferenceId(Long conferenceId);
 }

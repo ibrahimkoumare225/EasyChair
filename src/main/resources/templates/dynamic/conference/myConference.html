@@ -17,6 +17,9 @@
     <div th:if="${error}" class="mb-4 text-red-600 bg-red-100 p-3 rounded-lg">
         <span th:text="${error}"></span>
     </div>
+    <div th:if="${message}" class="mb-4 text-green-600 bg-green-100 p-3 rounded-lg">
+        <span th:text="${message}"></span>
+    </div>
 
     <div class="overflow-auto rounded-lg shadow">
         <table class="w-full text-sm text-left text-gray-700">
@@ -34,33 +37,30 @@
             <tbody class="bg-white">
             <tr th:each="view : ${conferenceViews}" class="border-b">
                 <td class="px-4 py-2" th:text="${view.conference.title} ?: 'No Title'"></td>
-                <td class="px-4 py-2" th:text="${view.conference.creationDate} ?: 'N/A'"></td>
+                <td class="px-4 py-2" th:text="${#temporals.format(view.conference.creationDate, 'dd/MM/yyyy')} ?: 'N/A'"></td>
                 <td class="px-4 py-2">
-                            <span th:if="${view.conference.organizers != null and !view.conference.organizers.isEmpty()}"
-                                  th:text="${view.conference.organizers[0].user?.firstName + ' ' + view.conference.organizers[0].user?.lastName} ?: 'Unknown'"></span>
+                    <span th:if="${view.conference.organizers != null and !view.conference.organizers.isEmpty()}"
+                          th:text="${view.conference.organizers[0].user?.firstName + ' ' + view.conference.organizers[0].user?.lastName} ?: 'Unknown'"></span>
                     <span th:unless="${view.conference.organizers != null and !view.conference.organizers.isEmpty()}">Unknown</span>
                 </td>
                 <td class="px-4 py-2">
-                    <select class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option th:each="role : ${view.userRoles}" th:value="${role}" th:text="${role}"></option>
-                    </select>
+                    <span th:if="${view.userRoles.isEmpty()}">None</span>
+                    <span th:unless="${view.userRoles.isEmpty()}" th:text="${#strings.listJoin(view.userRoles.![name], ', ')}"></span>
                 </td>
                 <td class="px-4 py-2" th:text="${view.conference.phase} ?: 'N/A'"></td>
-                <td class="px-4 py-2" th:text="${view.nextPhaseDate} ?: 'N/A'"></td>
+                <td class="px-4 py-2" th:text="${#temporals.format(view.nextPhaseDate, 'dd/MM/yyyy')} ?: 'N/A'"></td>
                 <td class="px-6 py-4 flex space-x-2">
-                    <button type="button">
-                        <a th:href="@{/conference/conferenceDetail/{id}(id=${view.conference.id})}"
-                           class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm">Enter
-                        </a>
-                    <button/>
-
-                    <button type="button"
-                            class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
-                            sec:authorize="hasRole('ROLE_ORGANIZER')">
-                        <a th:href="@{/conference/conference/{id}(id=${view.conference.id})}" sec:authorize="hasRole('ROLE_ORGANIZER')">Edit</a>
-                    </button>
-                    <form th:action="@{/conference/deleteConference/{id}(id=${view.conference.id})}" method="post" class="inline"
-                          sec:authorize="hasRole('ROLE_ORGANIZER')">
+                    <a th:href="@{/conference/conferenceDetail/{id}(id=${view.conference.id})}"
+                       class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm">
+                        Enter
+                    </a>
+                    <a th:href="@{/conference/conference/{id}(id=${view.conference.id})}"
+                       th:if="${view.userRoles.contains(T(fr.upsaclay.easychair.model.enumates.RoleType).ORGANIZER)}"
+                       class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm">
+                        Edit
+                    </a>
+                    <form th:action="@{/conference/delete/{id}(id=${view.conference.id})}" method="post" class="inline"
+                          th:if="${view.userRoles.contains(T(fr.upsaclay.easychair.model.enumates.RoleType).ORGANIZER)}">
                         <button type="submit"
                                 class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
                                 onclick="return confirm('Are you sure you want to delete this conference?')">

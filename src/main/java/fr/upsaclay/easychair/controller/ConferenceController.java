@@ -239,6 +239,47 @@ public class ConferenceController {
         }
     }
 
+    @PostMapping("/delete/{id}")
+    @Transactional
+    public String deleteConference(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Attempting to delete conference with ID: {}", id);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to delete conference");
+            redirectAttributes.addFlashAttribute("error", "You must be logged in to delete a conference.");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            Optional<Conference> conferenceOptional = conferenceService.findOne(id);
+            if (conferenceOptional.isEmpty()) {
+                logger.warn("Conference not found for ID: {}", id);
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+
+            Conference conference = conferenceOptional.get();
+            // Check if the user is an organizer for this conference
+            boolean isOrganizer = conference.getOrganizers().stream()
+                    .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
+            if (!isOrganizer) {
+                logger.warn("User {} is not authorized to delete conference ID: {}", email, id);
+                redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this conference.");
+                return "redirect:/conference";
+            }
+
+            conferenceService.deleteById(id);
+            logger.info("Conference deleted successfully with ID: {}", id);
+            redirectAttributes.addFlashAttribute("message", "Conference deleted successfully!");
+            return "redirect:/conference";
+        } catch (Exception e) {
+            logger.error("Error deleting conference with ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to delete conference: " + e.getMessage());
+            return "redirect:/conference";
+        }
+    }
+
     @GetMapping("/ajouterConference")
     public String showAddConferenceForms(Model model, Authentication authentication) {
         logger.debug("Accessing ajouterConference with authentication: {}", authentication);

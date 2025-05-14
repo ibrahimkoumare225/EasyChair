@@ -4,14 +4,13 @@ import fr.upsaclay.easychair.model.Author;
 import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Organizer;
 import fr.upsaclay.easychair.model.Reviewer;
-import fr.upsaclay.easychair.repository.AuthorRepository;
-import fr.upsaclay.easychair.repository.ConferenceRepository;
-import fr.upsaclay.easychair.repository.OrganizerRepository;
-import fr.upsaclay.easychair.repository.ReviewerRepository;
+import fr.upsaclay.easychair.repository.*;
 import fr.upsaclay.easychair.service.ConferenceService;
+import fr.upsaclay.easychair.service.RoleRequestService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -23,6 +22,7 @@ public class ConferenceServiceImpl implements ConferenceService {
     private final OrganizerRepository organizerRepository;
     private final ReviewerRepository reviewerRepository;
     private final AuthorRepository authorRepository;
+    private final RoleRequestRepository roleRequestRepository; // Add this dependency
 
     @Override
     public List<Conference> findAll() {
@@ -55,11 +55,9 @@ public class ConferenceServiceImpl implements ConferenceService {
             existingConf.setTitle(conference.getTitle());
             existingConf.setDescription(conference.getDescription());
             existingConf.setPhase(conference.getPhase());
-            // Préserver creationDate si la nouvelle valeur est null
             if (conference.getCreationDate() != null) {
                 existingConf.setCreationDate(conference.getCreationDate());
             }
-            // Mettre à jour les autres dates seulement si non null
             if (conference.getCommiteeAssignmentDate() != null) {
                 existingConf.setCommiteeAssignmentDate(conference.getCommiteeAssignmentDate());
             }
@@ -94,8 +92,21 @@ public class ConferenceServiceImpl implements ConferenceService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
-        conferenceRepository.deleteById(id);
+        Optional<Conference> conferenceOptional = conferenceRepository.findById(id);
+        if (conferenceOptional.isPresent()) {
+            Conference conference = conferenceOptional.get();
+            // Delete dependent entities
+            roleRequestRepository.deleteByConferenceId(id); // Delete role requests
+            organizerRepository.deleteByConferenceId(id); // Delete organizers
+            reviewerRepository.deleteByConferenceId(id); // Delete reviewers
+            authorRepository.deleteByConferenceId(id); // Delete authors
+            // Delete the conference
+            conferenceRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Conference not found with ID: " + id);
+        }
     }
 
     @Override
@@ -105,30 +116,22 @@ public class ConferenceServiceImpl implements ConferenceService {
 
     @Override
     public List<Conference> findConferencesByUserEmail(String email) {
-        // Récupérer les conférences où l'utilisateur est Organizer
         List<Conference> organizerConferences = organizerRepository.findByUserEmail(email)
                 .stream()
                 .map(Organizer::getConference)
                 .toList();
-
-        // Récupérer les conférences où l'utilisateur est Reviewer
         List<Conference> reviewerConferences = reviewerRepository.findByUserEmail(email)
                 .stream()
                 .map(Reviewer::getConference)
                 .toList();
-
-        // Récupérer les conférences où l'utilisateur est Author
         List<Conference> authorConferences = authorRepository.findByUserEmail(email)
                 .stream()
                 .map(Author::getConference)
                 .toList();
-
-        // Combiner et supprimer les doublons
         Set<Conference> allConferences = new HashSet<>();
         allConferences.addAll(organizerConferences);
         allConferences.addAll(reviewerConferences);
         allConferences.addAll(authorConferences);
-
         return new ArrayList<>(allConferences);
     }
 }
