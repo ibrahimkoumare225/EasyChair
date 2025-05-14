@@ -38,7 +38,7 @@ public class FileController {
 
 
     //Telechargement
-    @PostMapping("/{filename:.+}")
+    @GetMapping("/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> downloadfile(@PathVariable Long submissionId,
                                                  @PathVariable String filename,
@@ -51,12 +51,14 @@ public class FileController {
     }
 
     //Suppression
-    @PostMapping("/{filename}/delete")
+    @PostMapping("/{filename:.+}/delete")
     public String deleteFile(@PathVariable Long submissionId,@PathVariable String filename,
                              Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Trying deleting file {}", filename);
         boolean deleted = storageService.delete(submissionId.toString(), filename);
         redirectAttributes.addFlashAttribute("message", deleted ?
                 "File deleted" : "Error during deletion");
+        logger.debug("  file {} deleted", filename);
         return "redirect:/conference";
     }
 
