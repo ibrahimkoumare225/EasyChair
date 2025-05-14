@@ -19,7 +19,7 @@
 
     <!-- Formulaire -->
     <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-2xl">
-        <form th:action="${conference.id == null} ? @{/conference} : @{/conference/update}"
+        <form th:action="@{${conference.id == null ? '/conference' : '/conference/update'}}"
               th:object="${conference}" method="post">
             <!-- Champ ID caché pour l'édition -->
             <input type="hidden" th:field="*{id}" th:if="${conference.id != null}" />
@@ -54,102 +54,217 @@
                 </select>
             </div>
 
-            <!-- Dates -->
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label for="creationDate" class="block text-sm font-medium text-gray-700">Creation Date</label>
-                    <input type="date" id="creationDate" th:field="*{creationDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="commiteeAssignmentDate" class="block text-sm font-medium text-gray-700">Committee Assignment Date</label>
-                    <input type="date" id="commiteeAssignmentDate" th:field="*{commiteeAssignmentDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="abstractSubDate" class="block text-sm font-medium text-gray-700">Abstract Submission Date</label>
-                    <input type="date" id="abstractSubDate" th:field="*{abstractSubDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="subAssignmentDate" class="block text-sm font-medium text-gray-700">Submission Assignment Date</label>
-                    <input type="date" id="subAssignmentDate" th:field="*{subAssignmentDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="concreteSubDate" class="block text-sm font-medium text-gray-700">Concrete Submission Date</label>
-                    <input type="date" id="concreteSubDate" th:field="*{concreteSubDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="evaluationDate" class="block text-sm font-medium text-gray-700">Evaluation Date</label>
-                    <input type="date" id="evaluationDate" th:field="*{evaluationDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="finalSubDate" class="block text-sm font-medium text-gray-700">Final Submission Date</label>
-                    <input type="date" id="finalSubDate" th:field="*{finalSubDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-                <div>
-                    <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
-                    <input type="date" id="endDate" th:field="*{endDate}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                </div>
-            </div>
+            <!-- Keywords -->
+            <div class="space-y-4">
+                <div class="mb-4">
+                    <label class="block font-semibold mb-1">Keywords :</label>
+                    <!-- Conteneur flexible et fluide -->
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
 
-            <!-- Toggles -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="flex items-center">
-                    <label for="onInvitation" class="mr-2 text-sm font-medium text-gray-700">On Invitation</label>
-                    <input type="checkbox" id="onInvitation" th:field="*{onInvitation}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="hiddenDescription" class="mr-2 text-sm font-medium text-gray-700">Hidden Description</label>
-                    <input type="checkbox" id="hiddenDescription" th:field="*{hiddenDescription}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="hiddenConf" class="mr-2 text-sm font-medium text-gray-700">Hidden Conference</label>
-                    <input type="checkbox" id="hiddenConf" th:field="*{hiddenConf}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="anonymousReviewersToAuthors" class="mr-2 text-sm font-medium text-gray-700">Anonymous Reviewers to Authors</label>
-                    <input type="checkbox" id="anonymousReviewersToAuthors" th:field="*{anonymousReviewersToAuthors}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="anonymousReviewersToReviewers" class="mr-2 text-sm font-medium text-gray-700">Anonymous Reviewers to Reviewers</label>
-                    <input type="checkbox" id="anonymousReviewersToReviewers" th:field="*{anonymousReviewersToReviewers}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="anonymousAuthors" class="mr-2 text-sm font-medium text-gray-700">Anonymous Authors</label>
-                    <input type="checkbox" id="anonymousAuthors" th:field="*{anonymousAuthors}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="restrictedAccessSubmission" class="mr-2 text-sm font-medium text-gray-700">Restricted Access Submission</label>
-                    <input type="checkbox" id="restrictedAccessSubmission" th:field="*{restrictedAccessSubmission}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-                <div class="flex items-center">
-                    <label for="assignmentByOrganizer" class="mr-2 text-sm font-medium text-gray-700">Assignment by Organizer</label>
-                    <input type="checkbox" id="assignmentByOrganizer" th:field="*{assignmentByOrganizer}"
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                </div>
-            </div>
+                        <!-- Champ de texte avec largeur réduite -->
+                        <input type="text" class="w-48 border border-gray-300 rounded-md px-4 py-2 bg-white" placeholder="Add keyword..."/>
 
-            <!-- Bouton dynamique -->
-            <div class="flex justify-end">
-                <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
-                        th:text="${conference.id == null} ? 'Create' : 'Update'"></button>
+                        <!-- Bouton avec taille constante et espacée -->
+                        <button class="shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full shadow">Add Keyword</button>
+                    </div>
+
+                    <!-- Liste des mots-clés -->
+                    <div id="keywords-container" class="space-y-1">
+                        <div th:each="keyword : ${keywords}" class="flex items-center space-x-2">
+                            <span th:text="${keyword}">Keyword</span>
+                            <button class="text-red-600 hover:text-red-800 text-lg" onclick="deleteKeyword">🗑️</button>
+                        </div>
+
+                        <div th:if="${keywords == null or keywords.isEmpty()}" class="text-gray-400 italic" id="content-keyword-ini">
+                            No keywords added yet.
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="keywordList" id="keywordList" />
+                </div>
+
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="creationDate" class="block text-sm font-medium text-gray-700">Creation Date</label>
+                        <input type="date" id="creationDate" th:field="*{creationDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="commiteeAssignmentDate" class="block text-sm font-medium text-gray-700">Committee Assignment Date</label>
+                        <input type="date" id="commiteeAssignmentDate" th:field="*{commiteeAssignmentDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="abstractSubDate" class="block text-sm font-medium text-gray-700">Abstract Submission Date</label>
+                        <input type="date" id="abstractSubDate" th:field="*{abstractSubDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="subAssignmentDate" class="block text-sm font-medium text-gray-700">Submission Assignment Date</label>
+                        <input type="date" id="subAssignmentDate" th:field="*{subAssignmentDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="concreteSubDate" class="block text-sm font-medium text-gray-700">Concrete Submission Date</label>
+                        <input type="date" id="concreteSubDate" th:field="*{concreteSubDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="evaluationDate" class="block text-sm font-medium text-gray-700">Evaluation Date</label>
+                        <input type="date" id="evaluationDate" th:field="*{evaluationDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="finalSubDate" class="block text-sm font-medium text-gray-700">Final Submission Date</label>
+                        <input type="date" id="finalSubDate" th:field="*{finalSubDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                    <div>
+                        <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" id="endDate" th:field="*{endDate}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                </div>
+
+                <!-- Toggles -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="flex items-center">
+                        <label for="onInvitation" class="mr-2 text-sm font-medium text-gray-700">On Invitation</label>
+                        <input type="checkbox" id="onInvitation" th:field="*{onInvitation}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="hiddenDescription" class="mr-2 text-sm font-medium text-gray-700">Hidden Description</label>
+                        <input type="checkbox" id="hiddenDescription" th:field="*{hiddenDescription}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="hiddenConf" class="mr-2 text-sm font-medium text-gray-700">Hidden Conference</label>
+                        <input type="checkbox" id="hiddenConf" th:field="*{hiddenConf}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="anonymousReviewersToAuthors" class="mr-2 text-sm font-medium text-gray-700">Anonymous Reviewers to Authors</label>
+                        <input type="checkbox" id="anonymousReviewersToAuthors" th:field="*{anonymousReviewersToAuthors}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="anonymousReviewersToReviewers" class="mr-2 text-sm font-medium text-gray-700">Anonymous Reviewers to Reviewers</label>
+                        <input type="checkbox" id="anonymousReviewersToReviewers" th:field="*{anonymousReviewersToReviewers}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="anonymousAuthors" class="mr-2 text-sm font-medium text-gray-700">Anonymous Authors</label>
+                        <input type="checkbox" id="anonymousAuthors" th:field="*{anonymousAuthors}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="restrictedAccessSubmission" class="mr-2 text-sm font-medium text-gray-700">Restricted Access Submission</label>
+                        <input type="checkbox" id="restrictedAccessSubmission" th:field="*{restrictedAccessSubmission}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                    <div class="flex items-center">
+                        <label for="assignmentByOrganizer" class="mr-2 text-sm font-medium text-gray-700">Assignment by Organizer</label>
+                        <input type="checkbox" id="assignmentByOrganizer" th:field="*{assignmentByOrganizer}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    </div>
+                </div>
+
+                <!-- Bouton dynamique -->
+                <div class="flex justify-end">
+                    <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
+                            th:text="${conference.id == null} ? 'Create' : 'Update'"></button>
+                </div>
             </div>
         </form>
+
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const addButton = Array.from(document.querySelectorAll("button")).find(btn => btn.textContent.trim() === "Add Keyword");
+    const keywordInput = document.querySelector("input[placeholder='Add keyword...']");
+    const keywordListInput = document.getElementById("keywordList");
+    const keywordsContainer = document.getElementById("keywords-container");
+
+    let keywords = [];
+
+    // Fonction pour mettre à jour l'input caché
+    function updateKeywordInput() {
+        keywordListInput.value = keywords.join(",");
+    }
+
+    // Fonction pour créer et afficher un mot-clé
+    function createKeywordElement(kw) {
+        const keywordItem = document.createElement("div");
+        keywordItem.className = "flex items-center space-x-2";
+
+        const keywordText = document.createElement("span");
+        keywordText.textContent = kw;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "🗑️";
+        deleteButton.className = "text-red-600 hover:text-red-800 text-lg";
+        deleteButton.addEventListener("click", () => {
+            keywords = keywords.filter(k => k !== kw);
+            updateKeywordInput();
+            keywordItem.remove();
+            
+            // Afficher le message "No keywords added yet" si la liste est vide
+            if (keywords.length === 0) {
+                const emptyMessage = document.createElement("div");
+                emptyMessage.id = "content-keyword-ini";
+                emptyMessage.className = "text-gray-400 italic";
+                emptyMessage.textContent = "No keywords added yet.";
+                keywordsContainer.appendChild(emptyMessage);
+            }
+        });
+
+        keywordItem.appendChild(keywordText);
+        keywordItem.appendChild(deleteButton);
+        keywordsContainer.appendChild(keywordItem);
+    }
+
+    // Charger les mots-clés existants au démarrage
+    const existingKeywords = Array.from(document.querySelectorAll("#keywords-container span"))
+        .map(element => element.textContent);
+    
+    if (existingKeywords.length > 0) {
+        // Vider le conteneur et le message initial si présent
+        keywordsContainer.innerHTML = "";
+        keywords = existingKeywords;
+        updateKeywordInput();
+        
+        // Afficher tous les mots-clés existants
+        keywords.forEach(kw => createKeywordElement(kw));
+    }
+
+    // Gestionnaire d'événement pour l'ajout de nouveaux mots-clés
+    addButton?.addEventListener("click", (e) => {
+        e.preventDefault();
+        const keyword = keywordInput.value.trim();
+        if (!keyword || keywords.includes(keyword)) return;
+
+        // Supprimer le message "No keywords added yet" s'il existe
+        const emptyMessage = document.getElementById("content-keyword-ini");
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+
+        keywords.push(keyword);
+        updateKeywordInput();
+        createKeywordElement(keyword);
+        keywordInput.value = "";
+    });
+});
+
+    function deleteKeyword() {
+        this.parentElement.remove();
+    }
+</script>
 </body>
 </html>

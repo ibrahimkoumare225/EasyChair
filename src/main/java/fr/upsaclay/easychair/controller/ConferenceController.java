@@ -27,8 +27,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Controller
@@ -87,6 +89,7 @@ public class ConferenceController {
             }).toList();
 
             model.addAttribute("conferences", conferenceViews);
+            model.addAttribute("user", authentication != null ? authentication.getName() : null);
             return "home";
         } catch (Exception e) {
             logger.error("Error in homePage", e);
@@ -160,6 +163,7 @@ public class ConferenceController {
     @PostMapping
     @Transactional
     public String saveConference(@ModelAttribute Conference conference,
+                                 @RequestParam("keywordList") String keywordList,
                                  Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
         logger.debug("Saving new conference: {}", conference);
@@ -174,6 +178,12 @@ public class ConferenceController {
                 conference.setCreationDate(LocalDate.now());
             }
 
+            //Permet de convertir le string en List pour le set dans submission
+            List<String> keywords = Arrays.stream(keywordList.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            conference.setKeywords(keywords);
             Conference savedConference = conferenceService.save(conference);
 
             String email = authentication.getName();
@@ -212,9 +222,11 @@ public class ConferenceController {
     @PostMapping("/update")
     @Transactional
     public String updateConference(@ModelAttribute Conference conference,
+                                   @RequestParam("keywordList") String keywordList,
                                    Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
         logger.debug("Updating conference with ID: {}", conference.getId());
+        logger.debug("Updating conference keywords: {}", keywordList);
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to update conference");
@@ -234,7 +246,12 @@ public class ConferenceController {
                 redirectAttributes.addFlashAttribute("error", "Conference not found.");
                 return "redirect:/conference";
             }
-
+            List<String> keywords = Arrays.stream(keywordList.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            
+            conference.setKeywords(keywords);
             logger.debug("Conference data before update: {}", conference);
             Conference updatedConference = conferenceService.update(conference);
             logger.info("Conference updated successfully with ID: {}", updatedConference.getId());
@@ -255,7 +272,9 @@ public class ConferenceController {
             return "redirect:/login";
         }
         try {
-            model.addAttribute("conference", new Conference());
+            Conference conference = new Conference();
+            model.addAttribute("conference", conference);
+            model.addAttribute("keywords", new ArrayList<String>());
             return "dynamic/conference/createConference";
         } catch (Exception e) {
             logger.error("Error in showAddConferenceForms", e);
@@ -280,7 +299,7 @@ public class ConferenceController {
                 redirectAttributes.addFlashAttribute("error", "Conference not found.");
                 return "redirect:/conference";
             }
-
+            model.addAttribute("keywords", conferenceOptional.get().getKeywords());
             model.addAttribute("conference", conferenceOptional.get());
             return "dynamic/conference/createConference";
         } catch (Exception e) {

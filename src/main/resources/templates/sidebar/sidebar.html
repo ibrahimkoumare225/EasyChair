@@ -15,7 +15,7 @@
     <div class="flex space-x-6">
         <a th:href="@{/conference}"
            class="text-gray-700 font-medium hover:text-blue-600">Home</a>
-        <a th:href="@{/submissions/user/{id}(id=3)}"
+        <a th:href="@{/submissions/user}"
            class="text-gray-700 font-medium hover:text-blue-600">My Submissions</a>
         <a th:href="@{/conference/myNotification}" class="text-gray-700 font-medium hover:text-blue-600">Notification</a>
         <a th:href="@{/conference/myConference}"
@@ -23,6 +23,8 @@
         <a th:href="@{/conference/myRoleRequests}"
            sec:authorize="isAuthenticated()"
            class="text-gray-700 font-medium hover:text-blue-600">My Role Requests</a>
+        <a th:href="@{/evaluations}"
+           class="text-gray-700 font-medium hover:text-blue-600">My Evaluations</a>
     </div>
 
     <!-- Icône utilisateur avec dropdown -->
