@@ -57,7 +57,7 @@
                     <button type="button"
                             class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"
                             sec:authorize="hasRole('ROLE_ORGANIZER')">
-                        <a th:href="@{/conference/conference/{id}(id=${view.conference.id})}">Edit</a>
+                        <a th:href="@{/conference/conference/{id}(id=${view.conference.id})}" sec:authorize="hasRole('ROLE_ORGANIZER')">Edit</a>
                     </button>
                     <form th:action="@{/conference/deleteConference/{id}(id=${view.conference.id})}" method="post" class="inline"
                           sec:authorize="hasRole('ROLE_ORGANIZER')">
