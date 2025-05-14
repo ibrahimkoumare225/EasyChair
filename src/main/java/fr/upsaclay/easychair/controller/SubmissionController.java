@@ -21,10 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -39,6 +36,7 @@ public class SubmissionController {
     private static final Logger logger = LoggerFactory.getLogger(SubmissionController.class);
     private final AuthorService authorService;
     private final EvaluationService evaluationService;
+    private final FileStorageService fileStorageService;
 
     @GetMapping("/user")
     public String showUserSubmissions( Model model,Authentication authentication) {
@@ -151,7 +149,8 @@ public class SubmissionController {
                 logger.warn("No match with  user {} as Author of submission{}", authentication.getName(), submissionId);
                 return "redirect:/conference";
             }
-            model.addAttribute(submission.get());
+            model.addAttribute("submission",submission.get());
+            model.addAttribute("files",fileStorageService.listFiles(submission.get().getId().toString()));
             return "dynamic/submission/submissionForm";
         } catch (Exception e) {
             logger.error("error in showModifySub",e);
@@ -313,6 +312,7 @@ public class SubmissionController {
             submissionToUpdate.get().setSubFiles(submission.getSubFiles());
         }
         submissionService.update(submissionToUpdate.get());
+
         return "redirect:/conference";
 
     }
