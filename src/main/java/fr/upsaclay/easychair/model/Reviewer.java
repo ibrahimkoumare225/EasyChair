@@ -32,8 +32,4 @@ public class Reviewer extends Role {
     )
     private List<Submission> evaluatedSubmissions = new ArrayList<>();
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conference_id", nullable = false)
-    private Conference conference;
 }

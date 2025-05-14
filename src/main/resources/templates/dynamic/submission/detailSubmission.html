@@ -11,7 +11,7 @@
 
 <div class="relative flex justify-center mt-10">
   <div class="absolute left-10 top-0 mt-2">
-    <a th:href="@{/submission/submissionDetail/{id}(id=${submission.id})}" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 shadow flex items-center justify-center text-xl text-gray-600">
+    <a th:href="@{/conference}" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 shadow flex items-center justify-center text-xl text-gray-600">
       &lt;
     </a>
   </div>
@@ -81,7 +81,7 @@
         <form th:if="${submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION
               or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
               or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}"
-              th:action="@{/submissions/modifierSubmission}" method="post">
+              th:action="@{/submissions/modifierSubmission}" method="get">
 
           <input type="hidden" name="submissionId" th:value="${submission.id}" />
 
@@ -92,13 +92,9 @@
         </form>
     </div>
     <!-- TODO: evaluate -->
-    <form th:action="@{/reports/ajouterReport}" method="post">
-      <!--th:if="${submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).EVALUATION}"-->
-
+    <form th:action="@{/reports/ajouterReport}" method="post" th:if="${submission.evaluation != null}" >
       <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
-
-      <button type="submit"
-              class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
+      <button type="submit" class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
         Evaluate
       </button>
     </form>

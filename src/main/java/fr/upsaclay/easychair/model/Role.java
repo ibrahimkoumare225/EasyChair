@@ -15,17 +15,20 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    protected User user;
 
     @Enumerated(EnumType.STRING)
-    private RoleType roleType;
+    protected RoleType roleType;
 
     @Override
     public String toString() {
         return "Role{id=" + id + ", user=" + (user != null ? user.getEmail() : "null") + ", roleType=" + roleType + "}";
     }
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "conference_id", nullable = false)
+    protected Conference conference;
 }

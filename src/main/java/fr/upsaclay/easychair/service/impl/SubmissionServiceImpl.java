@@ -1,25 +1,33 @@
 package fr.upsaclay.easychair.service.impl;
 
-import fr.upsaclay.easychair.model.Author;
-import fr.upsaclay.easychair.model.Submission;
-import fr.upsaclay.easychair.model.User;
+
+import fr.upsaclay.easychair.model.*;
+import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.repository.AuthorRepository;
+import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.repository.SubmissionRepository;
+import fr.upsaclay.easychair.service.AuthorService;
 import fr.upsaclay.easychair.service.SubmissionService;
+import fr.upsaclay.easychair.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class SubmissionServiceImpl implements SubmissionService {
+
     private final SubmissionRepository submissionRepository;
+
     private final AuthorRepository authorRepository;
+
+    private final UserService userService;
+
 
     @Override
     public Submission save(Submission submission) {
@@ -51,10 +59,11 @@ public class SubmissionServiceImpl implements SubmissionService {
         submissionRepository.deleteById(id);
     }
 
+
     @Override
     public List<Submission> findByTitleIgnoreCase(String title) {
         if (title == null) {
-            throw new IllegalArgumentException("titre peux pas être null");
+            throw new IllegalArgumentException("titre  ne peut pas être null");
         }
         return submissionRepository.findByTitleIgnoreCase(title);
     }
@@ -69,8 +78,13 @@ public class SubmissionServiceImpl implements SubmissionService {
                 allSubmissions.addAll(author.getSubmissions());
             }
         }
-
         return allSubmissions;
+    }
+
+    @Override
+    public List <Submission> findSubmissionsByConference(Conference conference)
+    {
+        return submissionRepository.findByConference(conference);
     }
 
 

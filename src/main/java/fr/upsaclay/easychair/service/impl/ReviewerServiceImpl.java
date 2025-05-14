@@ -36,4 +36,10 @@ public class ReviewerServiceImpl implements ReviewerService {
     public void delete(Long id) {
         reviewerRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<Reviewer> findByUserId(Long userId) {
+        return reviewerRepository.findById(userId);
+    }
+
 }
