@@ -39,9 +39,9 @@ public class SubmissionController {
     private final FileStorageService fileStorageService;
 
     @GetMapping("/user")
-    public String showUserSubmissions( Model model,Authentication authentication) {
+    public String showUserSubmissions(Model model, Authentication authentication) {
 
-        if (authentication==null||!authentication.isAuthenticated()){
+        if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
         Optional<User> user = userService.findByEmail(authentication.getName());
@@ -67,9 +67,10 @@ public class SubmissionController {
             //Verif user est dans la conference
 //            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
 //            if (conferences.contains(submission.get().getConference())) {
-                model.addAttribute("submission", submission.get());
-                return "dynamic/submission/detailSubmission";
-//            }
+            model.addAttribute("submission", submission.get());
+            model.addAttribute("files", fileStorageService.listFiles(submission.get().getId().toString()));
+            return "dynamic/submission/detailSubmission";
+//
         } else {
             return "redirect:/conference";
         }
@@ -78,7 +79,7 @@ public class SubmissionController {
     @GetMapping("/ajouterSubmission")
     public String showAddSubForm(@RequestParam Long conferenceId, Model model, Authentication authentication) {
         //Ajout de la conference pour rattachement de la submission
-        if (authentication==null||!authentication.isAuthenticated()){
+        if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to showAddSubForm");
             return "redirect:/login";
         }
@@ -87,16 +88,16 @@ public class SubmissionController {
             if (conference.isPresent()) {
                 logger.debug("Founded conference ID :{}", conference.get().getId());
                 List<Conference> conferences = conferenceService.findConferencesByAuthorEmail(authentication.getName());
-                Optional<Author> matchedAuthor =  conferences.stream()
+                Optional<Author> matchedAuthor = conferences.stream()
                         .flatMap(c -> c.getAuthors().stream())
                         .filter(author -> author.getUser().getEmail().equals(authentication.getName()))
                         .findFirst();
                 logger.debug(" Matching conference  with Author");
-                if (matchedAuthor.isEmpty()){
+                if (matchedAuthor.isEmpty()) {
                     logger.warn("matchedAuthor is empty");
                     return "redirect:/conference";
                 }
-                if(matchedAuthor.get().getConference().equals(conference.get())) {
+                if (matchedAuthor.get().getConference().equals(conference.get())) {
                     logger.debug("matched conference");
                     //Doit etre set dans l'autre sens dans save
                     Submission submission = new Submission();
@@ -113,14 +114,15 @@ public class SubmissionController {
                 logger.warn("No conference with ID {}", conferenceId);
                 return "redirect:/conference";
             }
-        }catch (Exception e){
-        logger.error("error in showAddSubForm", e);}
+        } catch (Exception e) {
+            logger.error("error in showAddSubForm", e);
+        }
         return "redirect:/conference";
     }
 
 
     @GetMapping("/modifierSubmission")
-    public String showModifySubForm(@RequestParam Long submissionId,  Model model,Authentication authentication) {
+    public String showModifySubForm(@RequestParam Long submissionId, Model model, Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to showModifySubForm");
@@ -149,11 +151,11 @@ public class SubmissionController {
                 logger.warn("No match with  user {} as Author of submission{}", authentication.getName(), submissionId);
                 return "redirect:/conference";
             }
-            model.addAttribute("submission",submission.get());
-            model.addAttribute("files",fileStorageService.listFiles(submission.get().getId().toString()));
+            model.addAttribute("submission", submission.get());
+            model.addAttribute("files", fileStorageService.listFiles(submission.get().getId().toString()));
             return "dynamic/submission/submissionForm";
         } catch (Exception e) {
-            logger.error("error in showModifySub",e);
+            logger.error("error in showModifySub", e);
             return "redirect:/conference";
         }
     }
@@ -181,9 +183,9 @@ public class SubmissionController {
         }
         Long authorID = submission.getAuthors().get(0).getId();
         Long conferenceId = submission.getConference().getId();
-        logger.debug("Checking user have  author {} and  Conference {}",authorID,conferenceId);
+        logger.debug("Checking user have  author {} and  Conference {}", authorID, conferenceId);
 
-        Optional<Role> matchedAuthor =userOptional.get().getRoles().stream()
+        Optional<Role> matchedAuthor = userOptional.get().getRoles().stream()
                 .filter(role -> role.getId().equals(authorID)
                         && role.getConference().getId().equals(conferenceId))
                 .findFirst();
@@ -198,8 +200,8 @@ public class SubmissionController {
         logger.debug("Setting creationDate and Status for {}", submission.getId());
         Evaluation evaluation = new Evaluation();
         evaluation.setSubmission(submission);
-        evaluation=evaluationService.save(evaluation);
-        logger.debug("creating empty Evaluation {} for submission ",evaluation.getId());
+        evaluation = evaluationService.save(evaluation);
+        logger.debug("creating empty Evaluation {} for submission ", evaluation.getId());
         submission.setEvaluation(evaluation);
         //Permet de convertir le string en List pour le set dans submission
         List<String> keywords = Arrays.stream(keywordList.split(","))
@@ -208,7 +210,7 @@ public class SubmissionController {
                 .collect(Collectors.toList());
 
         submission.setKeywords(keywords);
-        submission=submissionService.save(submission);
+        submission = submissionService.save(submission);
         logger.debug("Saved new submission: {}", submission.toString());
         Optional<Conference> conference = conferenceService.findOne(submission.getConference().getId());
         if (conference.isPresent()) {
@@ -238,7 +240,7 @@ public class SubmissionController {
             redirectAttributes.addFlashAttribute("error", "Author not found.");
             return "redirect:/conference";
         }
-        redirectAttributes.addAttribute("id",submission.getId());
+        redirectAttributes.addAttribute("id", submission.getId());
 
         return "redirect:/conference";//"redirect:/submissions/submissionDetail{id}";
     }
@@ -270,8 +272,9 @@ public class SubmissionController {
 
     // PUT /submissions/{id}
     @PostMapping("/update")
-    public String updateSubmission(@ModelAttribute Submission submission,Authentication authentication,
-                                       RedirectAttributes redirectAttributes) {logger.debug("Saving new submission: {}", submission);
+    public String updateSubmission(@ModelAttribute Submission submission, Authentication authentication,
+                                   RedirectAttributes redirectAttributes) {
+        logger.debug("Saving new submission: {}", submission);
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to save conference");
@@ -288,9 +291,9 @@ public class SubmissionController {
         }
         Long authorID = submission.getAuthors().get(0).getId();
         Long conferenceId = submission.getConference().getId();
-        logger.debug("Checking user have  author {} and  Conference {}",authorID,conferenceId);
+        logger.debug("Checking user have  author {} and  Conference {}", authorID, conferenceId);
 
-        Optional<Role> matchedAuthor =userOptional.get().getRoles().stream()
+        Optional<Role> matchedAuthor = userOptional.get().getRoles().stream()
                 .filter(role -> role.getId().equals(authorID)
                         && role.getConference().getId().equals(conferenceId))
                 .findFirst();
@@ -302,13 +305,13 @@ public class SubmissionController {
         Optional<Submission> submissionToUpdate = submissionService.findOne(submission.getId());
         if (submissionToUpdate.isEmpty()) {
             logger.warn("submission {} not found in database", submission.getId());
-            return"redirect:/conference";
+            return "redirect:/conference";
         }
         submissionToUpdate.get().setKeywords(submission.getKeywords());
-        if (submissionToUpdate.get().getConference().getPhase().equals(Phase.ABSTRACT_SUBMISSION)){
+        if (submissionToUpdate.get().getConference().getPhase().equals(Phase.ABSTRACT_SUBMISSION)) {
             submissionToUpdate.get().setAbstractSub(submission.getAbstractSub());
         }
-        if (submissionToUpdate.get().getConference().getPhase().equals(Phase.CONCRETE_SUBMISSION)){
+        if (submissionToUpdate.get().getConference().getPhase().equals(Phase.CONCRETE_SUBMISSION)) {
             submissionToUpdate.get().setSubFiles(submission.getSubFiles());
         }
         submissionService.update(submissionToUpdate.get());
@@ -318,9 +321,63 @@ public class SubmissionController {
     }
 
     // DELETE /submissions/{id}
-    @DeleteMapping("/{id}")
-    public void deleteSubmission(@PathVariable Long id) {
-        submissionService.delete(id);
+    @PostMapping("/delete")
+    public String deleteSubmission(@RequestParam Long submissionId, Authentication authentication, RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to showModifySubForm");
+            return "redirect:/login";
+        }
+        try {
+            Optional<Submission> submission = submissionService.findOne(submissionId);
+            if (submission.isEmpty()) {
+                logger.warn("Submission {} not found in database", submissionId);
+                redirectAttributes.addFlashAttribute("error", "Submission not found.");
+                return "redirect:/conference";
+            }
+
+            logger.debug("founded Submission   {}", submissionId);
+            Optional<User> user = userService.findByEmail(authentication.getName());
+            if (user.isEmpty()) {
+                logger.warn("user {} not found in database", authentication.getName());
+                redirectAttributes.addFlashAttribute("error", "User not found.");
+                return "redirect:/conference";
+            }
+            //@TODO a revoir si plusieurs auteurs
+            logger.debug("Matching user {} with submission {}", authentication.getName(), submissionId);
+            Optional<Role> matchedAuthor = user.get().getRoles().stream()
+                    .filter(role -> role.getId().equals(submission.get().getAuthors().get(0).getId())
+                            && role.getConference().getId().equals(submission.get().getConference().getId()))
+                    .findFirst();
+            if (matchedAuthor.isEmpty()) {
+                logger.warn("No match with  user {} as Author of submission{}", authentication.getName(), submissionId);
+                redirectAttributes.addFlashAttribute("error", "You are not author of this submission.");
+                return "redirect:/conference";
+            }
+
+            Optional<Author> author=authorService.findOne(submission.get().getAuthors().get(0).getId());
+            if (author.isEmpty()) {
+                logger.warn("author not found for submission {}",submissionId);
+                redirectAttributes.addFlashAttribute("error", "Author not found.");
+                return "redirect:/conference";
+            }
+            author.get().getSubmissions().removeIf(sub -> sub.getId().equals(submissionId));
+            authorService.update(author.get());
+
+            Optional<Conference> conference = conferenceService.findOne(submission.get().getConference().getId());
+            if (conference.isEmpty()) {
+                logger.warn("Conference not found for  submission {}",submissionId);
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+            conference.get().getSubmissions().removeIf(sub -> sub.getId().equals(submissionId));
+            conferenceService.update(conference.get());
+            submissionService.delete(submissionId);
+            redirectAttributes.addFlashAttribute("success", "Submission deleted.");
+            return "redirect:/conference";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error in Deletion");
+            return "redirect:/conference";
+        }
     }
 
     // GET /submissions/search
@@ -329,3 +386,4 @@ public class SubmissionController {
         return submissionService.findByTitleIgnoreCase(title);
     }
 }
+
