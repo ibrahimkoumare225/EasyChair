@@ -2,6 +2,8 @@ package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,31 +20,25 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/submissions")
+@RequestMapping("/submissions/{submissionId}/files")
 public class FileController {
-
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
     private final FileStorageService storageService;
     private final FileStorageService fileStorageService;
 
 
-    @GetMapping("/{submissionId}/files/readonly")
-    public String listFilesReadonly(@PathVariable Long submissionId,Model model, Authentication authentication){
+    @GetMapping("/listFiles")
+    public String listFiles(@PathVariable Long submissionId,Model model, Authentication authentication){
         List<String> fileNames = storageService.listFiles(submissionId.toString());
         model.addAttribute("files", fileNames);
         model.addAttribute("submissionId", submissionId);
-        return "dynamic/submission/filesReadOnly :: fileList";
+        return "dynamic/submission/files/filesTest";
     }
 
-    @GetMapping("/{submissionId}/files/edit")
-    public String listFilesForModification(@PathVariable Long submissionId,Model model, Authentication authentication){
-        List<String> fileNames = storageService.listFiles(submissionId.toString());
-        model.addAttribute("files", fileNames);
-        model.addAttribute("submissionId", submissionId);
-        return "dynamic/submission/filesEdit :: fileList";
-    }
+
 
     //Telechargement
-    @GetMapping("/{submissionId}/files/{filename:.+}")
+    @PostMapping("/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> downloadfile(@PathVariable Long submissionId,
                                                  @PathVariable String filename,
@@ -55,7 +51,7 @@ public class FileController {
     }
 
     //Suppression
-    @PostMapping("/{submissionId}/files/{filename}/delete")
+    @PostMapping("/{filename}/delete")
     public String deleteFile(@PathVariable Long submissionId,@PathVariable String filename,
                              Authentication authentication, RedirectAttributes redirectAttributes) {
         boolean deleted = storageService.delete(submissionId.toString(), filename);
@@ -65,11 +61,13 @@ public class FileController {
     }
 
     //Upload
-    @PostMapping("{submissionId}/files/{filename}/upload")
+    @PostMapping("/upload")
     public String UploadFile (@PathVariable Long submissionId,
                               @RequestParam("file") MultipartFile file,
                               RedirectAttributes redirectAttributes){
-        storageService.save(submissionId.toString(), file);
+        logger.debug("Trying to upload file {}", file.getOriginalFilename());
+        String path=storageService.save(submissionId.toString(), file);
+        logger.debug("File successfully uploaded at {}",path);
         redirectAttributes.addFlashAttribute("message", "File uploaded");
         return "redirect:/conference";
 
