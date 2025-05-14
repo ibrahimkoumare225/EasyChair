@@ -1,0 +1,26 @@
+<!-- templates/fragments/files-edit.html -->
+<div th:fragment="fileList">
+  <h3>Fichiers modifiables</h3>
+
+  <!-- Upload -->
+  <form th:action="@{'/submissions/' + ${submissionId} + '/files/upload'}"
+        method="post"
+        enctype="multipart/form-data">
+    <input type="file" name="file" required />
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <!-- Liste avec suppression -->
+  <ul>
+    <li th:each="file : ${files}">
+      <span th:text="${file}">Nom fichier</span>
+      <a th:href="@{'/submissions/' + ${submissionId} + '/files/' + ${file}}"
+         download>📥 Télécharger</a>
+      <form th:action="@{'/submissions/' + ${submissionId} + '/files/' + ${file} + '/delete'}"
+            method="post"
+            style="display:inline">
+        <button type="submit" onclick="return confirm('Supprimer ce fichier ?')">🗑 Supprimer</button>
+      </form>
+    </li>
+  </ul>
+</div>

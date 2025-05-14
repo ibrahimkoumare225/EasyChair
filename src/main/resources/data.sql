@@ -35,7 +35,20 @@ VALUES
         DATEADD('DAY', 60, CURRENT_DATE),
         DATEADD('DAY', 70, CURRENT_DATE),
         'ABSTRACT_SUBMISSION'
-    );
+    ),
+    (   'confConcrete',
+        'Techno web.',
+        CURRENT_DATE,
+        DATEADD('DAY', 10, CURRENT_DATE),
+        DATEADD('DAY', 20, CURRENT_DATE),
+        DATEADD('DAY', 30, CURRENT_DATE),
+        DATEADD('DAY', 40, CURRENT_DATE),
+        DATEADD('DAY', 50, CURRENT_DATE),
+        DATEADD('DAY', 60, CURRENT_DATE),
+        DATEADD('DAY', 70, CURRENT_DATE),
+        'CONCRETE_SUBMISSION'
+    )
+;
 
 
 INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'ORGANIZER',1);
@@ -54,6 +67,8 @@ INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'AUTHOR',2);
 INSERT INTO authors (id) VALUES (6);
 INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'REVIEWER',1);
 INSERT INTO reviewers (id) VALUES (7);
+INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'AUTHOR',3);
+INSERT INTO authors (id) VALUES (8);
 -- Submissions (3 articles)
 INSERT INTO submissions (title, creation_date, status, abstract_sub, conference_id)
 VALUES
@@ -77,7 +92,14 @@ VALUES
         'PROGRESS',
         'Ce travail utilise des modèles d''apprentissage profond pour prédire les tendances climatiques.',
         1
+    ),    (
+        'soumission en phase concrete',
+        CURRENT_TIMESTAMP,
+        'PROGRESS',
+        'Ce travail utilise des modèles d''apprentissage profond pour prédire les tendances climatiques.',
+        3
     );
+;
 
 -- Lien auteur-soumissions (table de jointure author_submission)
 INSERT INTO author_submission (author_id, submission_id)

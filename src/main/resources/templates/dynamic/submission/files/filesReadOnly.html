@@ -1,0 +1,10 @@
+<!-- templates/fragments/files-readonly.html -->
+<div th:fragment="fileList">
+    <h3>Fichiers (lecture seule)</h3>
+    <ul>
+        <li th:each="file : ${files}">
+            <a th:href="@{'/submissions/' + ${submissionId} + '/files/' + ${file}}"
+               download th:text="${file}">Nom fichier</a>
+        </li>
+    </ul>
+</div>

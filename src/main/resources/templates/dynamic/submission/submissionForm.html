@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Welcome to EasyChair</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/script.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
 <!--Insertion de la navbar-->
@@ -117,24 +118,26 @@
 
 
 
-                <!-- Ajout de fichier -->
-                <!-- grisé si pas bonne phase -->
+                    <!-- Ajout de fichier -->
+                    <div class="flex items-center space-x-3 mb-6">
+                        <button
+                                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow
+               hover:bg-gray-300
+               disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed hover:disabled:bg-gray-300
+               disabled:opacity-50 transition disabled:transition-none"
+                                th:disabled="${submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
+                      and submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}">
+                            Add a file
+                        </button>
 
-                <div class="flex items-center space-x-3 mb-6">
-                    <button
-                            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow
-                   hover:bg-gray-300
-                   disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed hover:disabled:bg-gray-300
-                   disabled:opacity-50 transition disabled:transition-none"
-                            th:disabled="${submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
-                          and submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}">
-                        Add a file
-                    </button>
+                        <input type="text" placeholder="No file selected"
+                               class="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white" />
+                    </div>
 
-                    <input type="text" placeholder="No file selected"
-                           class="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white" />
-                </div>
-
+                    <!-- Fragment d'affichage et modification des fichiers -->
+                    <div id="file-list-container"
+                         th:replace="~{fragments/files-edit :: fileList(submissionId=${submission.id}, files=${files})}">
+                    </div>
 
 
                 <!-- Soumission -->
