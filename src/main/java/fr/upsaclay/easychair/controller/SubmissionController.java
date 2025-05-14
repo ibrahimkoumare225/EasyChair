@@ -21,9 +21,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -44,7 +46,6 @@ public class SubmissionController {
         if (authentication==null||!authentication.isAuthenticated()){
             return "redirect:/login";
         }
-        logger.debug("Access to Submissions of user {}", authentication.getName());
 
         Optional<User> user = userService.findByEmail(authentication.getName());
         if (user.isPresent()) {
@@ -58,24 +59,24 @@ public class SubmissionController {
     }
 
     @GetMapping("/submissionDetail/{id}")
-    public String showDetailSubmission(Model model, @PathVariable Long id,Authentication authentication) {
-
-        if (authentication==null||!authentication.isAuthenticated()){
+    public String showDetailSubmission(Model model, @PathVariable Long id, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
-        logger.debug("Access to Submissions of user {}", authentication.getName());
+
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
+            logger.debug("Founded submission ID :{}", submission.get().getId());
             //Verif user est dans la conference
-            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
-            if (conferences.contains(submission.get().getConference())){
+//            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
+//            if (conferences.contains(submission.get().getConference())) {
                 model.addAttribute("submission", submission.get());
                 return "dynamic/submission/detailSubmission";
-            }
+//            }
+        } else {
+            return "redirect:/conference";
         }
-        return "redirect:/home";
     }
-
 
     @GetMapping("/ajouterSubmission")
     public String showAddSubForm(@RequestParam Long conferenceId, Model model, Authentication authentication) {
@@ -159,12 +160,10 @@ public class SubmissionController {
         }
     }
 
-
-
-
     @PostMapping("/save")
     @Transactional
     public String saveSubmission(@ModelAttribute Submission submission,
+                                 @RequestParam("keywordList") String keywordList,
                                  Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
         logger.debug("Saving new submission: {}", submission);
@@ -204,6 +203,13 @@ public class SubmissionController {
         evaluation=evaluationService.save(evaluation);
         logger.debug("creating empty Evaluation {} for submission ",evaluation.getId());
         submission.setEvaluation(evaluation);
+        //Permet de convertir le string en List pour le set dans submission
+        List<String> keywords = Arrays.stream(keywordList.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        submission.setKeywords(keywords);
         submission=submissionService.save(submission);
         logger.debug("Saved new submission: {}", submission.toString());
         Optional<Conference> conference = conferenceService.findOne(submission.getConference().getId());
@@ -239,8 +245,22 @@ public class SubmissionController {
         return "redirect:/conference";//"redirect:/submissions/submissionDetail{id}";
     }
 
-
-
+    @GetMapping("/conference/{id_conference}")
+    public String showSubmissionConference(@PathVariable Long id_conference, Model model) {
+        Optional<Conference> conference = conferenceService.findOne(id_conference);
+        if (conference.isPresent()) {
+            Long id_user = conference.get().getOrganizers().get(0).getId();
+            Optional<User> user = userService.findOne(id_user);
+            if (user.isPresent()) {
+                model.addAttribute("user", user.get());
+            }
+            List<Submission> submissions = submissionService.findSubmissionsByConference(conference.get());
+            model.addAttribute("submissions", submissions); // Uniformiser le nom de l'attribut (submissions au lieu de submission)
+            return "dynamic/submission/listSubmission";
+        } else {
+            return "error/404";
+        }
+    }
 
     // GET /submissions/{id}
     @GetMapping("/{id}")
@@ -248,7 +268,6 @@ public class SubmissionController {
         Optional<Submission> submission = submissionService.findOne(id);
         return submission.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
 
 
     // PUT /submissions/{id}

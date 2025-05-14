@@ -53,6 +53,9 @@ VALUES
 
 INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'ORGANIZER',1);
 INSERT INTO organizers (id) VALUES (1);
+INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'ORGANIZER',2);
+INSERT INTO organizers (id) VALUES (2);
+
 -- Reviewers
 INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'REVIEWER',1);
 INSERT INTO reviewers (id) VALUES (2);
@@ -111,6 +114,11 @@ VALUES
 -- Evaluation pour submission 1
 INSERT INTO evaluations ( submission_id)
 VALUES ( 1);
+
+INSERT INTO evaluations ( submission_id)
+VALUES ( 3);
+
+
 
 -- Post lié à l'évaluation précédente (evaluation_id = 1), reviewer 1 (Jane Doe = 2)
 INSERT INTO posts (evaluation_id, reviewer_id, date, body)

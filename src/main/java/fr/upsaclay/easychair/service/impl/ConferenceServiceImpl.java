@@ -1,5 +1,6 @@
 package fr.upsaclay.easychair.service.impl;
 
+import fr.upsaclay.easychair.controller.SubmissionController;
 import fr.upsaclay.easychair.model.Author;
 import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Organizer;
@@ -11,9 +12,12 @@ import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.service.ConferenceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ public class ConferenceServiceImpl implements ConferenceService {
     private final OrganizerRepository organizerRepository;
     private final ReviewerRepository reviewerRepository;
     private final AuthorRepository authorRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ConferenceServiceImpl.class);
 
     @Override
     public List<Conference> findAll() {
@@ -139,11 +144,15 @@ public class ConferenceServiceImpl implements ConferenceService {
 
     @Override
     public List<Conference> findConferencesByReviewerEmail(String email) {
-        // Récupérer les conférences où l'utilisateur est Reviewer
-        List<Conference> reviewerConferences = reviewerRepository.findByUserEmail(email)
-                .stream()
-                .map(Reviewer::getConference)
-                .toList();
-        return new ArrayList<>(reviewerConferences);
+        try {
+            List<Reviewer> reviewers = reviewerRepository.findByUserEmail(email);
+            return reviewers.stream()
+                    .map(Reviewer::getConference)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Erreur lors de la recherche des conférences pour le reviewer: " + email, e);
+            return new ArrayList<>();
+        }
     }
+
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!-- Insertion de la navbar -->
+<div th:replace="~{sidebar/sidebar :: sideBar}"></div>
+
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold text-center mb-6">My Notifications</h2>
+
+    <div th:if="${roleRequests != null and !roleRequests.isEmpty()}">
+        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+            <thead>
+            <tr class="bg-gray-100">
+                <th class="px-4 py-2 text-left font-semibold">User</th>
+                <th class="px-4 py-2 text-left font-semibold">Conference</th>
+                <th class="px-4 py-2 text-left font-semibold">Role</th>
+                <th class="px-4 py-2 text-left font-semibold">Request Date</th>
+                <th class="px-4 py-2 text-left font-semibold">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="request : ${roleRequests}" class="border-t">
+                <td class="px-4 py-2" th:text="${request.user.firstName} + ' ' + ${request.user.lastName}"></td>
+                <td class="px-4 py-2" th:text="${request.conference.title}"></td>
+                <td class="px-4 py-2" th:text="${request.roleType}"></td>
+                <td class="px-4 py-2" th:text="${request.requestDate}"></td>
+                <td class="px-4 py-2">
+                    <form th:action="@{/conference/acceptRoleRequest/{id}(id=${request.id})}" method="post" class="inline">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-lg font-semibold">
+                            Accept
+                        </button>
+                    </form>
+                    <form th:action="@{/conference/rejectRoleRequest/{id}(id=${request.id})}" method="post" class="inline">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-lg font-semibold">
+                            Reject
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${roleRequests == null or roleRequests.isEmpty()}" class="text-center text-gray-600">
+        No pending role requests found.
+    </div>
+</div>
+</body>
+</html>

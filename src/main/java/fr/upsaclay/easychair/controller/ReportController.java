@@ -1,12 +1,8 @@
 package fr.upsaclay.easychair.controller;
 
-import fr.upsaclay.easychair.model.Conference;
-import fr.upsaclay.easychair.model.Evaluation;
-import fr.upsaclay.easychair.model.Report;
-import fr.upsaclay.easychair.model.Submission;
-import fr.upsaclay.easychair.service.EvaluationService;
-import fr.upsaclay.easychair.service.ReportService;
-import fr.upsaclay.easychair.service.SubmissionService;
+import fr.upsaclay.easychair.model.*;
+import fr.upsaclay.easychair.service.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Controller
@@ -22,6 +19,12 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ReviewerService reviewerService;
 
     @Autowired
     private EvaluationService  evaluationService;
@@ -69,11 +72,33 @@ public class ReportController {
         else return "error/404";
     }
 
-    // POST /reports
-    @PostMapping
-    public Report createReport(@RequestBody Report report) {
-        return reportService.save(report);
+    @PostMapping("/createReport")
+    public String createReport(@ModelAttribute Report report,
+                               @RequestParam Long id_evaluation,
+                               @RequestParam("action") String action) {
+
+
+        // Sinon, on continue pour créer un report
+        Evaluation evaluation = evaluationService.findOne(id_evaluation)
+                .orElseThrow(() -> new RuntimeException("Evaluation not found"));
+
+        Submission submission = evaluation.getSubmission();
+        if ("signal".equals(action)) {
+            return "redirect:/alerts/alertForm/"+ submission.getId() ; // pas de save ici
+        }
+        report.setEvaluation(evaluation);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(email).orElseThrow();
+        Reviewer reviewer = reviewerService.findByUserId(user.getId()).orElseThrow();
+
+        report.setReviewer(reviewer);
+        report.setDate(LocalDateTime.now());
+
+        reportService.save(report);
+
+        return "redirect:/conference";
     }
+
 
     // PUT /reports/{id}
     @PutMapping
