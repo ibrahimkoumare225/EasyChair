@@ -85,9 +85,9 @@ VALUES
 -- Lien auteur-soumissions (table de jointure author_submission)
 INSERT INTO author_submission (author_id, submission_id)
 VALUES
-    (4, 1),  -- Alban → submission 1
-    (5, 3);          -- Ibrahim → submission 3
-
+    (4, 1),  -- John → submission 3
+    (5, 3),       -- Alban → submission 1
+    (5,2);
 
 -- Evaluation pour submission 1
 INSERT INTO evaluations ( submission_id)

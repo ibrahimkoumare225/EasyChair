@@ -24,6 +24,7 @@
             <th class="px-6 py-3 font-semibold">Reviewer</th>
             <th class="px-6 py-3 font-semibold">Submission</th>
             <th class="px-6 py-3 font-semibold">Organizer</th>
+            <th class="px-6 py-3 font-semibold">Actions</th>
         </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -34,6 +35,12 @@
             <td class="px-6 py-4" th:text="${alert.reviewer.user.pseudo}">jdoe</td>
             <td class="px-6 py-4" th:text="${alert.submission.title}">AI and Ethics</td>
             <td class="px-6 py-4" th:text="${alert.organizer.user.pseudo}">organizerX</td>
+            <td class="px-6 py-4"><form th:action="@{/alerts/validate/{id}(id=${alert.id})}" method="post" class="inline">
+                <button type="submit"
+                        class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1 px-3 rounded transition text-sm">
+                    Validate
+                </button>
+            </form>
         </tr>
         </tbody>
     </table>

@@ -40,13 +40,12 @@ public class SubmissionController {
     private final AuthorService authorService;
     private final EvaluationService evaluationService;
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
     public String showUserSubmissions( Model model,Authentication authentication) {
 
         if (authentication==null||!authentication.isAuthenticated()){
             return "redirect:/login";
         }
-
         Optional<User> user = userService.findByEmail(authentication.getName());
         if (user.isPresent()) {
             List<Submission> submissions = submissionService.findSubmissionsByAuthor(user.get());

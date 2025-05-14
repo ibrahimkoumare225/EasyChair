@@ -89,12 +89,39 @@ public class AlertController {
         model.addAttribute("alerts", alertConf);
         return "dynamic/alert/listAlert";
     }
-    // GET /alerts/{id}
+
+    // POST /alert/validate/{id_alert}
+    @PostMapping("/validate/{id_alert}")
+    public String validateAlert(@PathVariable Long id_alert, Model model) {
+        if(id_alert == null)
+        {
+            return "redirect:/conference";
+        }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(email).orElseThrow();
+        Alert alert = alertService.findOne(id_alert).orElseThrow();
+        Long id_conference =  alert.getSubmission().getConference().getId();
+        //Si l'utilisateur connecté est pas l'organisateur de la conférence
+        if(!alert.getOrganizer().getUser().getId().equals(user.getId()))
+        {
+            return "redirect:/conference";
+        }
+        if(id_conference != null)
+        {
+            alertService.delete(id_alert);
+            return "redirect:/alerts/conference/" + id_conference;
+        }
+        alertService.delete(id_alert);
+        return "redirect:/conference";
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Alert> getAlertById(@PathVariable Long id) {
         Optional<Alert> Alert = alertService.findOne(id);
         return Alert.isPresent() ? (ResponseEntity<Alert>) ResponseEntity.ok() : ResponseEntity.notFound().build();
     }
+
 
     // PUT /alerts/{id}
     @PutMapping
