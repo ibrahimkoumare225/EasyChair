@@ -142,8 +142,13 @@ INSERT INTO evaluations ( submission_id)
 VALUES ( 1);
 
 INSERT INTO evaluations ( submission_id)
+VALUES ( 2);
+
+INSERT INTO evaluations ( submission_id)
 VALUES ( 3);
 
+INSERT INTO evaluations ( submission_id)
+VALUES ( 4);
 
 
 -- Post lié à l'évaluation précédente (evaluation_id = 1), reviewer 1 (Jane Doe = 2)
