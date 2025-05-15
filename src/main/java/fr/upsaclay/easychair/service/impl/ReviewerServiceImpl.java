@@ -42,4 +42,9 @@ public class ReviewerServiceImpl implements ReviewerService {
         return reviewerRepository.findById(userId);
     }
 
+    @Override
+    public List<Reviewer> findByConferenceID(Long conferenceId) {
+        return reviewerRepository.findByConferenceId(conferenceId);
+    }
+
 }
