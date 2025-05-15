@@ -15,4 +15,6 @@ public interface ReviewerService {
     void delete(Long id);
     Optional<Reviewer> findByUserId(Long userId); // utilise la méthode existante
 
+    List<Reviewer> findByConferenceID(Long conferenceId);
+
 }

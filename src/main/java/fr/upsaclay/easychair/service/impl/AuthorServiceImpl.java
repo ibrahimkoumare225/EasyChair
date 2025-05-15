@@ -15,6 +15,12 @@ import java.util.Optional;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
+
+    @Override
+    public List<Author> findByConferenceID(Long conferenceId) {
+        return authorRepository.findByConferenceId(conferenceId);
+    }
+
     @Override
     public Author save(Author author) {
         return authorRepository.save(author);

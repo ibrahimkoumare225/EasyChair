@@ -43,4 +43,9 @@ public class ReviewerServiceImpl implements ReviewerService {
         return reviewers.isEmpty() ? Optional.empty() : Optional.of(reviewers.get(0));
     }
 
+    @Override
+    public List<Reviewer> findByConferenceID(Long conferenceId) {
+        return reviewerRepository.findByConferenceId(conferenceId);
+    }
+
 }

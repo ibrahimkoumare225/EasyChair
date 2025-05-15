@@ -11,10 +11,13 @@ import fr.upsaclay.easychair.repository.ConferenceRepository;
 import fr.upsaclay.easychair.repository.OrganizerRepository;
 import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.service.ConferenceService;
+import fr.upsaclay.easychair.service.MailSendingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +26,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+
 public class ConferenceServiceImpl implements ConferenceService {
 
-    private final ConferenceRepository conferenceRepository;
-    private final OrganizerRepository organizerRepository;
-    private final ReviewerRepository reviewerRepository;
-    private final AuthorRepository authorRepository;
+    private  ConferenceRepository conferenceRepository;
+    private  OrganizerRepository organizerRepository;
+    private  ReviewerRepository reviewerRepository;
+
+    private  AuthorRepository authorRepository;
+    private  MailSendingService mailSendingService;
+
     private static final Logger logger = LoggerFactory.getLogger(ConferenceServiceImpl.class);
+
+    ConferenceServiceImpl(ConferenceRepository conferenceRepository, OrganizerRepository organizerRepository,
+                          AuthorRepository authorRepository,ReviewerRepository reviewerRepository){
+        this.conferenceRepository = conferenceRepository;
+        this.organizerRepository = organizerRepository;
+        this.authorRepository = authorRepository;
+        this.reviewerRepository = reviewerRepository;
+    }
+    @Autowired
+    private void setMailSendingService(@Lazy MailSendingService mailSendingService){
+        this.mailSendingService = mailSendingService;
+    }
+
 
     @Override
     public List<Conference> findAll() {
@@ -165,7 +184,7 @@ public class ConferenceServiceImpl implements ConferenceService {
 
 
 
-    @Scheduled(cron="0 52 17 * * *")
+    @Scheduled(cron="0 35 19 * * *")
     public void  checkPhase() {
         System.out.println("CHECK PHASE ");
         List<Conference> confToCheck = conferenceRepository.findConferencesByPhaseIsNot(Phase.CLOSED);
@@ -174,40 +193,50 @@ public class ConferenceServiceImpl implements ConferenceService {
             switch (conference.getPhase()) {
                 case INITIALIZATION -> {if (!today.isBefore(conference.getCommiteeAssignmentDate())) {
                     conference.setPhase(Phase.COMMITEE_ASSIGNMENT);
-                    update(conference);
+                    conference=update(conference);
+                    mailSendingService.sendMailforPhase(conference.getId());
+
                 }}
                case COMMITEE_ASSIGNMENT -> {if (!today.isBefore(conference.getAbstractSubDate())) {
                    conference.setPhase(Phase.ABSTRACT_SUBMISSION);
                    update(conference);
+                   mailSendingService.sendMailforPhase(conference.getId());
                }}
                case ABSTRACT_SUBMISSION -> {if (!today.isBefore(conference.getSubAssignmentDate())) {
                     conference.setPhase(Phase.SUBMISSION_ASSIGNMENT);
                     update(conference);
+                   mailSendingService.sendMailforPhase(conference.getId());
                }}
                 case SUBMISSION_ASSIGNMENT -> {if (!today.isBefore(conference.getConcreteSubDate())) {
                     conference.setPhase(Phase.CONCRETE_SUBMISSION);
                     update(conference);
+                    mailSendingService.sendMailforPhase(conference.getId());
                 }}
                 case CONCRETE_SUBMISSION -> {if (!today.isBefore(conference.getEvaluationDate())){
                     conference.setPhase(Phase.EVALUATION);
                     update(conference);
+                    mailSendingService.sendMailforPhase(conference.getId());
                 }}
                 case EVALUATION -> {if (!today.isBefore(conference.getFinalSubDate())){
                     conference.setPhase(Phase.FINAL_SUBMISSION);
                     update(conference);
+                    mailSendingService.sendMailforPhase(conference.getId());
                 }}
                 case FINAL_SUBMISSION -> {if (!today.isBefore(conference.getValidationDate())) {
                     conference.setPhase(Phase.VALIDATION);
                     update(conference);
+                    mailSendingService.sendMailforPhase(conference.getId());
                 }}
                 case VALIDATION -> {if (!today.isBefore(conference.getEndDate())){
                     conference.setPhase(Phase.CLOSED);
                     update(conference);
+                    mailSendingService.sendMailforPhase(conference.getId());
                 }}
+                default ->{}
+
             }
 
         }
     }
-
 
 }

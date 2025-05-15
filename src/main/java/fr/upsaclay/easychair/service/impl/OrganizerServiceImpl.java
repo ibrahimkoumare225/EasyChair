@@ -1,6 +1,7 @@
 package fr.upsaclay.easychair.service.impl;
 
 import fr.upsaclay.easychair.model.Organizer;
+import fr.upsaclay.easychair.model.Reviewer;
 import fr.upsaclay.easychair.repository.OrganizerRepository;
 import fr.upsaclay.easychair.service.OrganizerService;
 import jakarta.persistence.EntityNotFoundException;
@@ -49,4 +50,10 @@ public class OrganizerServiceImpl implements OrganizerService {
             throw new IllegalArgumentException("Organizer with ID " + id + " does not exist.");
         }
     }
+
+    @Override
+    public List<Organizer> findByConferenceID(Long conferenceId) {
+        return organizerRepository.findByConferenceId(conferenceId);
+    }
+
 }
