@@ -1,10 +1,8 @@
 
 package fr.upsaclay.easychair.controller;
 
-import fr.upsaclay.easychair.model.Evaluation;
-import fr.upsaclay.easychair.model.Post;
-import fr.upsaclay.easychair.model.Reviewer;
-import fr.upsaclay.easychair.model.User;
+import fr.upsaclay.easychair.model.*;
+import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.service.EvaluationService;
 import fr.upsaclay.easychair.service.PostService;
 import fr.upsaclay.easychair.service.ReviewerService;
@@ -65,21 +63,27 @@ public class PostController {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Optional<User> userOpt = userService.findByEmail(email);
-        if (!userOpt.isPresent()) {
-            throw new RuntimeException("User not found with email: " + email);
-        }
-        User user = userOpt.get();
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        // Trouver le reviewer associé à cet utilisateur
-        Reviewer reviewer = reviewerService.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Reviewer not found"));
+        Reviewer reviewer = null;
+        for (Role role : user.getRoles()) {
+            if (role.getRoleType() == RoleType.REVIEWER) {
+                reviewer = (Reviewer) role;
+                break;
+            }
+        }
+
+        if (reviewer == null) {
+            throw new RuntimeException("Reviewer role not found for user: " + user.getId());
+        }
 
         post.setReviewer(reviewer);
         postService.save(post);
 
         return "redirect:/conference";
     }
+
 
     // GET /posts
     @GetMapping

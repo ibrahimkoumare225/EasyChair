@@ -24,10 +24,12 @@
         <th class="px-6 py-3 font-semibold">Authors</th>
         <th class="px-6 py-3 font-semibold">Status</th>
         <th class="px-6 py-3 font-semibold">Visualize</th>
+        <th class="px-6 py-3 font-semibold" th:if="${isOrganizer}">Average Grade</th>
+        <th class="px-6 py-3 font-semibold" th:if="${isOrganizer}">Actions</th>
       </tr>
       </thead>
       <tbody class="divide-y divide-gray-100 text-gray-700">
-      <tr th:each="submission : ${submissions}" class="hover:bg-gray-50">
+      <tr th:each="submission, stat : ${submissions}" class="hover:bg-gray-50">
         <td class="px-6 py-4" th:text="${submission.conference.title}">Conf Title</td>
         <td class="px-6 py-4" th:text="${#dates.format(submission.creationDate, 'yyyy-MM-dd')}">2025-05-01</td>
         <td class="px-6 py-4" th:text="${submission.title}">AI & Ethics</td>
@@ -38,6 +40,19 @@
              class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium py-1 px-3 rounded transition text-sm">
             Visualize
           </a>
+        </td>
+        <!-- Moyenne des notes -->
+
+        <td class="px-6 py-4" th:text="${moyennes[stat.index]}" th:if="${isOrganizer}" >8.5</td>
+
+        <!-- Boutons actions -->
+        <td class="px-6 py-4 flex gap-2" th:if="${isOrganizer && submission.status.name() == 'PROGRESS'}">
+          <form th:action="@{/submissions/validate/{id}(id=${submission.id})}" method="post" th:object="${submission}">
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">Validate</button>
+          </form>
+          <form th:action="@{/submissions/reject/{id}(id=${submission.id})}" method="post" th:object="${submission}">
+            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Reject</button>
+          </form>
         </td>
       </tr>
       </tbody>
