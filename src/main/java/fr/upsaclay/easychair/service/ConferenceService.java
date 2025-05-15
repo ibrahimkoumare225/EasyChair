@@ -1,13 +1,15 @@
 package fr.upsaclay.easychair.service;
 
 import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.enumates.Phase;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ConferenceService {
 
-    List<Conference> findAllWithOrganizers();
+
+    public List<Conference> findAllWithOrganizers();
 
     List<Conference> findAll();
 
@@ -32,4 +34,6 @@ public interface ConferenceService {
     List<Conference> findConferencesByAuthorEmail(String email);
 
     List<Conference> findConferencesByReviewerEmail(String email);
+
+
 }

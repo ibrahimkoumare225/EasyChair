@@ -14,7 +14,7 @@ VALUES
         'Sample Conference',
         'This is a sample conference description.',
         CURRENT_DATE,
-        DATEADD('DAY', 10, CURRENT_DATE),
+         CURRENT_DATE,
         DATEADD('DAY', 20, CURRENT_DATE),
         DATEADD('DAY', 30, CURRENT_DATE),
         DATEADD('DAY', 40, CURRENT_DATE),
@@ -35,28 +35,69 @@ VALUES
         DATEADD('DAY', 60, CURRENT_DATE),
         DATEADD('DAY', 70, CURRENT_DATE),
         'ABSTRACT_SUBMISSION'
-    );
+    ),
+    (   'confConcrete',
+        'Techno web.',
+        CURRENT_DATE,
+        DATEADD('DAY', 10, CURRENT_DATE),
+        DATEADD('DAY', 20, CURRENT_DATE),
+        DATEADD('DAY', 30, CURRENT_DATE),
+        DATEADD('DAY', 40, CURRENT_DATE),
+        DATEADD('DAY', 50, CURRENT_DATE),
+        DATEADD('DAY', 60, CURRENT_DATE),
+        DATEADD('DAY', 70, CURRENT_DATE),
+        'CONCRETE_SUBMISSION'
+    )
+;
 
 
-INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'ORGANIZER',1);
+-- ORGANIZERS
+-- John Doe (user_id=1) devient ORGANIZER de la conférence 1
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (1, 'ORGANIZER', 1);
+-- Son ID d'organisateur est 1
 INSERT INTO organizers (id) VALUES (1);
-INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'ORGANIZER',2);
+
+-- Jane Doe (user_id=2) devient ORGANIZER de la conférence 2
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (2, 'ORGANIZER', 2);
+-- Son ID d'organisateur est 2
 INSERT INTO organizers (id) VALUES (2);
 
--- Reviewers
-INSERT INTO roles (user_id, role_type,conference_id) VALUES (2, 'REVIEWER',1);
-INSERT INTO reviewers (id) VALUES (2);
-INSERT INTO roles (user_id, role_type,conference_id) VALUES (1, 'REVIEWER',1);
+-- REVIEWERS
+-- Jane Doe (user_id=2) devient également REVIEWER de la conférence 1
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (2, 'REVIEWER', 1);
+-- Son ID de reviewer est 3
 INSERT INTO reviewers (id) VALUES (3);
--- Authors
-INSERT INTO roles (user_id, role_type,conference_id) VALUES (3, 'AUTHOR',1); -- Alban
-INSERT INTO authors (id) VALUES (4);
-INSERT INTO roles (user_id, role_type,conference_id) VALUES (5, 'AUTHOR',1); -- Ibrahim
-INSERT INTO authors (id) VALUES ( 5);
-INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'AUTHOR',2);
+
+-- John Doe (user_id=1) devient également REVIEWER de la conférence 1
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (1, 'REVIEWER', 1);
+-- Son ID de reviewer est 4
+INSERT INTO reviewers (id) VALUES (4);
+
+-- AUTHORS
+-- Alban Cousin (user_id=3) devient AUTHOR de la conférence 1
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (3, 'AUTHOR', 1);
+-- Son ID d'auteur est 5
+INSERT INTO authors (id) VALUES (5);
+
+-- Ibrahim Koumare (user_id=5) devient AUTHOR de la conférence 1
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (5, 'AUTHOR', 1);
+-- Son ID d'auteur est 6
 INSERT INTO authors (id) VALUES (6);
-INSERT INTO roles(user_id,role_type,conference_id) VALUES (4,'REVIEWER',1);
-INSERT INTO reviewers (id) VALUES (7);
+
+-- Jeremie Pennec (user_id=4) devient AUTHOR de la conférence 2
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (4, 'AUTHOR', 2);
+-- Son ID d'auteur est 7
+INSERT INTO authors (id) VALUES (7);
+
+-- Jeremie Pennec (user_id=4) devient également REVIEWER de la conférence 1
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (4, 'REVIEWER', 1);
+-- Son ID de reviewer est 8
+INSERT INTO reviewers (id) VALUES (8);
+
+-- Jeremie Pennec (user_id=4) devient également AUTHOR de la conférence 3
+INSERT INTO roles (user_id, role_type, conference_id) VALUES (4, 'AUTHOR', 3);
+-- Son ID d'auteur pour ce rôle est 9
+INSERT INTO authors (id) VALUES (9);
 -- Submissions (3 articles)
 INSERT INTO submissions (title, creation_date, status, abstract_sub, conference_id)
 VALUES
@@ -80,18 +121,35 @@ VALUES
         'PROGRESS',
         'Ce travail utilise des modèles d''apprentissage profond pour prédire les tendances climatiques.',
         1
+    ),    (
+        'soumission en phase concrete',
+        CURRENT_TIMESTAMP,
+        'PROGRESS',
+        'Ce travail utilise des modèles d''apprentissage profond pour prédire les tendances climatiques.',
+        3
     );
+
 
 -- Lien auteur-soumissions (table de jointure author_submission)
 INSERT INTO author_submission (author_id, submission_id)
 VALUES
-    (4, 1),  -- Alban → submission 1
-    (5, 3);          -- Ibrahim → submission 3
-
+    (5, 1),  -- Alban (author_id 5) → soumission 1
+    (6, 3), -- Ibrahim (author_id 6) → soumission 3
+    (9, 4) ; -- Jeremie pour conférence 3 (author_id 9) → soumission 4
 
 -- Evaluation pour submission 1
 INSERT INTO evaluations ( submission_id)
 VALUES ( 1);
+
+INSERT INTO evaluations ( submission_id)
+VALUES ( 2);
+
+INSERT INTO evaluations ( submission_id)
+VALUES ( 3);
+
+INSERT INTO evaluations ( submission_id)
+VALUES ( 4);
+
 
 -- Post lié à l'évaluation précédente (evaluation_id = 1), reviewer 1 (Jane Doe = 2)
 INSERT INTO posts (evaluation_id, reviewer_id, date, body)
@@ -105,7 +163,7 @@ VALUES (
 INSERT INTO posts (evaluation_id, reviewer_id, date, body)
 VALUES (
            1,
-           2,
+           4,
            CURRENT_TIMESTAMP,
            'Le corps du message de post de l''évaluation. Ce post contient des informations importantes concernant l''évaluation.'
        );

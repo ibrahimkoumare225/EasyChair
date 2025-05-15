@@ -1,4 +1,3 @@
-/*
 package fr.upsaclay.easychair.service.impl;
 
 import fr.upsaclay.easychair.config.FileStorageConfig;
@@ -108,4 +107,3 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     }
 }
-*/

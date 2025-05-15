@@ -1,6 +1,7 @@
 package fr.upsaclay.easychair.repository;
 
 import fr.upsaclay.easychair.model.Conference;
+import fr.upsaclay.easychair.model.enumates.Phase;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,6 @@ public interface ConferenceRepository extends JpaRepository<Conference, Long> {
             "LEFT JOIN c.authors a " +
             "WHERE o.user.email = :email OR r.user.email = :email OR a.user.email = :email")
     List<Conference> findConferencesByUserEmail(@Param("email") String email);
+
+    List<Conference> findConferencesByPhaseIsNot(Phase phase);
 }

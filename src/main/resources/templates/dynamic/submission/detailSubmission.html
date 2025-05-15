@@ -26,12 +26,17 @@
 
     <div class="mb-4 flex space-x-6">
       <div class="flex-1">
-        <label class="block font-semibold mb-1">Date of creation:</label>
+        <label class="block font-semibold mb-1">Date of creation :</label>
         <span class="text-black font-medium" th:text="${submission.creationDate}"></span>
       </div>
+
       <div class="flex-1">
-        <label class="block font-semibold mb-1">Statut:</label>
+        <label class="block font-semibold mb-1">Statut :</label>
         <span class="text-black font-medium" th:text="${submission.status}"></span>
+
+        <!-- Nouveau label ajouté ici -->
+        <label class="block font-semibold mt-2">Conference phase :</label>
+        <span class="text-black font-medium" th:text="${submission.conference.phase}"></span>
       </div>
     </div>
     <!-- colonnes -->
@@ -63,15 +68,26 @@
 
     <!-- Fichier -->
     <div class="mb-6">
-      <label class="block font-semibold mb-1 text-gray-800">Attached Files:</label>
-
-      <ul class="list-disc pl-5 text-black space-y-1" th:if="${#lists.isEmpty(submission.subFiles) == false}">
-        <li th:each="file : ${submission.subFiles}" th:text="${file}"></li>
-      </ul>
-
-      <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium" th:if="${#lists.isEmpty(submission.subFiles)}">
-        No files uploaded
-      </p>
+      <label class="block font-semibold mb-1">Files:</label>
+      <table class="min-w-full bg-white border border-gray-300 w-3/4 mx-auto">
+        <thead>
+        <tr>
+          <th class="py-2 px-3 border-b">File Name</th>
+          <th class="py-2 px-2 border-b">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="file : ${files}">
+          <td class="py-2 px-4 border-b text-center" th:text="${file}" >File Name</td> <!-- Aligné au centre -->
+          <td class="py-2 px-4 border-b text-center">
+            <a th:href="@{'/submissions/' + ${submission.id} + '/files/' + ${file}}"
+               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">
+              Download
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
     <!-- A afficher en fonction des autorisations utilisateurs -->
     <div class="flex justify-end space-x-4 pt-6">
@@ -86,20 +102,46 @@
           <input type="hidden" name="submissionId" th:value="${submission.id}" />
 
           <button type="submit"
-                  class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
-            Modify Submission
+                  class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+            Edit
           </button>
+
         </form>
-    </div>
+      <form th:if="${submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).ABSTRACT_SUBMISSION
+              or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
+              or submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}"
+            th:action="@{/submissions/delete}" method="post"
+            onsubmit="return confirmDeletion(event)">
+
+        <input type="hidden" name="submissionId" th:value="${submission.id}" />
+
+        <button type="submit"
+                class="bg-red-500 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold">
+          Delete
+        </button>
+
+      </form>
+      </div>
+
     <!-- TODO: evaluate -->
-    <form th:action="@{/reports/ajouterReport}" method="post" th:if="${submission.evaluation != null}" >
+    <form th:action="@{/reports/ajouterReport}" method="post" th:if="${isReviewer}" >
       <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
-      <button type="submit" class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
         Evaluate
       </button>
     </form>
-
+    <!-- TODO: evaluate -->
+    <a th:href="@{/reports/showReportSub/{id}(id=${submission.evaluation.id})} " th:if="${isAuthor}"
+        class = "bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+        Show Evaluation
+    </a>
   </div>
 </div>
+<script>
+  // Fonction pour confirmer la suppression d'un fichier
+  function confirmDeletion(event) {
+    return confirm('Are you sure to delete this submission ?');
+  }
+</script>
 </body>
 </html>
