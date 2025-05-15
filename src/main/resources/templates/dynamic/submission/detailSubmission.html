@@ -123,18 +123,20 @@
       </form>
       </div>
 
-    <!-- TODO: evaluate -->
-    <form th:action="@{/reports/ajouterReport}" method="post" th:if="${isReviewer}" >
-      <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
-      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
-        Evaluate
-      </button>
-    </form>
-    <!-- TODO: evaluate -->
-    <a th:href="@{/reports/showReportSub/{id}(id=${submission.evaluation.id})} " th:if="${isAuthor}"
-        class = "bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+    <div class="flex justify-end space-x-4 mt-4">
+      <form th:action="@{/reports/ajouterReport}" method="post" th:if="${isReviewer}">
+        <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+          Evaluate
+        </button>
+      </form>
+
+      <a th:href="@{/reports/showReportSub/{id}(id=${submission.evaluation.id})}" th:if="${isAuthor || isOrganizer}"
+         class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
         Show Evaluation
-    </a>
+      </a>
+    </div>
+
   </div>
 </div>
 <script>

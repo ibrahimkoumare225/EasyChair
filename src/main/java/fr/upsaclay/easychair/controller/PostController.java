@@ -33,6 +33,7 @@ public class PostController {
     @GetMapping("/form/ajouterPost/{id_evaluation}")
     public String showPostsEvaluation(@PathVariable Long id_evaluation, Model model) {
         Optional<Evaluation> evaluation = evaluationService.findOne(id_evaluation);
+
         if(evaluation.isPresent()) {
             model.addAttribute("evaluation", evaluation.get());
             model.addAttribute("post", new Post());
