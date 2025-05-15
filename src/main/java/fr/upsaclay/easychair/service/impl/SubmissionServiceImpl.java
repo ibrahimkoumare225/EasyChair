@@ -41,6 +41,7 @@ public class SubmissionServiceImpl implements SubmissionService {
             submission.setTitle(existingSub.getTitle());
             submission.setCreationDate(existingSub.getCreationDate());
             submission.setAbstractSub(existingSub.getAbstractSub());
+            submission.setKeywords(existingSub.getKeywords());
             return submissionRepository.save(submission);
         }).orElseThrow(() -> new EntityNotFoundException("Submission introuvable avec l’ID : " + submission.getId()));
     }
