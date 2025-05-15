@@ -13,7 +13,7 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
     List<Author> findByUserId(Long userId);
     List<Author> findByConferenceId(Long conferenceId);
     List<Author> findByUser(User user);
-
+    void deleteByConferenceId(Long conferenceId);
     @Query("SELECT a FROM Author a WHERE a.user.email = :email")
     List<Author> findByUserEmail(@Param("email") String email);
 

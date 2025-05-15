@@ -7,11 +7,6 @@ import fr.upsaclay.easychair.repository.ReviewerRepository;
 import fr.upsaclay.easychair.repository.AuthorRepository;
 import fr.upsaclay.easychair.repository.RoleRequestRepository;
 import fr.upsaclay.easychair.service.*;
-import fr.upsaclay.easychair.service.ConferenceService;
-import fr.upsaclay.easychair.service.OrganizerService;
-import fr.upsaclay.easychair.service.ReviewerService;
-import fr.upsaclay.easychair.service.UserService;
-
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +44,6 @@ public class ConferenceController {
     private final UserDetailsService userDetailsService;
     private final ReviewerService reviewerService;
     private final AuthorService authorService;
-
 
     @GetMapping
     public String homePage(Model model, Authentication authentication) {
@@ -260,6 +254,51 @@ public class ConferenceController {
         } catch (Exception e) {
             logger.error("Error updating conference with ID: {}", conference.getId(), e);
             redirectAttributes.addFlashAttribute("error", "Failed to update conference: " + e.getMessage());
+            return "redirect:/conference";
+        }
+    }
+
+    @PostMapping("/deleteConference/{id}")
+    @Transactional
+    public String deleteConference(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
+        logger.debug("Attempting to delete conference with ID: {}", id);
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            logger.warn("Unauthenticated attempt to delete conference");
+            redirectAttributes.addFlashAttribute("error", "You must be logged in to delete a conference.");
+            return "redirect:/login";
+        }
+
+        try {
+            String email = authentication.getName();
+            Optional<Conference> conferenceOptional = conferenceService.findOne(id);
+            if (conferenceOptional.isEmpty()) {
+                logger.warn("Conference not found for ID: {}", id);
+                redirectAttributes.addFlashAttribute("error", "Conference not found.");
+                return "redirect:/conference";
+            }
+
+            Conference conference = conferenceOptional.get();
+            // Check if the user is an organizer for this conference
+            boolean isOrganizer = conference.getOrganizers().stream()
+                    .anyMatch(org -> org.getUser() != null && email.equals(org.getUser().getEmail()));
+            if (!isOrganizer) {
+                logger.warn("User {} is not authorized to delete conference ID: {}", email, id);
+                redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this conference.");
+                return "redirect:/conference";
+            }
+
+            // Supprimer les RoleRequest associés
+            roleRequestService.deleteByConferenceId(id);
+
+            // Supprimer la conférence
+            conferenceService.deleteById(id);
+            logger.info("Conference deleted successfully with ID: {}", id);
+            redirectAttributes.addFlashAttribute("message", "Conference deleted successfully!");
+            return "redirect:/conference";
+        } catch (Exception e) {
+            logger.error("Error deleting conference with ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("error", "Failed to delete conference: " + e.getMessage());
             return "redirect:/conference";
         }
     }

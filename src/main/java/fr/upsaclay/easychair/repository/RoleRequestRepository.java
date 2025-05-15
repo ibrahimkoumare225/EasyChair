@@ -12,4 +12,5 @@ public interface RoleRequestRepository extends JpaRepository<RoleRequest, Long> 
     List<RoleRequest> findByConferenceId(Long conferenceId);
     List<RoleRequest> findByConferenceIdAndStatus(Long conferenceId, String status);
     Optional<RoleRequest> findByUserIdAndConferenceIdAndRoleType(Long userId, Long conferenceId, RoleType roleType);
-}
+
+    void deleteByConferenceId(Long conferenceId);}

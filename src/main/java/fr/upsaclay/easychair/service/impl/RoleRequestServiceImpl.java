@@ -52,4 +52,9 @@ public class RoleRequestServiceImpl implements RoleRequestService {
     public Optional<RoleRequest> findByUserIdAndConferenceIdAndRoleType(Long userId, Long conferenceId, RoleType roleType) {
         return roleRequestRepository.findByUserIdAndConferenceIdAndRoleType(userId, conferenceId, roleType);
     }
+
+    @Override
+    public void deleteByConferenceId(Long conferenceId) {
+        roleRequestRepository.deleteByConferenceId(conferenceId);
+    }
 }

@@ -6,34 +6,57 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
-<!-- Navbar -->
 <div th:replace="~{sidebar/sidebar :: sideBar}"></div>
 
 <div class="container mx-auto px-4 py-8">
     <h2 class="text-3xl font-bold text-center mb-6">My Evaluations</h2>
 
-    <div th:if="${evaluations != null and !evaluations.isEmpty()}">
-        <div th:each="evaluation : ${evaluations}" class="bg-white p-6 rounded-lg shadow mb-6">
-            <h3 class="text-xl font-semibold mb-2" th:text="'Submission ID: ' + ${evaluation.submission.id}"></h3>
+    <div th:if="${evaluationViews != null and !evaluationViews.isEmpty()}">
+        <div th:each="evalView : ${evaluationViews}" class="bg-white p-6 rounded-lg shadow mb-6">
+            <h3 class="text-xl font-semibold mb-2">
+                <span th:text="'Submission ID: ' + ${evalView.evaluation.submission?.id ?: 'N/A'}"></span>
+                <span th:text="' - ' + ${evalView.evaluation.submission?.title ?: 'Untitled'}"></span>
+            </h3>
+            <p class="text-gray-600 text-sm mb-2">
+                Conference: <span th:text="${evalView.evaluation.submission?.conference?.title ?: 'N/A'}"></span>
+            </p>
 
-            <div th:each="post : ${evaluation.posts}" class="border-t border-gray-200 pt-4 mt-4">
+            <!-- Action Link: Add Report or Add Post -->
+            <div class="mb-4">
+                <form th:if="${!evalView.hasReport}" th:action="@{/reports/ajouterReport}" method="post" class="inline">
+                    <input type="hidden" name="evaluationId" th:value="${evalView.evaluation.id}"/>
+                    <button type="submit" class="text-blue-600 hover:underline">Add Evaluation Report</button>
+                </form>
+                <a th:if="${evalView.hasReport}" th:href="@{/posts/form/ajouterPost/{id}(id=${evalView.evaluation.id})}"
+                   class="text-blue-600 hover:underline">Add Post to Discussion</a>
+            </div>
+
+            <!-- Display Posts (including Reports) -->
+            <div th:if="${evalView.evaluation.posts != null and !evalView.evaluation.posts.isEmpty()}"
+                 th:each="post : ${evalView.evaluation.posts}"
+                 class="border-t border-gray-200 pt-4 mt-4">
                 <p class="text-gray-600 text-sm mb-1">
-                    <span th:text="'Reviewer: ' + ${post.reviewer.user.firstName} + ' ' + ${post.reviewer.user.lastName}"></span>
-                    &mdash;
-                    <span th:text="${#temporals.format(post.date, 'dd/MM/yyyy HH:mm')}"></span>
+                    <span th:text="'Reviewer: ' + ${post.reviewer?.user?.firstName ?: 'Unknown'} + ' ' + ${post.reviewer?.user?.lastName ?: ''}"></span>
+                    —
+                    <span th:text="${#temporals.format(post.date, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"></span>
                 </p>
-                <p class="text-gray-800 mb-2" th:text="${post.body}"></p>
+                <p class="text-gray-800 mb-2" th:text="${post.body ?: 'No content'}"></p>
 
-                <!-- Bloc conditionnel pour les rapports -->
-                <div th:if="${post instanceof T(fr.upsaclay.easychair.model.Report)}" class="text-sm text-gray-700 bg-gray-50 p-3 rounded">
-                    <p><strong>Grade:</strong> <span th:text="${post.grade}"></span></p>
-                    <p><strong>Specificity Degree:</strong> <span th:text="${post.specDegree}"></span></p>
+                <div th:if="${post instanceof T(fr.upsaclay.easychair.model.Report)}"
+                     class="text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                    <p><strong>Grade:</strong> <span th:text="${post.grade ?: 'N/A'}"></span></p>
+                    <p><strong>Specificity Degree:</strong> <span th:text="${post.specDegree ?: 'N/A'}"></span></p>
                 </div>
+            </div>
+            <div th:if="${evalView.evaluation.posts == null or evalView.evaluation.posts.isEmpty()}"
+                 class="text-gray-600 text-sm">
+                No posts available for this evaluation.
             </div>
         </div>
     </div>
 
-    <div th:if="${evaluations == null or evaluations.isEmpty()}" class="text-center text-gray-600 mt-10">
+    <div th:if="${evaluationViews == null or evaluationViews.isEmpty()}"
+         class="text-center text-gray-600 mt-10">
         No evaluations found.
     </div>
 </div>

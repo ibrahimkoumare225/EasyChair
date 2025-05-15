@@ -1,13 +1,11 @@
 package fr.upsaclay.easychair.config;
 
-import fr.upsaclay.easychair.config.CustomUserDetailsService;
 import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -34,23 +32,29 @@ public class SecurityConfig {
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll())
-                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/public/**").permitAll()
-                        .requestMatchers("/", "/conference", "/conference/searchConferences", "/login", "/register", "/post-login").permitAll()
-
-                        .requestMatchers("/conference/ajouterConference", "/conference/myConference", "/conference/myNotification", "/conference/myRoleRequests", "/conference/requestRole/**","/conference/conferenceDetail/**").authenticated()
-                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}", "/conference/update", "/conference/acceptRoleRequest/**", "/conference/rejectRoleRequest/**").hasRole("ORGANIZER")
-                        .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**","/submissions/save",
-                                "submissions/modifierSubmission","submissions/update","/submissions/{submissionId}/files").hasRole("AUTHOR")
-                                .requestMatchers("submissions/conference/**").authenticated()
-                                .requestMatchers("/submissions/submissionDetail/**").hasAnyRole("AUTHOR", "REVIEWER","ORGANIZER")
-                                .requestMatchers("/submissions/**").hasRole("REVIEWER")
-//                        .requestMatchers("/submissions/**").hasAnyRole("AUTHOR", "REVIEWER")
-//                        "/submissions/submissionDetail/{id}")
+                        .requestMatchers("/", "/conference", "/conference/searchConferences",
+                                "/login", "/register", "/post-login").permitAll()
+                        // Conference endpoints
+                        .requestMatchers("/conference/ajouterConference", "/conference/myConference",
+                                "/conference/myNotification", "/conference/myRoleRequests",
+                                "/conference/requestRole/**", "/conference/conferenceDetail/**").authenticated()
+                        .requestMatchers("/conference/deleteConference/**", "/conference/conference/{id}",
+                                "/conference/update", "/conference/acceptRoleRequest/**",
+                                "/conference/rejectRoleRequest/**").hasRole("ORGANIZER")
+                        // Submission endpoints
+                        .requestMatchers("/submissions/ajouterSubmission", "/submissions/user/**",
+                                "/submissions/save", "/submissions/modifierSubmission",
+                                "/submissions/update").hasRole("AUTHOR")
+                        .requestMatchers("/submissions/conference/**").authenticated()
+                        .requestMatchers("/submissions/submissionDetail/**").hasAnyRole("AUTHOR", "REVIEWER", "ORGANIZER")
+                        // Evaluation endpoints
+                        .requestMatchers("/evaluations/**").hasRole("REVIEWER")
+                        // Admin endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-
+                        // Catch-all
                         .anyRequest().authenticated()
                 )
                 .formLogin((login) -> login
