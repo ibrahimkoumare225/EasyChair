@@ -35,5 +35,7 @@ public interface ConferenceService {
 
     List<Conference> findConferencesByReviewerEmail(String email);
 
+    boolean isCreatingSubAvailable(Long conferenceID);
 
+    boolean isModifyingSubAvailable(Long conferenceID);
 }

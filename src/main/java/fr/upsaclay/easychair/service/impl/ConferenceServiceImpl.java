@@ -181,7 +181,31 @@ public class ConferenceServiceImpl implements ConferenceService {
         }
     }
 
+    @Override
+    public boolean isCreatingSubAvailable(Long conferenceID) {
+        Optional<Conference> opt= findOne(conferenceID);
+        if (opt.isPresent()) {
+            Conference conf = opt.get();
+            return conf.getPhase().equals(Phase.ABSTRACT_SUBMISSION);
+        }
+        else{
+            throw new IllegalArgumentException("Bad ID");
+        }
+    }
 
+    @Override
+    public boolean isModifyingSubAvailable(Long conferenceID) {
+        Optional<Conference> opt= findOne(conferenceID);
+        if (opt.isPresent()) {
+            Conference conf = opt.get();
+            return conf.getPhase().equals(Phase.ABSTRACT_SUBMISSION)||
+                    conf.getPhase().equals(Phase.CONCRETE_SUBMISSION)||
+                    conf.getPhase().equals(Phase.FINAL_SUBMISSION);
+        }
+        else{
+            throw new IllegalArgumentException("Bad ID");
+        }
+    }
 
 
     @Scheduled(cron="0 35 19 * * *")
