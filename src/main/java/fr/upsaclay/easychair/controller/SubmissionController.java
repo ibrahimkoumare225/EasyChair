@@ -87,9 +87,7 @@ public class SubmissionController {
             Optional<Conference> conference = conferenceService.findOne(conferenceId);
             if (conference.isPresent()) {
                 logger.debug("Founded conference ID :{}", conference.get().getId());
-                List<Conference> conferences = conferenceService.findConferencesByAuthorEmail(authentication.getName());
-                Optional<Author> matchedAuthor = conferences.stream()
-                        .flatMap(c -> c.getAuthors().stream())
+                Optional<Author> matchedAuthor = conference.get().getAuthors().stream()
                         .filter(author -> author.getUser().getEmail().equals(authentication.getName()))
                         .findFirst();
                 logger.debug(" Matching conference  with Author");
@@ -106,7 +104,8 @@ public class SubmissionController {
                     model.addAttribute("submission", submission);
                     return "dynamic/submission/submissionForm";
                 } else {
-                    logger.warn("No match with of conference {} for Author with user {}", conference.get().getId(), authentication.getName());
+                    logger.warn("No match with  conference {} for Author {} : has conference {} ", conference.get().getId(),
+                            matchedAuthor.get().getId(),matchedAuthor.get().getConference().getId(), authentication.getName());
                     return "redirect:/conference";
                 }
 

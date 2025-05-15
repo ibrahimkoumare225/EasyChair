@@ -5,6 +5,7 @@ import fr.upsaclay.easychair.model.Author;
 import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.Organizer;
 import fr.upsaclay.easychair.model.Reviewer;
+import fr.upsaclay.easychair.model.enumates.Phase;
 import fr.upsaclay.easychair.repository.AuthorRepository;
 import fr.upsaclay.easychair.repository.ConferenceRepository;
 import fr.upsaclay.easychair.repository.OrganizerRepository;
@@ -14,8 +15,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -158,5 +161,53 @@ public class ConferenceServiceImpl implements ConferenceService {
             return new ArrayList<>();
         }
     }
+
+
+
+
+    @Scheduled(cron="0 52 17 * * *")
+    public void  checkPhase() {
+        System.out.println("CHECK PHASE ");
+        List<Conference> confToCheck = conferenceRepository.findConferencesByPhaseIsNot(Phase.CLOSED);
+        LocalDate today = LocalDate.now();
+        for (Conference conference : confToCheck) {
+            switch (conference.getPhase()) {
+                case INITIALIZATION -> {if (!today.isBefore(conference.getCommiteeAssignmentDate())) {
+                    conference.setPhase(Phase.COMMITEE_ASSIGNMENT);
+                    update(conference);
+                }}
+               case COMMITEE_ASSIGNMENT -> {if (!today.isBefore(conference.getAbstractSubDate())) {
+                   conference.setPhase(Phase.ABSTRACT_SUBMISSION);
+                   update(conference);
+               }}
+               case ABSTRACT_SUBMISSION -> {if (!today.isBefore(conference.getSubAssignmentDate())) {
+                    conference.setPhase(Phase.SUBMISSION_ASSIGNMENT);
+                    update(conference);
+               }}
+                case SUBMISSION_ASSIGNMENT -> {if (!today.isBefore(conference.getConcreteSubDate())) {
+                    conference.setPhase(Phase.CONCRETE_SUBMISSION);
+                    update(conference);
+                }}
+                case CONCRETE_SUBMISSION -> {if (!today.isBefore(conference.getEvaluationDate())){
+                    conference.setPhase(Phase.EVALUATION);
+                    update(conference);
+                }}
+                case EVALUATION -> {if (!today.isBefore(conference.getFinalSubDate())){
+                    conference.setPhase(Phase.FINAL_SUBMISSION);
+                    update(conference);
+                }}
+                case FINAL_SUBMISSION -> {if (!today.isBefore(conference.getValidationDate())) {
+                    conference.setPhase(Phase.VALIDATION);
+                    update(conference);
+                }}
+                case VALIDATION -> {if (!today.isBefore(conference.getEndDate())){
+                    conference.setPhase(Phase.CLOSED);
+                    update(conference);
+                }}
+            }
+
+        }
+    }
+
 
 }

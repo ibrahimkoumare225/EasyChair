@@ -26,12 +26,17 @@
 
     <div class="mb-4 flex space-x-6">
       <div class="flex-1">
-        <label class="block font-semibold mb-1">Date of creation:</label>
+        <label class="block font-semibold mb-1">Date of creation :</label>
         <span class="text-black font-medium" th:text="${submission.creationDate}"></span>
       </div>
+
       <div class="flex-1">
-        <label class="block font-semibold mb-1">Statut:</label>
+        <label class="block font-semibold mb-1">Statut :</label>
         <span class="text-black font-medium" th:text="${submission.status}"></span>
+
+        <!-- Nouveau label ajouté ici -->
+        <label class="block font-semibold mt-2">Conference phase :</label>
+        <span class="text-black font-medium" th:text="${submission.conference.phase}"></span>
       </div>
     </div>
     <!-- colonnes -->
@@ -116,7 +121,7 @@
         </button>
 
       </form>
-    </div>
+
     <!-- TODO: evaluate -->
     <form th:action="@{/reports/ajouterReport}" method="post" th:if="${submission.evaluation != null}" >
       <input type="hidden" name="evaluationId" th:value="${submission.evaluation.id}" />
@@ -124,13 +129,14 @@
         Evaluate
       </button>
     </form>
+    </div>
 
   </div>
 </div>
 <script>
   // Fonction pour confirmer la suppression d'un fichier
   function confirmDeletion(event) {
-    return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?');
+    return confirm('Are you sure to delete this submission ?');
   }
 </script>
 </body>

@@ -14,7 +14,7 @@ VALUES
         'Sample Conference',
         'This is a sample conference description.',
         CURRENT_DATE,
-        DATEADD('DAY', 10, CURRENT_DATE),
+         CURRENT_DATE,
         DATEADD('DAY', 20, CURRENT_DATE),
         DATEADD('DAY', 30, CURRENT_DATE),
         DATEADD('DAY', 40, CURRENT_DATE),
