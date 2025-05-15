@@ -11,9 +11,8 @@ import java.util.Optional;
 public interface ReviewerRepository extends JpaRepository<Reviewer, Long> {
     List<Reviewer> findByUserId(Long userId);
     List<Reviewer> findByConferenceId(Long conferenceId);
-    void deleteByConferenceId(Long conferenceId);
-    @Query("SELECT r FROM Reviewer r WHERE r.user.email = :email")
-    List<Reviewer> findByUserEmail(@Param("email") String email);
+
+    List<Reviewer> findByUserEmail(String email);
 
     @Query("SELECT r FROM Reviewer r WHERE r.conference.id = :conferenceId AND r.user.email = :email")
     Optional<Reviewer> findByConferenceIdAndUserEmail(@Param("conferenceId") Long conferenceId, @Param("email") String email);

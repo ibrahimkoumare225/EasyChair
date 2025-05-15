@@ -39,7 +39,8 @@ public class ReviewerServiceImpl implements ReviewerService {
 
     @Override
     public Optional<Reviewer> findByUserId(Long userId) {
-        return reviewerRepository.findById(userId);
+        List<Reviewer> reviewers = reviewerRepository.findByUserId(userId);
+        return reviewers.isEmpty() ? Optional.empty() : Optional.of(reviewers.get(0));
     }
 
 }

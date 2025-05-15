@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ConferenceService {
 
-    public List<Conference> findAllWithOrganizers();
+    List<Conference> findAllWithOrganizers();
 
     List<Conference> findAll();
 
@@ -26,4 +26,10 @@ public interface ConferenceService {
     /*List<Conference> searchByTerm(String searchTerm);*/
 
     List<Conference> findConferencesByUserEmail(String email);
+
+    List<Conference> findConferencesByOrganizerEmail(String email);
+
+    List<Conference> findConferencesByAuthorEmail(String email);
+
+    List<Conference> findConferencesByReviewerEmail(String email);
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Alert</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!-- Sidebar -->
+<div th:replace="~{sidebar/sidebar :: sideBar}"></div>
+
+<!-- Main content -->
+<div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Create Alert</h1>
+
+    <form th:action="@{/alerts/saveAlert/{id}(id=${id_submission})}" th:object="${alert}" method="post"
+          class="bg-white rounded-2xl shadow-md p-8 w-full max-w-4xl border border-gray-300 mt-10 mx-auto space-y-6">
+
+        <!-- Hidden fields -->
+        <input type="hidden" th:field="*{submission.id}" />
+        <input type="hidden" th:field="*{reviewer.id}" />
+        <input type="hidden" th:field="*{organizer.id}" />
+
+        <!-- Message -->
+        <div>
+            <label class="block font-semibold mb-2 text-gray-800">Message:</label>
+            <textarea th:field="*{body}" rows="4"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      placeholder="Enter alert message..."></textarea>
+        </div>
+
+        <!-- Alert Type -->
+        <div>
+            <label class="block font-semibold mb-2 text-gray-800">Alert Type:</label>
+            <select th:field="*{type}"
+                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                <option value="CONTENT_REPORT">Content Report</option>
+                <option value="CONFLICT_OF_INTEREST">Conflict of Interest</option>
+            </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-4 pt-4">
+            <button type="reset"
+                    class="bg-gray-200 hover:bg-gray-300 text-black px-6 py-2 rounded-lg font-semibold shadow">
+                Cancel
+            </button>
+            <button type="submit"
+                    class="bg-blue-300 hover:bg-blue-400 text-white px-6 py-2 rounded-lg font-semibold shadow">
+                Submit Alert
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

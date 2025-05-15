@@ -16,6 +16,8 @@ public interface EvaluationService {
     List<Evaluation> findAll();
     void delete(Long id);
 
+    List<Evaluation> findByReviewerUserId(Long userId);
+
 
     //@Todo getSpecDegree , getGrade
 }

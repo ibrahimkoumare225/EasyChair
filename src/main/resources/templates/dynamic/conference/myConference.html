@@ -59,7 +59,7 @@
                        class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm">
                         Edit
                     </a>
-                    <form th:action="@{/conference/delete/{id}(id=${view.conference.id})}" method="post" class="inline"
+                    <form th:action="@{/conference/deleteConference/{id}(id=${view.conference.id})}" method="post" class="inline"
                           th:if="${view.userRoles.contains(T(fr.upsaclay.easychair.model.enumates.RoleType).ORGANIZER)}">
                         <button type="submit"
                                 class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium py-1.5 px-3 rounded transition text-sm"

@@ -53,12 +53,12 @@ public class AuthController {
         // Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Set default role (AUTHOR)
+        /*// Set default role (AUTHOR)
         Role role = new Role();
         role.setRoleType(RoleType.AUTHOR);
         role.setUser(user);
         user.setRoles(new ArrayList<>());
-        user.getRoles().add(role);
+        user.getRoles().add(role);*/
 
         // Set birthDate (required field)
         user.setBirthDate(LocalDate.now()); // Adjust as needed (e.g., accept from form)

@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Welcome to EasyChair</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/script.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
 <!--Insertion de la navbar-->
-<div th:replace="sidebar/sidebar::sideBar"></div>
+<div th:replace="~{sidebar/sidebar::sideBar}"></div>
 
 <div class="relative flex justify-center mt-10">
     <!-- Chevron gauche très rapproché -->
@@ -20,16 +21,14 @@
         <!-- Formulaire -->
             <form th:object="${submission}"
                   th:action="${submission.id == null} ? @{/submissions/save} : @{/submissions/update}"
-                  method="post">
 
+                  method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" th:field="*{authors[0].id}" />
                 <input type="hidden" th:field="*{conference.id}" />
 
                 <!-- Champ ID caché pour l'édition -->
                 <input type="hidden" th:field="*{id}" th:if="${submission.id != null}" />
-
-
-
 
                 <div class="bg-gray-100 rounded-2xl shadow-md p-8 w-full max-w-4xl border border-gray-300">
                     <h2 class="text-xl font-bold text-center mb-6"
@@ -77,20 +76,11 @@
                         </div>
 
                         <!-- Liste des mots-clés -->
-                        <div class="space-y-1">
-                            <div class="flex items-center space-x-2">
-                                <span class="font-semibold">Keyword 1 :</span> <span>test</span>
-                                <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="font-semibold">Keyword 2 :</span> <span>test</span>
-                                <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="font-semibold">Keyword 3 :</span> <span>test</span>
-                                <button class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
-                            </div>
+                        <div id="keywords-container" class="space-y-1">
+
                         </div>
+
+                        <input type="hidden" name="keywordList" id="keywordList" />
                     </div>
                 </div>
 
@@ -117,27 +107,56 @@
 
 
 
-                <!-- Ajout de fichier -->
-                <!-- grisé si pas bonne phase -->
+                    <form></form>
+                    <!-- Conteneur pour afficher la liste des fichiers -->
+                    <!-- Tableau des fichiers -->
+                    <div class="mb-6">
+                        <label class="block font-semibold mb-1">Files:</label>
+                        <table class="min-w-full bg-white border border-gray-300">
+                            <thead>
+                            <tr>
+                                <th class="py-2 px-4 border-b">File Name</th>
+                                <th class="py-2 px-4 border-b">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- Formulaire d'upload de fichier -->
+                            <!--<form th:action="@{'/submissions/'+${submission.id} + '/files/' + ${file}'/delete'}"-->
+                            <div class="my-4 p-4 border rounded">
+                                <form th:action="@{'/submissions/' + ${submission.id} + '/files/upload'}"
+                                      method="post" enctype="multipart/form-data" class="flex items-center gap-4">
+                                    <input type="file" name="file" class="border p-1" required />
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">
+                                        Upload
+                                    </button>
+                                </form>
+                            </div>
+                            <tr th:each="file : ${files}">
+                                <td class="py-2 px-4 border-b" th:text="${file}">File Name</td>
+                                <td class="py-2 px-4 border-b">
+                                    <!-- Bouton de téléchargement -->
+                                    <a th:href="@{'/submissions/' + ${submission.id} + '/files/' + ${file}}"
+                                       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">
+                                        Download
+                                    </a>
+                                    <!-- Bouton de suppression -->
+                                    <!--<form th:action="@{'/submissions/'+${submission.id} + '/files/' + ${file}'/delete'}"-->
+                                        <form method="post" th:action="@{'/submissions/' + ${submission.id} + '/files/' + ${file} + '/delete'}">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div class="flex items-center space-x-3 mb-6">
-                    <button
-                            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow
-                   hover:bg-gray-300
-                   disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed hover:disabled:bg-gray-300
-                   disabled:opacity-50 transition disabled:transition-none"
-                            th:disabled="${submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION
-                          and submission.conference.phase != T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION}">
-                        Add a file
-                    </button>
-
-                    <input type="text" placeholder="No file selected"
-                           class="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white" />
-                </div>
 
 
 
-                <!-- Soumission -->
+
+                    <!-- Soumission -->
 
                 <div class="text-center">
                     <button
@@ -149,5 +168,50 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const addButton = Array.from(document.querySelectorAll("button")).find(btn => btn.textContent.trim() === "Add Keyword");
+        const keywordInput = document.querySelector("input[placeholder='Add keyword...']");
+        const keywordListInput = document.getElementById("keywordList");
+        const keywordsContainer = document.getElementById("keywords-container");
+
+        let keywords = [];
+
+        function updateKeywordInput() {
+            keywordListInput.value = keywords.join(",");
+        }
+
+        addButton?.addEventListener("click", (e) => {
+            e.preventDefault();
+            const keyword = keywordInput.value.trim();
+            if (!keyword || keywords.includes(keyword)) return;
+
+            keywords.push(keyword);
+            updateKeywordInput();
+
+            const keywordItem = document.createElement("div");
+            keywordItem.className = "flex items-center space-x-2";
+
+            const keywordText = document.createElement("span");
+            keywordText.textContent = keyword;
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "🗑️";
+            deleteButton.className = "text-red-600 hover:text-red-800 text-lg";
+            deleteButton.addEventListener("click", () => {
+                keywords = keywords.filter(k => k !== keyword);
+                updateKeywordInput();
+                keywordItem.remove();
+            });
+
+            keywordItem.appendChild(keywordText);
+            keywordItem.appendChild(deleteButton);
+            keywordsContainer.appendChild(keywordItem);
+
+            keywordInput.value = "";
+        });
+    });
+</script>
+
 </body>
 </html>

@@ -1,6 +1,7 @@
 package fr.upsaclay.easychair.service.impl;
 
 import fr.upsaclay.easychair.model.Alert;
+import fr.upsaclay.easychair.model.Submission;
 import fr.upsaclay.easychair.repository.AlertRepository;
 import fr.upsaclay.easychair.service.AlertService;
 import jakarta.persistence.EntityNotFoundException;
@@ -48,5 +49,11 @@ public class AlertServiceImpl implements AlertService {
             throw new IllegalArgumentException("Body peut pas être null");
         }
         return alertRepository.findByBodyIgnoreCase(body);
+    }
+
+    @Override
+    public boolean findAlertBySubmission(Submission submission)
+    {
+        return alertRepository.existsAlertBySubmission(submission);
     }
 }

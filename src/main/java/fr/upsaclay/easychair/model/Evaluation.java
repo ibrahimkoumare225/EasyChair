@@ -21,6 +21,6 @@ public class Evaluation {
     @JoinColumn(name="submission_id")
     private Submission submission;
 
-    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
 }
