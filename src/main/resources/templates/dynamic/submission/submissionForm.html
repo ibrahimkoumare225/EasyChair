@@ -20,7 +20,7 @@
     <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-2xl">
         <!-- Formulaire -->
             <form th:object="${submission}"
-                  th:action="${submission.id == null} ? @{/submissions/save} : @{/submissions/update}"
+                  th:action="@{${submission.id == null ? '/submissions/save' : '/submissions/update'}}"
 
                   method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -66,28 +66,30 @@
 
 
 
-                <!-- TODO: Keywords -->
-                <div class="space-y-4">
-                    <div class="mb-4">
-                        <label class="block font-semibold mb-1">Keywords :</label>
-                        <!-- Conteneur flexible et fluide -->
-                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <!-- Keywords -->
+                    <div class="space-y-4">
+                        <div class="mb-4">
+                            <label class="block font-semibold mb-1">Keywords :</label>
+                            <!-- Conteneur flexible et fluide -->
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <input type="text" id="keywordInput" class="w-48 border border-gray-300 rounded-md px-4 py-2 bg-white" placeholder="Add keyword..."/>
+                                <button type="button" id="addKeywordButton" class="shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full shadow">Add Keyword</button>
+                            </div>
 
-                            <!-- Champ de texte avec largeur réduite -->
-                            <input type="text" class="w-48 border border-gray-300 rounded-md px-4 py-2 bg-white" placeholder="Add keyword..."/>
+                            <!-- Liste des mots-clés -->
+                            <div id="keywords-container" class="space-y-1">
+                                <div th:each="keyword : ${submission.keywords}" class="flex items-center space-x-2">
+                                    <span th:text="${keyword}">Keyword</span>
+                                    <button type="button" class="text-red-600 hover:text-red-800 text-lg">🗑️</button>
+                                </div>
+                                <div th:if="${submission.keywords == null or submission.keywords.isEmpty()}" class="text-gray-400 italic" id="content-keyword-ini">
+                                    No keywords added yet.
+                                </div>
+                            </div>
 
-                            <!-- Bouton avec taille constante et espacée -->
-                            <button class="shrink-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full shadow">Add Keyword</button>
+                            <input type="hidden" name="keywordList" id="keywordList" />
                         </div>
-
-                        <!-- Liste des mots-clés -->
-                        <div id="keywords-container" class="space-y-1">
-
-                        </div>
-
-                        <input type="hidden" name="keywordList" id="keywordList" />
                     </div>
-                </div>
 
                 <!-- Abstract -->
                 <!-- Champ editable si non verrouillé -->
@@ -181,8 +183,8 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const addButton = Array.from(document.querySelectorAll("button")).find(btn => btn.textContent.trim() === "Add Keyword");
-        const keywordInput = document.querySelector("input[placeholder='Add keyword...']");
+        const addButton = document.getElementById("addKeywordButton");
+        const keywordInput = document.getElementById("keywordInput");
         const keywordListInput = document.getElementById("keywordList");
         const keywordsContainer = document.getElementById("keywords-container");
 
@@ -192,42 +194,61 @@
             keywordListInput.value = keywords.join(",");
         }
 
-        addButton?.addEventListener("click", (e) => {
-            e.preventDefault();
-            const keyword = keywordInput.value.trim();
-            if (!keyword || keywords.includes(keyword)) return;
-
-            keywords.push(keyword);
-            updateKeywordInput();
-
+        function createKeywordElement(kw) {
             const keywordItem = document.createElement("div");
             keywordItem.className = "flex items-center space-x-2";
 
             const keywordText = document.createElement("span");
-            keywordText.textContent = keyword;
+            keywordText.textContent = kw;
 
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "🗑️";
+            deleteButton.type = "button";
             deleteButton.className = "text-red-600 hover:text-red-800 text-lg";
             deleteButton.addEventListener("click", () => {
-                keywords = keywords.filter(k => k !== keyword);
+                keywords = keywords.filter(k => k !== kw);
                 updateKeywordInput();
                 keywordItem.remove();
+
+                if (keywords.length === 0) {
+                    const emptyMessage = document.createElement("div");
+                    emptyMessage.id = "content-keyword-ini";
+                    emptyMessage.className = "text-gray-400 italic";
+                    emptyMessage.textContent = "No keywords added yet.";
+                    keywordsContainer.appendChild(emptyMessage);
+                }
             });
 
             keywordItem.appendChild(keywordText);
             keywordItem.appendChild(deleteButton);
             keywordsContainer.appendChild(keywordItem);
+        }
 
+        // Charger les mots-clés existants
+        const existingKeywords = Array.from(keywordsContainer.querySelectorAll("span"))
+            .map(el => el.textContent);
+
+        if (existingKeywords.length > 0) {
+            keywordsContainer.innerHTML = "";
+            keywords = existingKeywords;
+            updateKeywordInput();
+            keywords.forEach(kw => createKeywordElement(kw));
+        }
+
+        addButton?.addEventListener("click", (e) => {
+            e.preventDefault();
+            const keyword = keywordInput.value.trim();
+            if (!keyword || keywords.includes(keyword)) return;
+
+            const emptyMessage = document.getElementById("content-keyword-ini");
+            if (emptyMessage) emptyMessage.remove();
+
+            keywords.push(keyword);
+            updateKeywordInput();
+            createKeywordElement(keyword);
             keywordInput.value = "";
         });
     });
-</script>
-<script>
-    // Fonction pour confirmer la suppression d'un fichier
-    function confirmDeletion(event) {
-        return confirm('Are you sure to delete this file ?');
-    }
 </script>
 
 </body>
