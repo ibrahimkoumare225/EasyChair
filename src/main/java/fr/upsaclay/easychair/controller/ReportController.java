@@ -1,7 +1,9 @@
 package fr.upsaclay.easychair.controller;
 
 import fr.upsaclay.easychair.model.*;
+import fr.upsaclay.easychair.model.enumates.RoleType;
 import fr.upsaclay.easychair.service.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -51,7 +54,6 @@ public class ReportController {
         }
 
         Optional<Report> report = reportService.findByEvaluationId(evaluationId);
-
         if (!report.isPresent()) {
             model.addAttribute("evaluation", evaluation.get());
             model.addAttribute("report", new Report());
@@ -60,6 +62,42 @@ public class ReportController {
             return "redirect:/posts/form/ajouterPost/" + evaluationId;
         }
     }
+
+    @GetMapping("/showReportSub/{id_submission}")
+    public String showReportSub(@PathVariable Long id_submission,
+                                Model model) {
+        List<Report> allReports = reportService.findAll();
+        List<Report> reportSub = new ArrayList<>();
+        List<User> users = new ArrayList<>();
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User connectedUser = userService.findByEmail(email).orElseThrow();
+        Long connectedUserId = connectedUser.getId();
+        Long myReportId = null;
+
+        for (Report report : allReports) {
+            if (report.getEvaluation().getSubmission().getId().equals(id_submission)) {
+                reportSub.add(report);
+                users.add(report.getReviewer().getUser());
+
+                // On identifie le rapport du reviewer connecté
+                if (report.getReviewer().getUser().getId().equals(connectedUserId)) {
+                    myReportId = report.getId();
+                }
+            }
+        }
+
+        if (reportSub.isEmpty()) {
+            return "error/403";
+        }
+
+        model.addAttribute("reports", reportSub);
+        model.addAttribute("reviewers", users); // inutile si tu passes les users via report
+        model.addAttribute("myReportId", myReportId); // ID du rapport de l'utilisateur connecté
+        return "dynamic/report/listReport";
+    }
+
+
 
     @PostMapping("/modifierReport")
     public String showUpdateReportForm(@RequestParam Long reportId, Model model) {
@@ -89,7 +127,20 @@ public class ReportController {
         report.setEvaluation(evaluation);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.findByEmail(email).orElseThrow();
-        Reviewer reviewer = reviewerService.findByUserId(user.getId()).orElseThrow();
+        List<Role> allRole = user.getRoles();
+        Reviewer reviewer = null;
+        for (Role role : allRole) {
+            if (role.getRoleType() == RoleType.REVIEWER &&
+                    role.getConference().getId().equals(evaluation.getSubmission().getConference().getId())) {
+                reviewer = (Reviewer) role; // C’est ici que tu récupères le bon reviewer
+                break;
+            }
+        }
+        if (reviewer == null) {
+            throw new RuntimeException("Reviewer not found for the current user and conference");
+        }
+
+        report.setReviewer(reviewer);
 
         report.setReviewer(reviewer);
         report.setDate(LocalDateTime.now());
