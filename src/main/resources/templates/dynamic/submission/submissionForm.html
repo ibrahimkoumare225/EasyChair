@@ -42,22 +42,27 @@
 
                 <div class="mb-4 flex space-x-6" th:unless="${submission.id==null}">
                     <!-- date de création (uniquement afficher si non null) -->
-                    <div class="flex-1">
-                        <label class="block font-semibold mb-1 text-gray-800">Date de création :</label>
-                        <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium">
-                            <span th:text="${submission.creationDate}"></span>
-                        </p>
+
+                        <!-- Colonne gauche -->
+                        <div class="flex-1">
+                            <label class="block font-semibold mb-1">Date of creation :</label>
+                            <span class="text-black font-medium" th:text="${submission.creationDate}"></span>
+                        </div>
+
+                        <!-- Colonne droite alignée à droite -->
+                        <div class="flex-1 flex flex-col items-end">
+                            <div>
+                                <label class="block font-semibold mb-1">Statut :</label>
+                                <span class="text-black font-medium" th:text="${submission.status}"></span>
+                            </div>
+
+                            <div class="mt-2">
+                                <label class="block font-semibold mb-1">Conference phase :</label>
+                                <span class="text-black font-medium" th:text="${submission.conference.phase}"></span>
+                            </div>
+                        </div>
                     </div>
 
-
-                <!-- statut (uniquement afficher si non null) -->
-                    <div class="flex-1">
-                        <label class="block font-semibold mb-1 text-gray-800">Statut :</label>
-                        <p class="px-4 py-2 border border-gray-300 rounded-md text-black font-medium">
-                            <span th:text="${submission.status}"></span>
-                        </p>
-                    </div>
-                </div>
 
 
 
@@ -110,7 +115,9 @@
                     <form></form>
                     <!-- Conteneur pour afficher la liste des fichiers -->
                     <!-- Tableau des fichiers -->
-                    <div class="mb-6">
+                    <div class="mb-6" th:if="${submission.id!=null &&
+                                             (submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).CONCRETE_SUBMISSION ||
+                                              submission.conference.phase==T(fr.upsaclay.easychair.model.enumates.Phase).FINAL_SUBMISSION)}">
                         <label class="block font-semibold mb-1">Files:</label>
                         <table class="min-w-full bg-white border border-gray-300">
                             <thead>
@@ -142,7 +149,8 @@
                                             Download
                                         </a>
                                         <!-- Bouton de suppression -->
-                                        <form method="post" th:action="@{'/submissions/' + ${submission.id} + '/files/' + ${file} + '/delete'}">
+                                        <form method="post" th:action="@{'/submissions/' + ${submission.id} + '/files/' + ${file} + '/delete'}"
+                                              onsubmit="return confirmDeletion(event)">
                                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                             <button type="submit" class="bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded">
                                                 Delete
@@ -214,6 +222,12 @@
             keywordInput.value = "";
         });
     });
+</script>
+<script>
+    // Fonction pour confirmer la suppression d'un fichier
+    function confirmDeletion(event) {
+        return confirm('Are you sure to delete this file ?');
+    }
 </script>
 
 </body>

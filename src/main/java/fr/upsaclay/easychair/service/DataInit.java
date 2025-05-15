@@ -1,7 +1,6 @@
 package fr.upsaclay.easychair.service;
 import fr.upsaclay.easychair.model.User;
 import fr.upsaclay.easychair.repository.UserRepository;
-import fr.upsaclay.easychair.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.Ordered;
@@ -12,9 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.time.LocalDate;
 
 @Component
@@ -34,6 +36,8 @@ public class DataInit implements CommandLineRunner, Ordered {
 
     @Autowired
     private UserRepository userRepository;
+
+
 
 
 
