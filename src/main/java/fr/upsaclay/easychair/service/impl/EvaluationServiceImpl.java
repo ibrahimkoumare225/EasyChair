@@ -42,4 +42,9 @@ public class EvaluationServiceImpl implements EvaluationService {
     public void delete(Long id) {
         evaluationRepository.deleteById(id);
     }
+
+    @Override
+    public List<Evaluation> findByReviewerUserId(Long userId) {
+        return evaluationRepository.findBySubmissionReviewersUserId(userId);
+    }
 }

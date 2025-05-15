@@ -7,14 +7,14 @@ import java.util.List;
 
 public interface FileStorageService {
 
-    public void initSubmissionDirectory(String submissionId);
+    void initSubmissionDirectory(String submissionId);
 
-    public List<String> listFiles(String submissionId);
+    List<String> listFiles(String submissionId);
 
-    public String save(String submisionId, MultipartFile file);
+    String save(String submisionId, MultipartFile file);
 
-    public Resource load (String submisionId, String filename);
+    Resource load(String submisionId, String filename);
 
-    public boolean delete (String submisionId, String filename);
+    boolean delete(String submisionId, String filename);
 
 }

@@ -70,7 +70,8 @@
   <!-- Buttons Section -->
   <div class="flex justify-between space-x-4 pt-6">
     <a th:href="@{/conference}" onclick="history.back();" class="bg-gray-300 hover:bg-gray-400 text-black px-6 py-2 rounded-lg font-semibold">Back</a>
-    <a th:href="@{/conference/conference/{id}(id=${conference.id})}" class="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold">Edit</a>
+    <a th:if="${isOrganizer}"
+            th:href="@{/conference/conference/{id}(id=${conference.id})}" class="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold">Edit</a>
   </div>
 
   <!-- Create Submission Section -->
