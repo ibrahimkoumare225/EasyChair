@@ -103,6 +103,11 @@ public class SubmissionController {
             return "redirect:/login";
         }
         try {
+            if(!conferenceService.isCreatingSubAvailable(conferenceId)){
+                logger.warn("Wrong phase for creating submission");
+                       return "redirect:/conference";
+            }
+
             Optional<Conference> conference = conferenceService.findOne(conferenceId);
             if (conference.isPresent()) {
                 logger.debug("Founded conference ID :{}", conference.get().getId());
@@ -149,9 +154,15 @@ public class SubmissionController {
             return "redirect:/login";
         }
         try {
+
             Optional<Submission> submission = submissionService.findOne(submissionId);
             if (submission.isEmpty()) {
                 logger.warn("Submission {} not found in database", submissionId);
+                return "redirect:/conference";
+            }
+
+            if(!conferenceService.isCreatingSubAvailable(submission.get().getConference().getId())){
+                logger.warn("Wrong phase for Modifying submission");
                 return "redirect:/conference";
             }
 
@@ -270,19 +281,21 @@ public class SubmissionController {
         Optional<Conference> conference = conferenceService.findOne(id_conference);
         List<Double> listMoyNote = new ArrayList<>();
         if (conference.isPresent()) {
-            Long id_user = conference.get().getOrganizers().get(0).getId();
+            Long id_user = conference.get().getOrganizers().get(0).getUser().getId();
+            logger.debug(" organizer userId {}", id_user);
             User user = userService.findOne(id_user).orElseThrow();
             model.addAttribute("user", user);
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
             User userConnected = userService.findByEmail(email).orElseThrow();
             boolean isOrganizer = id_user.equals(userConnected.getId());
-
+            boolean isReviewer  = reviewerRepository.findByConferenceIdAndUserEmail(id_conference, email).isPresent();
             List<Submission> submissions = submissionService.findSubmissionsByConference(conference.get());
             for (Submission submission : submissions) {
                 listMoyNote.add(moyenneNoteEval(submission.getEvaluation()));
             }
             model.addAttribute("moyennes", listMoyNote);
             model.addAttribute("isOrganizer", isOrganizer);
+            model.addAttribute("isReviewer",isReviewer);
             model.addAttribute("submissions", submissions); // Uniformiser le nom de l'attribut (submissions au lieu de submission)
             return "dynamic/submission/listSubmission";
         } else {

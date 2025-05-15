@@ -26,4 +26,6 @@ public interface SubmissionService {
     List<Submission> findSubmissionsByAuthor(User user);
 
     List <Submission> findSubmissionsByConference(Conference conference);
+
+
 }
