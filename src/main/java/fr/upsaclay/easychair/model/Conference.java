@@ -46,6 +46,9 @@ public class Conference {
     @Column(name = "final_sub_date")
     private LocalDate finalSubDate;
 
+    @Column(name = "validation_date")
+    private LocalDate validationDate;
+
     @Column(name = "end_date")
     private LocalDate endDate;
 
