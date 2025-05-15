@@ -54,6 +54,7 @@ public class SubmissionController {
         Optional<User> user = userService.findByEmail(authentication.getName());
         if (user.isPresent()) {
             List<Submission> submissions = submissionService.findSubmissionsByAuthor(user.get());
+            model.addAttribute("isOrganizer", false);
             model.addAttribute("submissions", submissions);
             model.addAttribute("user", user.get());
             return "/dynamic/submission/listSubmission"; // Nom de la vue Thymeleaf
@@ -135,7 +136,9 @@ public class SubmissionController {
 
 
     @GetMapping("/modifierSubmission")
-    public String showModifySubForm(@RequestParam Long submissionId, Model model, Authentication authentication) {
+    public String showModifySubForm(@RequestParam Long submissionId,
+                                    Model model,
+                                    Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
             logger.warn("Unauthenticated attempt to showModifySubForm");
@@ -388,7 +391,9 @@ public class SubmissionController {
 
     // PUT /submissions/{id}
     @PostMapping("/update")
-    public String updateSubmission(@ModelAttribute Submission submission, Authentication authentication,
+    public String updateSubmission(@ModelAttribute Submission submission,
+                                   @RequestParam("keywordList") String keywordList,
+                                   Authentication authentication,
                                    RedirectAttributes redirectAttributes) {
         logger.debug("Saving new submission: {}", submission);
 
@@ -430,6 +435,12 @@ public class SubmissionController {
         if (submissionToUpdate.get().getConference().getPhase().equals(Phase.CONCRETE_SUBMISSION)) {
             submissionToUpdate.get().setSubFiles(submission.getSubFiles());
         }
+        List<String> keywords = Arrays.stream(keywordList.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        submissionToUpdate.get().setKeywords(keywords);
         submissionService.update(submissionToUpdate.get());
 
         return "redirect:/conference";
