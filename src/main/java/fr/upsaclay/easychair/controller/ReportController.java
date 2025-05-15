@@ -115,7 +115,6 @@ public class ReportController {
                                @RequestParam Long id_evaluation,
                                @RequestParam("action") String action) {
 
-
         // Sinon, on continue pour créer un report
         Evaluation evaluation = evaluationService.findOne(id_evaluation)
                 .orElseThrow(() -> new RuntimeException("Evaluation not found"));

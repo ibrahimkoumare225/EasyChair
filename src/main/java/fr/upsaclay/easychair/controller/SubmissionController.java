@@ -70,16 +70,20 @@ public class SubmissionController {
         }
         Optional<Submission> submission = submissionService.findOne(id);
         if (submission.isPresent()) {
-            logger.debug("Founded submission ID :{}", submission.get().getId());
             Conference conference = submission.get().getConference();
+            Long id_user = conference.getOrganizers().get(0).getId();
+            logger.debug("Founded submission ID :{}", submission.get().getId());
             Long id_conference = conference.getId();
             String email = authentication.getName();
+            User userConnected = userService.findByEmail(email).orElseThrow();
+            boolean isOrganizer = id_user.equals(userConnected.getId());
             boolean isReviewer  = reviewerRepository.findByConferenceIdAndUserEmail(id_conference, email).isPresent();
             boolean isAuthor    = authorRepository.findByConferenceIdAndUserEmail(id_conference, email).isPresent();
 
             //Verif user est dans la conference
 //            List<Conference> conferences = conferenceService.findConferencesByUserEmail(authentication.getName());
 //            if (conferences.contains(submission.get().getConference())) {
+            model.addAttribute("isOrganizer", isOrganizer);
             model.addAttribute("isAuthor", isAuthor);
             model.addAttribute("isReviewer", isReviewer);
             model.addAttribute("submission", submission.get());
