@@ -246,6 +246,7 @@ public class ConferenceController {
                     .collect(Collectors.toList());
             
             conference.setKeywords(keywords);
+            conference.setCreationDate(existingConference.get().getCreationDate());
             logger.debug("Conference data before update: {}", conference);
             Conference updatedConference = conferenceService.update(conference);
             logger.info("Conference updated successfully with ID: {}", updatedConference.getId());
@@ -361,6 +362,7 @@ public class ConferenceController {
 
             Conference conference = conferenceOptional.get();
             model.addAttribute("conference", conference);
+            model.addAttribute("phaseDates", conferenceService.getPhasesWithDatesForConference(id));
 
             if (authentication != null && authentication.isAuthenticated()) {
                 String email = authentication.getName();

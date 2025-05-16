@@ -83,9 +83,8 @@ public class ConferenceServiceImpl implements ConferenceService {
             existingConf.setDescription(conference.getDescription());
             existingConf.setPhase(conference.getPhase());
             // Préserver creationDate si la nouvelle valeur est null
-            if (conference.getCreationDate() != null) {
-                existingConf.setCreationDate(conference.getCreationDate());
-            }
+          //  if (conference.getCreationDate() != null) {
+            ////} on ne met pas a jour la creation Date
             //mettre à jout les keywords
             if(conference.getKeywords()!=null){
                 existingConf.setKeywords(conference.getKeywords());
@@ -109,6 +108,9 @@ public class ConferenceServiceImpl implements ConferenceService {
             if (conference.getFinalSubDate() != null) {
                 existingConf.setFinalSubDate(conference.getFinalSubDate());
             }
+            if (conference.getValidationDate()!=null) {
+                existingConf.setValidationDate(conference.getFinalSubDate());
+            }
             if (conference.getEndDate() != null) {
                 existingConf.setEndDate(conference.getEndDate());
             }
@@ -120,6 +122,7 @@ public class ConferenceServiceImpl implements ConferenceService {
             existingConf.setAnonymousAuthors(conference.isAnonymousAuthors());
             existingConf.setRestrictedAccessSubmission(conference.isRestrictedAccessSubmission());
             existingConf.setAssignmentByOrganizer(conference.isAssignmentByOrganizer());
+
             return conferenceRepository.save(existingConf);
         }).orElseThrow(() -> new EntityNotFoundException("Conference introuvable avec l’ID : " + conference.getId()));
     }
@@ -206,9 +209,45 @@ public class ConferenceServiceImpl implements ConferenceService {
             throw new IllegalArgumentException("Bad ID");
         }
     }
+    public boolean checkDatesConference(Long conferenceID){
+        Optional<Conference>confOpt=findOne(conferenceID);
+        if (confOpt.isEmpty()) {
+            throw new IllegalArgumentException("Bad ID");
+        }
+        Conference conf = confOpt.get();
+        return conf.getCreationDate().isBefore(conf.getCommiteeAssignmentDate()) &&
+                conf.getCommiteeAssignmentDate().isBefore(conf.getAbstractSubDate()) &&
+                conf.getAbstractSubDate().isBefore(conf.getSubAssignmentDate()) &&
+                conf.getSubAssignmentDate().isBefore(conf.getConcreteSubDate()) &&
+                conf.getConcreteSubDate().isBefore(conf.getEvaluationDate()) &&
+                conf.getEvaluationDate().isBefore(conf.getFinalSubDate()) &&
+                conf.getFinalSubDate().isBefore(conf.getValidationDate()) &&
+                conf.getValidationDate().isBefore(conf.getEndDate());
+
+    }
+
+    public Map<Phase,LocalDate> getPhasesWithDatesForConference(Long conferenceID){
+        Optional<Conference> confopt = findOne(conferenceID);
+        if (confopt.isEmpty()) {
+            throw new IllegalArgumentException("Bad ID");
+        }
+        Conference conf = confopt.get();
+        LinkedHashMap<Phase,LocalDate> map = new LinkedHashMap<>();
+        map.put(Phase.INITIALIZATION,conf.getCreationDate());
+        map.put(Phase.COMMITEE_ASSIGNMENT,conf.getCommiteeAssignmentDate());
+        map.put(Phase.ABSTRACT_SUBMISSION,conf.getAbstractSubDate());
+        map.put(Phase.SUBMISSION_ASSIGNMENT,conf.getSubAssignmentDate());
+        map.put(Phase.CONCRETE_SUBMISSION,conf.getConcreteSubDate());
+        map.put(Phase.EVALUATION,conf.getEvaluationDate());
+        map.put(Phase.FINAL_SUBMISSION,conf.getFinalSubDate());
+        map.put(Phase.VALIDATION,conf.getValidationDate());
+        map.put(Phase.CLOSED,conf.getEndDate());
+        return map;
+
+    }
 
 
-    @Scheduled(cron="0 35 19 * * *")
+    @Scheduled(cron="0 0 0 * * *")
     public void  checkPhase() {
         System.out.println("CHECK PHASE ");
         List<Conference> confToCheck = conferenceRepository.findConferencesByPhaseIsNot(Phase.CLOSED);
