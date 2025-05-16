@@ -61,11 +61,14 @@
     <!-- Right Column: Phases List -->
     <div class="border border-gray-300 bg-gray-50 p-4 rounded-lg shadow-sm h-full">
       <h2 class="text-lg font-semibold text-gray-800 mb-2">Phases</h2>
-      <ul class="list-decimal list-inside text-gray-600 space-y-1">
-        <li th:each="phase : ${conference.phase}" th:text="${phase}">Submission Phase</li>
+      <ul class="text-gray-600 space-y-2" th:each="phaseEntry : ${phaseDates}">
+        <li class="grid grid-cols-2 gap-4 items-center bg-white p-2 rounded-lg shadow-sm">
+          <span class="font-medium text-gray-700" th:text="${phaseEntry.key}">Phase</span>
+          <span class="text-gray-500" th:text="${phaseEntry.value}">Date</span>
+        </li>
       </ul>
     </div>
-  </div>
+    </div>
 
   <!-- Buttons Section -->
   <div class="flex justify-between space-x-4 pt-6">

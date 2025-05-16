@@ -3,7 +3,9 @@ package fr.upsaclay.easychair.service;
 import fr.upsaclay.easychair.model.Conference;
 import fr.upsaclay.easychair.model.enumates.Phase;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ConferenceService {
@@ -38,4 +40,5 @@ public interface ConferenceService {
     boolean isCreatingSubAvailable(Long conferenceID);
 
     boolean isModifyingSubAvailable(Long conferenceID);
+    public Map<Phase, LocalDate> getPhasesWithDatesForConference(Long conferenceID);
 }
